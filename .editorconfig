@@ -1,0 +1,5 @@
+root = true
+
+# すべての対象ファイルをUTF-8で扱います
+[*]
+charset = utf-8

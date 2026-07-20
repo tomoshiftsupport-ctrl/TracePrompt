@@ -1,0 +1,37 @@
+<Window x:Class="TracePrompt.Views.RegionSelectorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="キャプチャ範囲を選択"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="#66000000"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        WindowStartupLocation="Manual"
+        Cursor="Cross"
+        FontFamily="Yu Gothic UI, Segoe UI"
+        KeyDown="OnWindowKeyDown">
+    <Canvas x:Name="RootCanvas"
+            Background="Transparent"
+            MouseLeftButtonDown="OnCanvasMouseLeftButtonDown"
+            MouseMove="OnCanvasMouseMove"
+            MouseLeftButtonUp="OnCanvasMouseLeftButtonUp">
+        <TextBlock Text="ドラッグしてキャプチャ範囲を選択してください（Esc で中止）"
+                   Foreground="White"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Canvas.Left="24"
+                   Canvas.Top="24"/>
+        <Rectangle x:Name="SelectionRectangle"
+                   Stroke="#FF3B82F6"
+                   StrokeThickness="2"
+                   Fill="#553B82F6"
+                   Visibility="Collapsed"/>
+        <TextBlock x:Name="SizeLabel"
+                   Foreground="White"
+                   FontSize="13"
+                   FontWeight="SemiBold"
+                   Visibility="Collapsed"/>
+    </Canvas>
+</Window>
