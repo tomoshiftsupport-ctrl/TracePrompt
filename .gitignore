@@ -400,6 +400,9 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# MSIX packaging (local Store submission tooling only; not for public repo)
+msix/
+
 # JetBrains Rider
 *.sln.iml
 .idea
