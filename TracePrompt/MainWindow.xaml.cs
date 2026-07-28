@@ -20,6 +20,8 @@ public partial class MainWindow : Window
     private readonly MainViewModel _viewModel;
     private CaptureRegionBorderWindow? _captureRegionBorderWindow;
     private RecordingControlToolbarWindow? _recordingControlToolbarWindow;
+    private bool _previewRequested;
+    private bool _wasSessionActive;
 
     public MainWindow()
     {
@@ -52,16 +54,134 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// 「自由クリップ」ラジオボタンのクリック: 毎回ドラッグ選択オーバーレイを開きます。
-    /// （既に自由クリップが選ばれている状態でクリックしても、選び直しとして再度開きます）。
+    /// 「範囲モード」ドロップダウンを開きます。手作りの Popup + StaysOpen 管理は実クリックで
+    /// 反応しないことがあったため、WPF 標準の ContextMenu に開閉・外側クリックでの自動ドロップ・
+    /// マウスキャプチャを任せています（左クリックで開く一般的なやり方です）。
     /// </summary>
-    private void OnFreeClipRadioButtonClick(object sender, RoutedEventArgs e)
+    private void OnRegionModeToggleButtonClick(object sender, RoutedEventArgs e)
     {
-        var overlay = new RegionSelectorWindow { Owner = this };
-        bool? ok = overlay.ShowDialog();
-        if (ok == true && overlay.SelectedRegion is { } region)
+        RegionModeContextMenu.PlacementTarget = RegionModeToggleButton;
+        RegionModeContextMenu.IsOpen = true;
+    }
+
+    /// <summary>
+    /// 範囲モードメニューで「全画面表示」を選んだとき: モードを切り替えます（メニューは選択で自動的に閉じます）。
+    /// 既に選択中でも ViewModel 側の PropertyChanged が飛ばないことがあるため、
+    /// チェックマーク（IsChecked）は毎回ここで両方とも明示的に設定し直します。
+    /// </summary>
+    private void OnSelectFullScreenModeClick(object sender, RoutedEventArgs e)
+    {
+        _viewModel.IsFullScreenRegionMode = true;
+        FullScreenModeMenuItem.IsChecked = true;
+        ClipModeMenuItem.IsChecked = false;
+    }
+
+    /// <summary>範囲モードメニューで「クリップ」を選んだとき（考え方は上と同じ）。</summary>
+    private void OnSelectClipModeClick(object sender, RoutedEventArgs e)
+    {
+        _viewModel.IsFreeClipRegionMode = true;
+        ClipModeMenuItem.IsChecked = true;
+        FullScreenModeMenuItem.IsChecked = false;
+    }
+
+    /// <summary>
+    /// キャプチャモードの「時間で」アイコンを選んだとき。
+    /// 既に選択中でも ViewModel 側の PropertyChanged が飛ばないことがあるため、
+    /// 見た目（IsChecked）は毎回ここで両方とも明示的に設定し直します。
+    /// </summary>
+    private void OnSelectIntervalCaptureModeClick(object sender, RoutedEventArgs e)
+    {
+        _viewModel.IsIntervalCaptureMode = true;
+        IntervalModeToggleButton.IsChecked = true;
+        OperationModeToggleButton.IsChecked = false;
+    }
+
+    /// <summary>キャプチャモードの「操作で」アイコンを選んだとき（考え方は上と同じ）。</summary>
+    private void OnSelectOperationCaptureModeClick(object sender, RoutedEventArgs e)
+    {
+        _viewModel.IsOnOperationCaptureMode = true;
+        OperationModeToggleButton.IsChecked = true;
+        IntervalModeToggleButton.IsChecked = false;
+    }
+
+    /// <summary>
+    /// 「撮影するモニターを選ぶ」ボタン: ComboBox を自前 Popup に入れる形は「Popup の中に Popup」となり、
+    /// ComboBox 自身のドロップダウンが正しく開閉できず2台目以降を選べないことがあったため、
+    /// クリックのたびにモニター一覧から ContextMenu を動的に組み立てて開きます。
+    /// クリックしてもチェックが付いたことをその場で確認できるよう、選択しても・一覧を更新しても
+    /// メニューは閉じずに開いたままにします（StaysOpenOnClick）。
+    /// </summary>
+    private void OnMonitorToggleButtonClick(object sender, RoutedEventArgs e)
+    {
+        var menu = new ContextMenu
         {
-            _viewModel.SetFreeClipRegion(region);
+            PlacementTarget = MonitorToggleButton,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom
+        };
+
+        var refreshItem = new MenuItem
+        {
+            Header = "一覧を更新",
+            Style = (Style)FindResource("RegionModeMenuItemStyle"),
+            // StaysOpenOnClick は「CheckBox / RadioButton 形式の MenuItem 用」の設定であり、
+            // 普通の（IsCheckable=False の）MenuItem では効かず、クリックで必ず閉じてしまいます。
+            // チェックマークは表示させない（IsChecked は常に false のまま）まま IsCheckable=True にして、
+            // StaysOpenOnClick を効かせます。
+            IsCheckable = true,
+            StaysOpenOnClick = true
+        };
+        refreshItem.Click += (_, _) =>
+        {
+            _viewModel.RefreshMonitorsCommand.Execute(null);
+            ReplaceMonitorEntries(menu);
+
+            // IsCheckable="True" にした副作用でクリックのたびに自分自身の IsChecked が
+            // 反転してしまう（そのままだとチェックマークが付いたり消えたりする）ため、
+            // 「一覧を更新」は常にチェックなしへ戻します。
+            refreshItem.IsChecked = false;
+        };
+        menu.Items.Add(refreshItem);
+        menu.Items.Add(new Separator());
+
+        ReplaceMonitorEntries(menu);
+        menu.IsOpen = true;
+    }
+
+    /// <summary>
+    /// モニター一覧部分（先頭の「一覧を更新」とその下の区切り線より後ろ）だけを作り直します。
+    /// 「一覧を更新」を押したときにその項目自身を含む Items 全体を Clear() すると、
+    /// クリック処理の最中に ContextMenu が閉じてしまうため、先頭2件（更新ボタン・区切り線）には
+    /// 一切触れず、モニター一覧の部分だけを削除・再追加します。
+    /// </summary>
+    private void ReplaceMonitorEntries(ContextMenu menu)
+    {
+        const int headerItemCount = 2; // 「一覧を更新」＋区切り線
+        while (menu.Items.Count > headerItemCount)
+        {
+            menu.Items.RemoveAt(menu.Items.Count - 1);
+        }
+
+        var monitorItems = new List<MenuItem>();
+        foreach (MonitorInfo monitor in _viewModel.Monitors)
+        {
+            var item = new MenuItem
+            {
+                Header = monitor.Label,
+                Style = (Style)FindResource("RegionModeMenuItemStyle"),
+                IsCheckable = true,
+                IsChecked = ReferenceEquals(monitor, _viewModel.SelectedMonitor),
+                StaysOpenOnClick = true
+            };
+            item.Click += (_, _) =>
+            {
+                _viewModel.SelectedMonitor = monitor;
+                foreach (MenuItem monitorItem in monitorItems)
+                {
+                    monitorItem.IsChecked = ReferenceEquals(monitorItem, item);
+                }
+            };
+            monitorItems.Add(item);
+            menu.Items.Add(item);
         }
     }
 
@@ -75,30 +195,76 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// キャプチャ範囲の枠と操作パネルを、今の設定に合わせて表示・配置・非表示します。
-    /// 「自由クリップ」「全画面」のどちらでも、範囲が決まっている間は常に薄い枠を表示し続けます。
+    /// 「キャプチャする」ボタン: 全画面モードでは選んだモニターに枠を表示するだけですが、
+    /// クリップモードでは表示を ON にするタイミングでドラッグ選択オーバーレイを先に開き、
+    /// 選び終わった範囲にそのまま枠を表示します（キャンセルした場合は何も変えません）。
+    /// 既に表示中のときは、選び直しなしでそのまま非表示に戻します。
+    /// </summary>
+    private void OnCaptureButtonClick(object sender, RoutedEventArgs e)
+    {
+        bool turningOn = !_previewRequested;
+
+        if (turningOn && _viewModel.IsFreeClipRegionMode)
+        {
+            var overlay = new RegionSelectorWindow { Owner = this };
+            bool? ok = overlay.ShowDialog();
+            if (ok != true || overlay.SelectedRegion is not { } region)
+            {
+                return;
+            }
+
+            _viewModel.SetFreeClipRegion(region);
+        }
+
+        _previewRequested = turningOn;
+        CaptureToggleButton.IsChecked = _previewRequested;
+        UpdateCaptureRegionOverlay();
+    }
+
+    /// <summary>
+    /// キャプチャ範囲の枠と、枠の左上に貼り付く操作パネルを、今の設定に合わせて表示・配置・非表示します。
+    /// 起動直後や範囲を選んだだけでは表示せず、「キャプチャする」ボタンで明示的に表示を求めたとき、
+    /// または記録中（一時停止中も含む）だけ表示します（枠は待機中は青、記録中はオレンジの点線）。
+    /// 記録を終了した直後は両方とも非表示にし、再度ボタンを押すか記録を始めるまで出しません。
     /// </summary>
     private void UpdateCaptureRegionOverlay()
     {
         WindowBounds? region = _viewModel.EffectiveCaptureRegion;
+
+        bool isSessionActive = _viewModel.IsSessionActive;
+        if (_wasSessionActive && !isSessionActive)
+        {
+            // ちょうど記録を終了した直後: 次に明示的にボタンを押すまでプレビューは出しません。
+            _previewRequested = false;
+            CaptureToggleButton.IsChecked = false;
+        }
+        _wasSessionActive = isSessionActive;
+
         if (region is null)
         {
             _captureRegionBorderWindow?.Hide();
             _recordingControlToolbarWindow?.Hide();
+            _previewRequested = false;
+            CaptureToggleButton.IsChecked = false;
             return;
         }
 
-        _captureRegionBorderWindow ??= new CaptureRegionBorderWindow();
-        _captureRegionBorderWindow.ApplyRegion(region.Value);
-        _captureRegionBorderWindow.Show();
-
-        if (_recordingControlToolbarWindow is null)
+        bool showOverlays = isSessionActive || _previewRequested;
+        if (showOverlays)
         {
-            _recordingControlToolbarWindow = new RecordingControlToolbarWindow { DataContext = _viewModel };
-        }
+            _captureRegionBorderWindow ??= new CaptureRegionBorderWindow { DataContext = _viewModel };
+            _captureRegionBorderWindow.ApplyRegion(region.Value);
+            _captureRegionBorderWindow.Show();
 
-        _recordingControlToolbarWindow.ApplyRegion(region.Value);
-        _recordingControlToolbarWindow.Show();
+            _recordingControlToolbarWindow ??= new RecordingControlToolbarWindow { DataContext = _viewModel };
+            _recordingControlToolbarWindow.ApplyRegion(region.Value);
+            _recordingControlToolbarWindow.Show();
+        }
+        else
+        {
+            _captureRegionBorderWindow?.Hide();
+            _recordingControlToolbarWindow?.Hide();
+        }
     }
 
     /// <summary>

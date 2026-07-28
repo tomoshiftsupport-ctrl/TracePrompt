@@ -138,6 +138,54 @@
             </Setter>
         </Style>
 
+        <!-- 範囲モードのドロップダウンメニュー（Snipping Tool の「四角形／ウィンドウ／全画面表示／フリーフォーム」
+             メニューを参考にした、アイコン＋文字の行）。手作りの Popup + StaysOpen 管理は
+             実機の実クリックで反応しないことがあったため、WPF 標準の ContextMenu / MenuItem に置き換え、
+             開閉・外側クリックでの自動ドロップ・マウスキャプチャをフレームワーク側に任せます。 -->
+        <!-- 「今どちらが選ばれているか」を分かりやすくするため、独自アイコンではなく
+             チェックマーク（✓）1つだけに統一します（IsCheckable="True" の行にだけ表示）。 -->
+        <Style x:Key="RegionModeMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
+            <Setter Property="Padding" Value="10,9"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="Bg" CornerRadius="6" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <DockPanel LastChildFill="True">
+                                <TextBlock x:Name="CheckGlyph"
+                                           DockPanel.Dock="Left"
+                                           Text="&#10003;"
+                                           FontWeight="Bold"
+                                           FontSize="14"
+                                           Foreground="{StaticResource Brush.Primary}"
+                                           Width="22"
+                                           VerticalAlignment="Center"
+                                           Visibility="Hidden"/>
+                                <ContentPresenter ContentSource="Header" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Brush.SurfaceAlt}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckGlyph" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RegionModeContextMenuStyle" TargetType="ContextMenu">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="HasDropShadow" Value="True"/>
+        </Style>
+
         <Style x:Key="ToolbarDividerStyle" TargetType="Border">
             <Setter Property="Width" Value="1"/>
             <Setter Property="Background" Value="{StaticResource Brush.Term.Border}"/>
@@ -191,98 +239,134 @@
                 BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Margin="10,8" VerticalAlignment="Center">
 
-                <!-- キャプチャ範囲: ドロップダウン（全画面／自由クリップ＋モニター選択） -->
-                <ToggleButton x:Name="RegionToggleButton"
-                              Style="{StaticResource ToolbarIconToggleButtonStyle}"
-                              ToolTip="キャプチャ範囲を選ぶ（全画面／自由クリップ）"
-                              IsEnabled="{Binding IsIdle}">
+                <!-- 範囲モード（全画面／クリップ）: Snipping Tool の「四角形／ウィンドウ／全画面表示／…」
+                     ドロップダウンを参考にしたメニュー形式。WPF 標準の ContextMenu を左クリックで開くことで、
+                     開閉・外側クリックでの自動ドロップ・マウスキャプチャの面倒な自前実装を避け、
+                     確実に反応する標準の仕組みに任せています。 -->
+                <Button x:Name="RegionModeToggleButton"
+                        Style="{StaticResource ToolbarNeutralButtonStyle}"
+                        ToolTip="キャプチャ範囲のモードを選ぶ（全画面表示／クリップ）"
+                        IsEnabled="{Binding IsIdle}"
+                        Click="OnRegionModeToggleButtonClick">
                     <StackPanel Orientation="Horizontal">
-                        <Rectangle Width="15" Height="11" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4"
-                                   StrokeDashArray="2,1.3" RadiusX="1.5" RadiusY="1.5"/>
-                        <TextBlock Text="&#9662;" Foreground="{StaticResource Brush.Term.TextDim}" FontSize="9"
-                                   Margin="4,0,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </ToggleButton>
-                <Popup PlacementTarget="{Binding ElementName=RegionToggleButton}"
-                       IsOpen="{Binding IsChecked, ElementName=RegionToggleButton, Mode=TwoWay}"
-                       StaysOpen="False"
-                       AllowsTransparency="True"
-                       Placement="Bottom"
-                       HorizontalOffset="-8"
-                       VerticalOffset="6">
-                    <Border Background="White" CornerRadius="10" Padding="16"
-                            BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" MinWidth="260">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.22" Color="#0F1117"/>
-                        </Border.Effect>
-                        <StackPanel>
-                            <TextBlock Text="キャプチャ範囲" Style="{StaticResource LabelStyle}" Margin="0,0,0,10"/>
-                            <TextBlock Text="記録する画面範囲を選んでください。開始後はこの範囲に固定され、対象を追従しません。"
-                                       Style="{StaticResource HintTextStyle}" Margin="0,0,0,10"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                <RadioButton Content="全画面"
-                                             Style="{StaticResource SegmentedRadioButtonStyle}"
-                                             IsChecked="{Binding IsFullScreenRegionMode, Mode=TwoWay}"
-                                             GroupName="CaptureRegionModeGroup"
-                                             Margin="0,0,8,0"/>
-                                <RadioButton Content="自由クリップ"
-                                             Style="{StaticResource SegmentedRadioButtonStyle}"
-                                             IsChecked="{Binding IsFreeClipRegionMode, Mode=TwoWay}"
-                                             GroupName="CaptureRegionModeGroup"
-                                             Click="OnFreeClipRadioButtonClick"/>
-                            </StackPanel>
-
-                            <!-- 全画面: モニター選択 -->
-                            <Grid Margin="0,0,0,4">
-                                <Grid.Style>
-                                    <Style TargetType="Grid">
+                        <Grid Width="15" Height="12">
+                            <!-- 全画面表示アイコン: 実線の四角 -->
+                            <Rectangle Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" RadiusX="1.5" RadiusY="1.5">
+                                <Rectangle.Style>
+                                    <Style TargetType="Rectangle">
+                                        <Setter Property="Visibility" Value="Visible"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsFullScreenRegionMode}" Value="False">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Grid.Style>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <ComboBox Grid.Column="0"
-                                          Style="{StaticResource FieldComboBoxStyle}"
-                                          ItemsSource="{Binding Monitors}"
-                                          SelectedItem="{Binding SelectedMonitor}"
-                                          DisplayMemberPath="Label"
-                                          Margin="0,0,8,0"/>
-                                <Button Grid.Column="1"
-                                        Content="更新"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Width="64"
-                                        FontSize="12"
-                                        Command="{Binding RefreshMonitorsCommand}"/>
-                            </Grid>
-
-                            <!-- 自由クリップ: 選択済み範囲の読み取り表示（選び直しは上の「自由クリップ」をクリック） -->
-                            <TextBlock Text="{Binding CaptureRegionSummaryText}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource HintTextStyle}">
+                                </Rectangle.Style>
+                            </Rectangle>
+                            <!-- クリップアイコン: 破線の四角 -->
+                            <Rectangle Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeDashArray="2,1.3" RadiusX="1.5" RadiusY="1.5">
+                                <Rectangle.Style>
+                                    <Style TargetType="Rectangle">
+                                        <Setter Property="Visibility" Value="Visible"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsFreeClipRegionMode}" Value="False">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-                </Popup>
+                                </Rectangle.Style>
+                            </Rectangle>
+                        </Grid>
+                        <TextBlock Text="&#9662;" Foreground="{StaticResource Brush.Term.TextDim}" FontSize="9"
+                                   Margin="4,0,0,0" VerticalAlignment="Center"/>
+                        <StackPanel.ContextMenu>
+                            <ContextMenu x:Name="RegionModeContextMenu"
+                                         Style="{StaticResource RegionModeContextMenuStyle}"
+                                         DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"
+                                         Placement="Bottom">
+                                <MenuItem x:Name="FullScreenModeMenuItem"
+                                          Header="全画面表示"
+                                          Style="{StaticResource RegionModeMenuItemStyle}"
+                                          IsCheckable="True"
+                                          StaysOpenOnClick="True"
+                                          IsChecked="{Binding IsFullScreenRegionMode, Mode=OneWay}"
+                                          Click="OnSelectFullScreenModeClick"/>
+                                <MenuItem x:Name="ClipModeMenuItem"
+                                          Header="クリップ"
+                                          Style="{StaticResource RegionModeMenuItemStyle}"
+                                          IsCheckable="True"
+                                          StaysOpenOnClick="True"
+                                          IsChecked="{Binding IsFreeClipRegionMode, Mode=OneWay}"
+                                          Click="OnSelectClipModeClick"/>
+                            </ContextMenu>
+                        </StackPanel.ContextMenu>
+                    </StackPanel>
+                </Button>
+
+                <!-- モニター選択（全画面モードのときだけ表示）。
+                     ComboBox を自前 Popup の中に入れる形は「Popup の中に Popup」となり、
+                     ComboBox 自身のドロップダウンが正しく開閉できないことがあったため、
+                     範囲モードと同じく WPF 標準の ContextMenu（一覧はクリック時に動的生成）に置き換えています。 -->
+                <Button x:Name="MonitorToggleButton"
+                        Style="{StaticResource ToolbarNeutralButtonStyle}"
+                        ToolTip="撮影するモニターを選ぶ"
+                        IsEnabled="{Binding IsIdle}"
+                        Click="OnMonitorToggleButtonClick">
+                    <Button.Visibility>
+                        <Binding Path="IsFullScreenRegionMode">
+                            <Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter>
+                        </Binding>
+                    </Button.Visibility>
+                    <StackPanel Orientation="Horizontal">
+                        <!-- 「画面を選ぶ」アイコン: 全画面モードの四角アイコンと見分けやすいよう、
+                             画面の中に対角線を1本入れています（モニター選択の定番モチーフ）。 -->
+                        <Grid Width="14" Height="10">
+                            <Rectangle Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" RadiusX="1.5" RadiusY="1.5"/>
+                            <Line X1="2.5" Y1="7.5" X2="11.5" Y2="2.5" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Grid>
+                        <TextBlock Text="&#9662;" Foreground="{StaticResource Brush.Term.TextDim}" FontSize="9"
+                                   Margin="4,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
 
                 <Border Style="{StaticResource ToolbarDividerStyle}"/>
 
-                <!-- キャプチャモード: 時間で／操作で（クロック＝連続撮影、タップ＝操作トリガー） -->
-                <ToggleButton Style="{StaticResource ToolbarIconToggleButtonStyle}"
+                <!-- キャプチャする: 全画面モードでは選んだモニターに枠を表示、クリップモードでは
+                     ドラッグでの範囲選択操作を開始し、選び終わったらそのまま枠を表示します。
+                     もう一度押すと（選択操作なしで）枠を消します。 -->
+                <ToggleButton x:Name="CaptureToggleButton"
+                              Style="{StaticResource ToolbarIconToggleButtonStyle}"
+                              ToolTip="キャプチャする"
+                              IsEnabled="{Binding IsIdle}"
+                              Click="OnCaptureButtonClick">
+                    <Grid Width="16" Height="16">
+                        <!-- ビューファインダー風の四隅の角括弧 -->
+                        <Line X1="1" Y1="5" X2="1" Y2="1" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <Line X1="1" Y1="1" X2="5" Y2="1" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <Line X1="15" Y1="5" X2="15" Y2="1" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <Line X1="11" Y1="1" X2="15" Y2="1" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <Line X1="1" Y1="11" X2="1" Y2="15" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <Line X1="1" Y1="15" X2="5" Y2="15" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <Line X1="15" Y1="11" X2="15" Y2="15" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <Line X1="11" Y1="15" X2="15" Y2="15" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Grid>
+                </ToggleButton>
+
+                <Border Style="{StaticResource ToolbarDividerStyle}"/>
+
+                <!-- キャプチャモード: 時間で／操作で（クロック＝連続撮影、タップ＝操作トリガー）。
+                     CaptureMode の内部セッターは「今と同じ値なら何もせず return」するため、
+                     既に選ばれている方をもう一度押すと PropertyChanged が飛ばず、
+                     クリックで一旦崩れた見た目（ToggleButton 自身が内部で反転させる分）を
+                     バインディングが直しきれず「見た目だけ未選択に戻る」不具合になります
+                     （範囲モードのときと同じ落とし穴）。Click 側で毎回、両方の IsChecked を
+                     明示的に設定し直すことで、確実に正しい見た目にします。 -->
+                <ToggleButton x:Name="IntervalModeToggleButton"
+                              Style="{StaticResource ToolbarIconToggleButtonStyle}"
                               ToolTip="時間でキャプチャ：設定した枚/秒で連続撮影します"
-                              IsChecked="{Binding IsIntervalCaptureMode, Mode=TwoWay}">
+                              IsEnabled="{Binding IsIdle}"
+                              IsChecked="{Binding IsIntervalCaptureMode, Mode=OneWay}"
+                              Click="OnSelectIntervalCaptureModeClick">
                     <Grid Width="16" Height="16">
                         <Ellipse Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4"/>
                         <Line X1="8" Y1="8" X2="8" Y2="3" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4"
@@ -291,13 +375,16 @@
                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                     </Grid>
                 </ToggleButton>
-                <ToggleButton Style="{StaticResource ToolbarIconToggleButtonStyle}"
+                <ToggleButton x:Name="OperationModeToggleButton"
+                              Style="{StaticResource ToolbarIconToggleButtonStyle}"
                               ToolTip="操作でキャプチャ：指定したキー／マウス操作のときだけ撮影します"
-                              IsChecked="{Binding IsOnOperationCaptureMode, Mode=TwoWay}">
+                              IsEnabled="{Binding IsIdle}"
+                              IsChecked="{Binding IsOnOperationCaptureMode, Mode=OneWay}"
+                              Click="OnSelectOperationCaptureModeClick">
+                    <!-- マウスカーソル風の矢印アイコン（操作トリガーの定番モチーフ） -->
                     <Grid Width="16" Height="16">
-                        <Ellipse Width="6" Height="6" Fill="{StaticResource Brush.Term.Text}"/>
-                        <Ellipse Width="11" Height="11" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1" Opacity="0.75"/>
-                        <Ellipse Width="16" Height="16" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1" Opacity="0.4"/>
+                        <Polygon Points="2,1 2,11.5 5,8.8 7,13 8.6,12.2 6.6,8 10.5,8"
+                                 Fill="{StaticResource Brush.Term.Text}"/>
                     </Grid>
                 </ToggleButton>
 
