@@ -6,143 +6,56 @@
         mc:Ignorable="d"
         Title="{Binding AppName}"
         Icon="Assets/app.ico"
-        Height="860"
-        Width="1040"
-        MinHeight="640"
-        MinWidth="900"
-        Background="{StaticResource Brush.Bg}"
+        Width="400"
+        SizeToContent="Height"
+        ResizeMode="CanMinimize"
+        Background="{StaticResource Brush.Term.Bg}"
         FontFamily="Yu Gothic UI, Segoe UI"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
 
-        <!-- ステータスバー本体: 状態で配色が変わります -->
-        <Style x:Key="StatusBarStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Brush.PrimarySoft}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource Brush.Primary}"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsRecording}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Brush.DangerSoft}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource Brush.Danger}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsPaused}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Brush.WarningSoft}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource Brush.WarningBorder}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="StatusAccentStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Brush.Primary}"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsRecording}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Brush.Danger}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsPaused}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Brush.Warning}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="StatusBadgeStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Brush.Primary}"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsRecording}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Brush.Danger}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsPaused}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Brush.Warning}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- 現在の状態ピル（画面上部） -->
-        <Style x:Key="StatePillStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Brush.SurfaceAlt}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsRecording}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Brush.DangerSoft}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource Brush.DangerBorder}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsPaused}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Brush.WarningSoft}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource Brush.WarningBorder}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="StateDotStyle" TargetType="Ellipse">
-            <Setter Property="Width" Value="9"/>
-            <Setter Property="Height" Value="9"/>
-            <Setter Property="Fill" Value="{StaticResource Brush.TextMuted}"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsRecording}" Value="True">
-                    <Setter Property="Fill" Value="{StaticResource Brush.Danger}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsPaused}" Value="True">
-                    <Setter Property="Fill" Value="{StaticResource Brush.Warning}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="StateTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsRecording}" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource Brush.Danger}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsPaused}" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource Brush.Warning}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- ステータスバー右端に置く記録開始（青）⇔ 記録停止（赤）トグル。
-             システムの主操作なので、常設の浮き上がり影＋記録中は赤いグローが脈打つ「特別扱い」の見た目にします。 -->
-        <Style x:Key="StatusToggleButtonStyle" TargetType="Button">
+        <!-- ツールバー主操作（開始／再開）の下地: 常設シャドウ＋記録中は赤グローが脈打つ丸ボタン。
+             Snipping Tool の1段アイコンツールバーを参考に、テキストラベルなしのアイコンのみで構成します。 -->
+        <Style x:Key="ToolbarPrimaryToggleStyle" TargetType="Button">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="{StaticResource Brush.Primary}"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="300"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <!-- 影とグローは文字の背後に別レイヤーとして重ねる（Effect を文字と同じ要素にかけると
-                             ClearType が無効化されぼやけるため、テキストを含む層には一切 Effect をかけない） -->
                         <Grid>
-                            <!-- 常設の浮き上がり影: ほかの平坦なボタンと明確に差をつける -->
-                            <Border CornerRadius="24" Background="{TemplateBinding Background}">
+                            <Border CornerRadius="17" Background="{TemplateBinding Background}">
                                 <Border.Effect>
-                                    <DropShadowEffect Color="#1A1A2E" BlurRadius="14" ShadowDepth="2" Opacity="0.3"/>
+                                    <DropShadowEffect Color="#0B0D14" BlurRadius="10" ShadowDepth="1" Opacity="0.35"/>
                                 </Border.Effect>
                             </Border>
                             <!-- 記録中だけ脈打つ赤いグロー（既定は不可視） -->
-                            <Border CornerRadius="24" Background="{TemplateBinding Background}">
+                            <Border CornerRadius="17" Background="{TemplateBinding Background}">
                                 <Border.Effect>
                                     <DropShadowEffect x:Name="Glow" Color="#DC2626" BlurRadius="0" ShadowDepth="0" Opacity="0"/>
                                 </Border.Effect>
                             </Border>
-                            <!-- 本体（塗り＋文字）: Effect なしでくっきり描画 -->
                             <Border x:Name="Bg"
-                                    CornerRadius="24"
+                                    CornerRadius="17"
                                     Background="{TemplateBinding Background}"
-                                    Padding="{TemplateBinding Padding}"
                                     SnapsToDevicePixels="True"
                                     UseLayoutRounding="True">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  TextOptions.TextFormattingMode="Display"
-                                                  TextOptions.TextRenderingMode="ClearType"/>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.92"/>
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.9"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.78"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
                             </Trigger>
                             <!-- Tag に IsRecording をバインドして、実際に記録中のときだけ脈動させる -->
                             <Trigger Property="Tag" Value="True">
@@ -153,7 +66,7 @@
                                                              From="0.25" To="0.9" Duration="0:0:0.9"
                                                              AutoReverse="True" RepeatBehavior="Forever"/>
                                             <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="BlurRadius"
-                                                             From="8" To="26" Duration="0:0:0.9"
+                                                             From="8" To="22" Duration="0:0:0.9"
                                                              AutoReverse="True" RepeatBehavior="Forever"/>
                                         </Storyboard>
                                     </BeginStoryboard>
@@ -168,6 +81,69 @@
             </Setter>
         </Style>
 
+        <!-- ツールバーの控えめな丸ボタン（一時停止・AI相談データ・設定など、色を持たない操作用） -->
+        <Style x:Key="ToolbarNeutralButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="300"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" CornerRadius="8" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Brush.Term.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Brush.Term.Selected}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ツールバーのトグル式アイコン（範囲ドロップダウン／キャプチャモード切替）。選択中は背景をハイライト -->
+        <Style x:Key="ToolbarIconToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="9,9"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="300"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bg" CornerRadius="8" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Brush.Term.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Brush.Term.Selected}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ToolbarDividerStyle" TargetType="Border">
+            <Setter Property="Width" Value="1"/>
+            <Setter Property="Background" Value="{StaticResource Brush.Term.Border}"/>
+            <Setter Property="Margin" Value="4,7"/>
+        </Style>
+
         <!-- 開始／再開アイコン: 白い輪郭の丸（録画ボタンの定番モチーフ） -->
         <Style x:Key="RecordIconStyle" TargetType="Ellipse">
             <Setter Property="Width" Value="11"/>
@@ -175,8 +151,6 @@
             <Setter Property="Fill" Value="Transparent"/>
             <Setter Property="Stroke" Value="White"/>
             <Setter Property="StrokeThickness" Value="1.6"/>
-            <Setter Property="Margin" Value="0,0,9,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <!-- 停止アイコン: 白い塗りの四角（メディアの「■停止」の定番モチーフ） -->
@@ -186,554 +160,285 @@
             <Setter Property="Fill" Value="White"/>
             <Setter Property="RadiusX" Value="2"/>
             <Setter Property="RadiusY" Value="2"/>
-            <Setter Property="Margin" Value="0,0,9,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- 一時停止アイコン: 縦棒2本（メディアの「Ⅱ 一時停止」の定番モチーフ） -->
-        <Style x:Key="PauseBarStyle" TargetType="Rectangle">
-            <Setter Property="Width" Value="3.5"/>
+        <!-- 一時停止アイコン（ツールバー用・ダーク背景向けに明るいグレー）: 縦棒2本 -->
+        <Style x:Key="ToolbarPauseBarStyle" TargetType="Rectangle">
+            <Setter Property="Width" Value="3.2"/>
             <Setter Property="Height" Value="12"/>
-            <Setter Property="Fill" Value="{StaticResource Brush.TextPrimary}"/>
+            <Setter Property="Fill" Value="{StaticResource Brush.Term.Text}"/>
             <Setter Property="RadiusX" Value="1"/>
             <Setter Property="RadiusY" Value="1"/>
         </Style>
 
+        <!-- 既定の Expander はライトテーマ向けの文字色のため、ダーク背景のこの窓向けに上書きします -->
+        <Style TargetType="Expander">
+            <Setter Property="Foreground" Value="{StaticResource Brush.Term.Text}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
     </Window.Resources>
 
-    <DockPanel Margin="18">
+    <DockPanel>
 
-        <!-- ステータス（常に下部固定・目立たせる） -->
-        <Border DockPanel.Dock="Bottom"
-                Style="{StaticResource StatusBarStyle}"
-                BorderThickness="1.5"
-                CornerRadius="8"
-                Padding="0"
-                Margin="0,14,0,0"
-                MinHeight="66"
-                SnapsToDevicePixels="True">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" Color="#1A3A6E"/>
-            </Border.Effect>
-            <Grid>
-                <Border Width="6" HorizontalAlignment="Left" CornerRadius="7,0,0,7"
-                        Style="{StaticResource StatusAccentStyle}"/>
-                <DockPanel Margin="16,8,16,8">
-                    <Border DockPanel.Dock="Left"
-                            Style="{StaticResource StatusBadgeStyle}"
-                            CornerRadius="4"
-                            Padding="10,4"
-                            Margin="0,0,12,0"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="{Binding StateText}"
-                                   Foreground="White"
-                                   FontWeight="Bold"
-                                   FontSize="12"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    <!-- 記録の開始／一時停止／再開／停止: システムの主操作なので、他のボタンより大きく・影とグローで目立たせる。
-                         状態ごとに表示するボタンの組み合わせを切り替える（同時に出るのは最大2つ）。 -->
-                    <StackPanel DockPanel.Dock="Right"
-                                Orientation="Horizontal"
-                                Margin="16,0,2,0"
-                                VerticalAlignment="Center">
+        <!-- ツールバー: Snipping Tool を参考にした、アイコンのみの1段バー。
+             ①範囲選択・キャプチャモード・記録操作・②設定・③AI相談データへの入口をここに集約し、
+             本体はキャプチャの邪魔にならないよう常に薄く保ちます。 -->
+        <Border DockPanel.Dock="Top"
+                Background="{StaticResource Brush.Term.Panel}"
+                BorderBrush="{StaticResource Brush.Term.Border}"
+                BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Margin="10,8" VerticalAlignment="Center">
 
-                        <!-- 停止中: 記録開始のみ。押すと前回の記録データを消してまっさらな状態から開始します -->
-                        <Button MinWidth="168"
-                                MinHeight="50"
-                                Padding="22,0"
-                                FontSize="15.5"
-                                FontWeight="Bold"
-                                Cursor="Hand"
-                                VerticalAlignment="Center"
-                                Background="{StaticResource Brush.Primary}"
-                                Command="{Binding StartRecordingCommand}"
-                                Style="{StaticResource StatusToggleButtonStyle}">
-                            <Button.Visibility>
-                                <Binding Path="IsIdle">
-                                    <Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter>
-                                </Binding>
-                            </Button.Visibility>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Style="{StaticResource RecordIconStyle}"/>
-                                <TextBlock Text="記録開始" Foreground="White" FontSize="15.5" FontWeight="Bold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <!-- 記録中: 一時停止（軽い操作なので控えめな見た目） -->
-                        <Button MinHeight="42"
-                                Padding="16,0"
-                                Margin="0,0,10,0"
-                                FontSize="13.5"
-                                FontWeight="Bold"
-                                Cursor="Hand"
-                                VerticalAlignment="Center"
-                                Command="{Binding PauseRecordingCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Visibility>
-                                <Binding Path="IsRecording">
-                                    <Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter>
-                                </Binding>
-                            </Button.Visibility>
-                            <StackPanel Orientation="Horizontal">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,9,0">
-                                    <Rectangle Style="{StaticResource PauseBarStyle}" Margin="0,0,3,0"/>
-                                    <Rectangle Style="{StaticResource PauseBarStyle}"/>
-                                </StackPanel>
-                                <TextBlock Text="一時停止" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <!-- 一時停止中だけ: 再開ボタンを出します。 -->
-                        <Button MinWidth="120"
-                                MinHeight="50"
-                                Padding="20,0"
-                                Margin="0,0,10,0"
-                                FontSize="15.5"
-                                FontWeight="Bold"
-                                Cursor="Hand"
-                                VerticalAlignment="Center"
-                                Background="{StaticResource Brush.Primary}"
-                                Command="{Binding ResumeRecordingCommand}"
-                                Style="{StaticResource StatusToggleButtonStyle}">
-                            <Button.Visibility>
-                                <Binding Path="IsPaused">
-                                    <Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter>
-                                </Binding>
-                            </Button.Visibility>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Style="{StaticResource RecordIconStyle}"/>
-                                <TextBlock Text="再開" Foreground="White" FontSize="15.5" FontWeight="Bold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <!-- 記録中／一時停止中: 停止（共通）。実際に記録中のときだけ赤いグローが脈動します -->
-                        <Button MinWidth="120"
-                                MinHeight="50"
-                                Padding="20,0"
-                                FontSize="15.5"
-                                FontWeight="Bold"
-                                Cursor="Hand"
-                                VerticalAlignment="Center"
-                                Background="{StaticResource Brush.Danger}"
-                                Tag="{Binding IsRecording}"
-                                Command="{Binding StopRecordingCommand}"
-                                Style="{StaticResource StatusToggleButtonStyle}">
-                            <Button.Visibility>
-                                <Binding Path="IsSessionActive">
-                                    <Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter>
-                                </Binding>
-                            </Button.Visibility>
-                            <StackPanel Orientation="Horizontal">
-                                <Rectangle Style="{StaticResource StopIconStyle}"/>
-                                <TextBlock Text="停止" Foreground="White" FontSize="15.5" FontWeight="Bold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
+                <!-- キャプチャ範囲: ドロップダウン（全画面／自由クリップ＋モニター選択） -->
+                <ToggleButton x:Name="RegionToggleButton"
+                              Style="{StaticResource ToolbarIconToggleButtonStyle}"
+                              ToolTip="キャプチャ範囲を選ぶ（全画面／自由クリップ）"
+                              IsEnabled="{Binding IsIdle}">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="15" Height="11" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4"
+                                   StrokeDashArray="2,1.3" RadiusX="1.5" RadiusY="1.5"/>
+                        <TextBlock Text="&#9662;" Foreground="{StaticResource Brush.Term.TextDim}" FontSize="9"
+                                   Margin="4,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <TextBlock Text="{Binding StatusMessage}"
-                               TextWrapping="Wrap"
-                               FontSize="13.5"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource Brush.TextPrimary}"
-                               LineHeight="20"
-                               VerticalAlignment="Center"/>
-                </DockPanel>
-            </Grid>
+                </ToggleButton>
+                <Popup PlacementTarget="{Binding ElementName=RegionToggleButton}"
+                       IsOpen="{Binding IsChecked, ElementName=RegionToggleButton, Mode=TwoWay}"
+                       StaysOpen="False"
+                       AllowsTransparency="True"
+                       Placement="Bottom"
+                       HorizontalOffset="-8"
+                       VerticalOffset="6">
+                    <Border Background="White" CornerRadius="10" Padding="16"
+                            BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" MinWidth="260">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.22" Color="#0F1117"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="キャプチャ範囲" Style="{StaticResource LabelStyle}" Margin="0,0,0,10"/>
+                            <TextBlock Text="記録する画面範囲を選んでください。開始後はこの範囲に固定され、対象を追従しません。"
+                                       Style="{StaticResource HintTextStyle}" Margin="0,0,0,10"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <RadioButton Content="全画面"
+                                             Style="{StaticResource SegmentedRadioButtonStyle}"
+                                             IsChecked="{Binding IsFullScreenRegionMode, Mode=TwoWay}"
+                                             GroupName="CaptureRegionModeGroup"
+                                             Margin="0,0,8,0"/>
+                                <RadioButton Content="自由クリップ"
+                                             Style="{StaticResource SegmentedRadioButtonStyle}"
+                                             IsChecked="{Binding IsFreeClipRegionMode, Mode=TwoWay}"
+                                             GroupName="CaptureRegionModeGroup"
+                                             Click="OnFreeClipRadioButtonClick"/>
+                            </StackPanel>
+
+                            <!-- 全画面: モニター選択 -->
+                            <Grid Margin="0,0,0,4">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsFullScreenRegionMode}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="0"
+                                          Style="{StaticResource FieldComboBoxStyle}"
+                                          ItemsSource="{Binding Monitors}"
+                                          SelectedItem="{Binding SelectedMonitor}"
+                                          DisplayMemberPath="Label"
+                                          Margin="0,0,8,0"/>
+                                <Button Grid.Column="1"
+                                        Content="更新"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Width="64"
+                                        FontSize="12"
+                                        Command="{Binding RefreshMonitorsCommand}"/>
+                            </Grid>
+
+                            <!-- 自由クリップ: 選択済み範囲の読み取り表示（選び直しは上の「自由クリップ」をクリック） -->
+                            <TextBlock Text="{Binding CaptureRegionSummaryText}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource HintTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsFreeClipRegionMode}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+
+                <Border Style="{StaticResource ToolbarDividerStyle}"/>
+
+                <!-- キャプチャモード: 時間で／操作で（クロック＝連続撮影、タップ＝操作トリガー） -->
+                <ToggleButton Style="{StaticResource ToolbarIconToggleButtonStyle}"
+                              ToolTip="時間でキャプチャ：設定した枚/秒で連続撮影します"
+                              IsChecked="{Binding IsIntervalCaptureMode, Mode=TwoWay}">
+                    <Grid Width="16" Height="16">
+                        <Ellipse Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4"/>
+                        <Line X1="8" Y1="8" X2="8" Y2="3" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <Line X1="8" Y1="8" X2="11.5" Y2="8" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Grid>
+                </ToggleButton>
+                <ToggleButton Style="{StaticResource ToolbarIconToggleButtonStyle}"
+                              ToolTip="操作でキャプチャ：指定したキー／マウス操作のときだけ撮影します"
+                              IsChecked="{Binding IsOnOperationCaptureMode, Mode=TwoWay}">
+                    <Grid Width="16" Height="16">
+                        <Ellipse Width="6" Height="6" Fill="{StaticResource Brush.Term.Text}"/>
+                        <Ellipse Width="11" Height="11" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1" Opacity="0.75"/>
+                        <Ellipse Width="16" Height="16" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1" Opacity="0.4"/>
+                    </Grid>
+                </ToggleButton>
+
+                <Border Style="{StaticResource ToolbarDividerStyle}"/>
+
+                <!-- 記録の開始／一時停止／再開／停止: 状態ごとに表示するボタンの組み合わせを切り替える（同時に出るのは最大2つ） -->
+                <Button Style="{StaticResource ToolbarPrimaryToggleStyle}"
+                        ToolTip="記録開始"
+                        Command="{Binding StartRecordingCommand}">
+                    <Button.Visibility>
+                        <Binding Path="IsIdle"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                    </Button.Visibility>
+                    <Ellipse Style="{StaticResource RecordIconStyle}"/>
+                </Button>
+                <Button Style="{StaticResource ToolbarNeutralButtonStyle}"
+                        ToolTip="一時停止"
+                        Command="{Binding PauseRecordingCommand}">
+                    <Button.Visibility>
+                        <Binding Path="IsRecording"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                    </Button.Visibility>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Style="{StaticResource ToolbarPauseBarStyle}" Margin="0,0,3,0"/>
+                        <Rectangle Style="{StaticResource ToolbarPauseBarStyle}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource ToolbarPrimaryToggleStyle}"
+                        ToolTip="再開"
+                        Command="{Binding ResumeRecordingCommand}">
+                    <Button.Visibility>
+                        <Binding Path="IsPaused"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                    </Button.Visibility>
+                    <Ellipse Style="{StaticResource RecordIconStyle}"/>
+                </Button>
+                <Button Style="{StaticResource ToolbarPrimaryToggleStyle}"
+                        Background="{StaticResource Brush.Danger}"
+                        Tag="{Binding IsRecording}"
+                        ToolTip="停止"
+                        Command="{Binding StopRecordingCommand}">
+                    <Button.Visibility>
+                        <Binding Path="IsSessionActive"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                    </Button.Visibility>
+                    <Rectangle Style="{StaticResource StopIconStyle}"/>
+                </Button>
+
+                <Border Style="{StaticResource ToolbarDividerStyle}"/>
+
+                <!-- AI相談用データ: 記録停止のたびに自動生成・自動コピー済み。ここは確認・選び直し専用の入口。
+                     未確認のデータがあるとき（HasConsultationPreview）は右上に緑のバッジを出します。 -->
+                <Button Style="{StaticResource ToolbarNeutralButtonStyle}"
+                        Click="OnOpenImageListClick">
+                    <Button.ToolTip>
+                        <ToolTip>
+                            <StackPanel MaxWidth="260">
+                                <TextBlock Text="AI相談用データ" Style="{StaticResource ToolTipTitleStyle}"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Text="記録停止のたびに、操作と画面をまとめた相談用画像を自動生成してコピーします。特定のコマだけ選びたい・結合方法を変えたいときはここを開いてください。"/>
+                            </StackPanel>
+                        </ToolTip>
+                    </Button.ToolTip>
+                    <Grid Width="16" Height="16">
+                        <Rectangle Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.3" RadiusX="2" RadiusY="2"/>
+                        <Ellipse Width="3" Height="3" Fill="{StaticResource Brush.Term.Text}"
+                                 HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3.5,3.5,0,0"/>
+                        <Polyline Points="1,12 6,7 9,10 12,6 15,10" Stroke="{StaticResource Brush.Term.Text}"
+                                  StrokeThickness="1.3" StrokeLineJoin="Round"/>
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource Brush.Term.Accent}"
+                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-4,-4,0">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasConsultationPreview}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                    </Grid>
+                </Button>
+
+                <!-- 設定: 頻度・保持・記録対象などの詳細設定を別窓で開きます（スライダー3本のアイコン） -->
+                <Button Style="{StaticResource ToolbarNeutralButtonStyle}"
+                        ToolTip="記録の設定（頻度・保持・記録対象など）"
+                        Click="OnOpenSettingsClick">
+                    <Grid Width="16" Height="16">
+                        <Line X1="1" Y1="3" X2="15" Y2="3" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.2"/>
+                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource Brush.Term.Text}"
+                                 HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3.5,0.75,0,0"/>
+                        <Line X1="1" Y1="8" X2="15" Y2="8" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.2"/>
+                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource Brush.Term.Text}"
+                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5.75,4,0"/>
+                        <Line X1="1" Y1="13" X2="15" Y2="13" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.2"/>
+                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource Brush.Term.Text}"
+                                 HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6.5,10.75,0,0"/>
+                    </Grid>
+                </Button>
+            </StackPanel>
         </Border>
 
+        <!-- 本体: 状態ヒント＋任意で開く操作履歴（Snipping Tool の「レコーディングを開始するには…」ヒント欄を参考に） -->
         <ScrollViewer x:Name="MainPageScrollViewer"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <StackPanel>
+            <StackPanel Margin="18">
 
-                <!-- アプリ名 -->
-                <DockPanel Margin="2,0,2,16" LastChildFill="False">
-                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding AppName}"
-                                   FontSize="24"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource Brush.TextPrimary}"/>
-                    </StackPanel>
-                </DockPanel>
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="{StaticResource Brush.Term.TextDim}"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           FontSize="13"
+                           HorizontalAlignment="Center"
+                           Margin="10,26,10,22"/>
 
-                <!-- 1. キャプチャ範囲 -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <DockPanel LastChildFill="True">
-                            <Border Style="{StaticResource StepBadgeStyle}" DockPanel.Dock="Left" Margin="0,0,10,0">
-                                <TextBlock Text="1" Style="{StaticResource StepBadgeTextStyle}"/>
-                            </Border>
-                            <TextBlock Text="キャプチャ範囲を選ぶ" Style="{StaticResource SectionTitleStyle}"/>
-                        </DockPanel>
-                        <TextBlock Text="記録する画面範囲を選んでください。開始後はこの範囲に固定され、対象を追従しません。"
-                                   Style="{StaticResource SectionHintStyle}"
-                                   Margin="0,4,0,14"/>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <RadioButton Content="全画面"
-                                         Style="{StaticResource SegmentedRadioButtonStyle}"
-                                         IsChecked="{Binding IsFullScreenRegionMode, Mode=TwoWay}"
-                                         GroupName="CaptureRegionModeGroup"
-                                         IsEnabled="{Binding IsIdle}"
-                                         Margin="0,0,8,0"/>
-                            <RadioButton Content="自由クリップ"
-                                         Style="{StaticResource SegmentedRadioButtonStyle}"
-                                         IsChecked="{Binding IsFreeClipRegionMode, Mode=TwoWay}"
-                                         GroupName="CaptureRegionModeGroup"
-                                         IsEnabled="{Binding IsIdle}"
-                                         Click="OnFreeClipRadioButtonClick"/>
-                        </StackPanel>
-
-                        <!-- 全画面: モニター選択 -->
-                        <Grid Margin="0,0,0,4">
-                            <Grid.Style>
-                                <Style TargetType="Grid">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsFullScreenRegionMode}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Grid.Style>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <ComboBox Grid.Column="0"
-                                      Style="{StaticResource FieldComboBoxStyle}"
-                                      ItemsSource="{Binding Monitors}"
-                                      SelectedItem="{Binding SelectedMonitor}"
-                                      IsEnabled="{Binding IsIdle}"
-                                      DisplayMemberPath="Label"
-                                      Margin="0,0,8,0"/>
-                            <Button Grid.Column="1"
-                                    Content="一覧を更新"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Width="112"
-                                    Command="{Binding RefreshMonitorsCommand}"/>
-                        </Grid>
-
-                        <!-- 自由クリップ: 選択済み範囲の読み取り表示（選び直しは上の「自由クリップ」をクリック） -->
-                        <TextBlock Text="{Binding CaptureRegionSummaryText}"
-                                   Margin="0,0,0,4">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource SectionHintStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsFreeClipRegionMode}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
-
-                <!-- 2. 記録操作 -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <DockPanel LastChildFill="True">
-                            <Border Style="{StaticResource StepBadgeStyle}" DockPanel.Dock="Left" Margin="0,0,10,0">
-                                <TextBlock Text="2" Style="{StaticResource StepBadgeTextStyle}"/>
-                            </Border>
-                            <TextBlock Text="記録する" Style="{StaticResource SectionTitleStyle}"/>
-                        </DockPanel>
-
-
-                        <!-- 操作ボタン（開始／停止は画面下のステータスバーへ集約）。
-                             削除は取り返しがつかない操作なので、隣の「フォルダを開く」から離し、
-                             区切り線を挟んで誤クリックしにくいようにしています。 -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <Button Content="スクショ保存フォルダを開く"
-                                    Style="{StaticResource LinkButtonStyle}"
-                                    Padding="14,0"
-                                    Command="{Binding OpenTempFolderCommand}"/>
-                            <Border Width="1" Background="{StaticResource Brush.Border}" Margin="18,4,18,4"/>
-                            <Button Content="記録データを今すぐ削除"
-                                    Style="{StaticResource DangerButtonStyle}"
-                                    Padding="16,0"
-                                    Command="{Binding ClearHistoryCommand}"/>
-                        </StackPanel>
-
-                        <!-- キャプチャモード -->
-                        <Border Style="{StaticResource InnerBoxStyle}" Margin="0,0,0,10">
-                            <StackPanel>
-                                <DockPanel Margin="0,0,0,4" LastChildFill="False">
-                                    <TextBlock Text="キャプチャモード" Style="{StaticResource LabelStyle}"
-                                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <Border Style="{StaticResource HelpBadgeStyle}">
-                                        <Border.ToolTip>
-                                            <ToolTip>
-                                                <StackPanel>
-                                                    <TextBlock Text="キャプチャモード" Style="{StaticResource ToolTipTitleStyle}"/>
-                                                    <TextBlock TextWrapping="Wrap" LineHeight="18" Margin="0,0,0,6"
-                                                               Text="・時間でキャプチャ … 設定した枚/秒で連続撮影し、操作は最寄りの画像に紐づけます。"/>
-                                                    <TextBlock TextWrapping="Wrap" LineHeight="18"
-                                                               Text="・操作でキャプチャ … 指定したキー／マウス操作のときだけスクリーンショットを撮ります。連続の定期撮影はしません。"/>
-                                                </StackPanel>
-                                            </ToolTip>
-                                        </Border.ToolTip>
-                                        <TextBlock Style="{StaticResource HelpBadgeTextStyle}"/>
-                                    </Border>
-                                </DockPanel>
-
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <RadioButton Content="時間でキャプチャ"
-                                                 Style="{StaticResource SegmentedRadioButtonStyle}"
-                                                 IsChecked="{Binding IsIntervalCaptureMode, Mode=TwoWay}"
-                                                 GroupName="CaptureModeGroup"
-                                                 Margin="0,0,8,0"/>
-                                    <RadioButton Content="操作でキャプチャ"
-                                                 Style="{StaticResource SegmentedRadioButtonStyle}"
-                                                 IsChecked="{Binding IsOnOperationCaptureMode, Mode=TwoWay}"
-                                                 GroupName="CaptureModeGroup"/>
-                                </StackPanel>
-
-                                <!-- 秒モード設定 -->
-                                <Border Margin="0,14,0,0"
-                                        Background="White"
-                                        BorderBrush="{StaticResource Brush.Border}"
-                                        BorderThickness="1"
-                                        CornerRadius="6"
-                                        Padding="12,10">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsIntervalCaptureMode}" Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="キャプチャ頻度"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush.TextPrimary}"
-                                                   Margin="0,0,4,0"/>
-                                        <Border Style="{StaticResource HelpBadgeStyle}" Margin="0,0,8,0">
-                                            <Border.ToolTip>
-                                                <ToolTip>
-                                                    <StackPanel>
-                                                        <TextBlock Text="キャプチャ頻度" Style="{StaticResource ToolTipTitleStyle}"/>
-                                                        <TextBlock TextWrapping="Wrap" Text="1秒あたり何枚スクリーンショットを撮るかです。"/>
-                                                    </StackPanel>
-                                                </ToolTip>
-                                            </Border.ToolTip>
-                                            <TextBlock Style="{StaticResource HelpBadgeTextStyle}"/>
-                                        </Border>
-                                        <TextBox Text="{Binding CapturesPerSecond, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource FieldTextBoxStyle}"
-                                                 Width="52" Margin="0,0,6,0"/>
-                                        <TextBlock Text="枚/秒（1～10）"
-                                                   VerticalAlignment="Center"
-                                                   Style="{StaticResource HintTextStyle}"
-                                                   Margin="0,0,22,0"/>
-
-                                        <TextBlock Text="保持時間"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush.TextPrimary}"
-                                                   Margin="0,0,4,0"/>
-                                        <Border Style="{StaticResource HelpBadgeStyle}" Margin="0,0,8,0">
-                                            <Border.ToolTip>
-                                                <ToolTip>
-                                                    <StackPanel>
-                                                        <TextBlock Text="保持時間" Style="{StaticResource ToolTipTitleStyle}"/>
-                                                        <TextBlock TextWrapping="Wrap"
-                                                                   Text="バッファ容量の目安です（おおよそ 頻度×秒 枚）。操作に紐づくコマは優先保持します。"/>
-                                                    </StackPanel>
-                                                </ToolTip>
-                                            </Border.ToolTip>
-                                            <TextBlock Style="{StaticResource HelpBadgeTextStyle}"/>
-                                        </Border>
-                                        <TextBox Text="{Binding RetentionSeconds, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource FieldTextBoxStyle}"
-                                                 Width="52" Margin="0,0,6,0"/>
-                                        <TextBlock Text="秒（1～120）"
-                                                   VerticalAlignment="Center"
-                                                   Style="{StaticResource HintTextStyle}"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- 操作モード設定 -->
-                                <Border Margin="0,14,0,0"
-                                        Background="White"
-                                        BorderBrush="{StaticResource Brush.Border}"
-                                        BorderThickness="1"
-                                        CornerRadius="6"
-                                        Padding="12,12">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsOnOperationCaptureMode}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                            <TextBlock Text="スクショを取る操作"
-                                                       Foreground="{StaticResource Brush.TextPrimary}"
-                                                       FontWeight="SemiBold"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,6,0"/>
-                                            <Border Style="{StaticResource HelpBadgeStyle}">
-                                                <Border.ToolTip>
-                                                    <ToolTip>
-                                                        <StackPanel>
-                                                            <TextBlock Text="スクショを取る操作" Style="{StaticResource ToolTipTitleStyle}"/>
-                                                            <TextBlock TextWrapping="Wrap" LineHeight="18" Margin="0,0,0,6"
-                                                                       Text="枠をクリックしてから、キー1つまたはマウスボタン1つを押すと設定されます。その操作のときだけスクリーンショットを撮ります。"/>
-                                                            <TextBlock TextWrapping="Wrap" LineHeight="18" Margin="0,8,0,0"
-                                                                       Foreground="{StaticResource Brush.TextSecondary}"
-                                                                       Text="既定は左クリックです。「クリア」で未設定に戻せます。"/>
-                                                        </StackPanel>
-                                                    </ToolTip>
-                                                </Border.ToolTip>
-                                                <TextBlock Style="{StaticResource HelpBadgeTextStyle}"/>
-                                            </Border>
-                                        </StackPanel>
-                                        <DockPanel Margin="0,0,0,12">
-                                            <Button DockPanel.Dock="Right"
-                                                    Content="クリア"
-                                                    Style="{StaticResource SecondaryButtonStyle}"
-                                                    Margin="8,0,0,0"
-                                                    MinHeight="34"
-                                                    Command="{Binding ClearScreenshotTriggerCommand}"/>
-                                            <Border MinHeight="34"
-                                                    Padding="12,8"
-                                                    CornerRadius="6"
-                                                    BorderThickness="1.5"
-                                                    Cursor="Hand"
-                                                    Focusable="True"
-                                                    PreviewMouseDown="OnScreenshotTriggerBoxPreviewMouseDown"
-                                                    PreviewMouseWheel="OnScreenshotTriggerBoxPreviewMouseWheel"
-                                                    PreviewKeyDown="OnScreenshotTriggerBoxPreviewKeyDown">
-                                                <Border.Style>
-                                                    <Style TargetType="Border">
-                                                        <Setter Property="Background" Value="White"/>
-                                                        <Setter Property="BorderBrush" Value="{StaticResource Brush.BorderStrong}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsScreenshotTriggerListening}" Value="True">
-                                                                <Setter Property="Background" Value="{StaticResource Brush.WarningSoft}"/>
-                                                                <Setter Property="BorderBrush" Value="{StaticResource Brush.Warning}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Border.Style>
-                                                <TextBlock Text="{Binding ScreenshotTriggerDisplayText}"
-                                                           Foreground="{StaticResource Brush.TextPrimary}"
-                                                           VerticalAlignment="Center"
-                                                           FontSize="13"/>
-                                            </Border>
-                                        </DockPanel>
-
-                                        <Separator Margin="0,0,0,10" Background="{StaticResource Brush.Border}"/>
-
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="保持枚数"
-                                                       VerticalAlignment="Center"
-                                                       Foreground="{StaticResource Brush.TextPrimary}"
-                                                       Margin="0,0,4,0"/>
-                                            <Border Style="{StaticResource HelpBadgeStyle}" Margin="0,0,8,0">
-                                                <Border.ToolTip>
-                                                    <ToolTip>
-                                                        <StackPanel>
-                                                            <TextBlock Text="保持枚数" Style="{StaticResource ToolTipTitleStyle}"/>
-                                                            <TextBlock TextWrapping="Wrap"
-                                                                       Text="操作キャプチャで残しておく画像の最大枚数です。超えた分は古いものから削除します（操作に紐づく画像は優先して残します）。"/>
-                                                            <TextBlock TextWrapping="Wrap" Margin="0,8,0,0"
-                                                                       Foreground="{StaticResource Brush.TextSecondary}"
-                                                                       Text="範囲: 1～200。記録停止後は自動削除しません。"/>
-                                                        </StackPanel>
-                                                    </ToolTip>
-                                                </Border.ToolTip>
-                                                <TextBlock Style="{StaticResource HelpBadgeTextStyle}"/>
-                                            </Border>
-                                            <TextBox Text="{Binding KeepCaptureCount, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource FieldTextBoxStyle}"
-                                                     Width="52" Margin="0,0,6,0"/>
-                                            <TextBlock Text="枚（1～200）"
-                                                       VerticalAlignment="Center"
-                                                       Style="{StaticResource HintTextStyle}"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- 記録対象（詳細） -->
-                        <Expander Header="詳細な記録設定（記録対象）"
-                                  IsExpanded="False"
-                                  FontWeight="SemiBold"
-                                  FontSize="13">
-                            <StackPanel Margin="4,12,0,4">
-                                <CheckBox Content="マウス操作を記録する"
-                                          IsChecked="{Binding RecordMouseOperations}"
-                                          Margin="0,0,12,10"/>
-                                <CheckBox Content="キーボード操作を記録する"
-                                          IsChecked="{Binding RecordKeyboard}"
-                                          Margin="0,0,12,6"/>
-                                <Border Background="{StaticResource Brush.WarningSoft}"
-                                        BorderBrush="{StaticResource Brush.WarningBorder}"
-                                        BorderThickness="1"
-                                        CornerRadius="6"
-                                        Padding="10,8"
-                                        Margin="0,8,0,0">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ShowKeyboardPrivacyNote}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <TextBlock Text="{Binding KeyboardPrivacyNote}"
-                                               TextWrapping="Wrap"
-                                               Foreground="{StaticResource Brush.Warning}"
-                                               FontSize="12"/>
-                                </Border>
-                            </StackPanel>
-                        </Expander>
-                    </StackPanel>
-                </Border>
-
-                <!-- 操作履歴（起動時は非表示。記録開始後、または履歴があるとき表示） -->
-                <Border Style="{StaticResource TerminalCardStyle}">
-                    <Border.Visibility>
+                <!-- 操作履歴（起動時は非表示。記録開始後、または履歴があるとき表示）。
+                     普段は折りたたんでおき、必要なときだけ開いて本体窓の高さを抑えます。 -->
+                <Expander Header="直近の操作履歴 / 個別プレビューを見る"
+                          IsExpanded="False"
+                          FontWeight="SemiBold"
+                          FontSize="13"
+                          Margin="0,0,0,2">
+                    <Expander.Visibility>
                         <Binding Path="IsHistoryPanelVisible">
                             <Binding.Converter>
                                 <BooleanToVisibilityConverter/>
                             </Binding.Converter>
                         </Binding>
-                    </Border.Visibility>
-                    <StackPanel>
-                        <TextBlock Text="直近の操作履歴 / 個別プレビュー"
-                                   Style="{StaticResource SectionTitleStyle}"
-                                   Foreground="White"
-                                   Margin="0,0,0,4"/>
-                        <TextBlock Text="行を選ぶと、右側にそのときのキャプチャ画像が表示されます。"
-                                   Style="{StaticResource HintTextStyle}"
-                                   Foreground="{StaticResource Brush.Term.TextDim}"
-                                   Margin="0,0,0,12"/>
-
-                        <Grid MinHeight="180" Height="200">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1.4*"/>
-                                <ColumnDefinition Width="12"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                    </Expander.Visibility>
+                    <Border Style="{StaticResource TerminalCardStyle}" Margin="0,10,0,0">
+                        <StackPanel>
+                            <TextBlock Text="行を選ぶと、下にそのときのキャプチャ画像が表示されます。"
+                                       Style="{StaticResource HintTextStyle}"
+                                       Foreground="{StaticResource Brush.Term.TextDim}"
+                                       Margin="0,0,0,10"/>
 
                             <!-- 履歴一覧: ターミナル風ログ -->
-                            <Border Grid.Column="0"
-                                    BorderBrush="{StaticResource Brush.Term.Border}"
+                            <Border BorderBrush="{StaticResource Brush.Term.Border}"
                                     BorderThickness="1"
                                     CornerRadius="7"
-                                    Background="{StaticResource Brush.Term.Panel}">
+                                    Background="{StaticResource Brush.Term.Panel}"
+                                    Margin="0,0,0,10">
                                 <DockPanel>
                                     <Border DockPanel.Dock="Top" Style="{StaticResource TerminalPaneHeaderStyle}">
                                         <DockPanel>
@@ -748,6 +453,7 @@
                                         </DockPanel>
                                     </Border>
                                     <ListBox x:Name="OperationHistoryListBox"
+                                             Height="170"
                                              Style="{StaticResource TerminalListBoxStyle}"
                                              ItemsSource="{Binding OperationHistory}"
                                              SelectedItem="{Binding SelectedHistoryItem}"
@@ -803,8 +509,7 @@
                             </Border>
 
                             <!-- プレビュー: クリックで別画面（拡大縮小・赤ペン） -->
-                            <Border Grid.Column="2"
-                                    BorderBrush="{StaticResource Brush.Term.Border}"
+                            <Border BorderBrush="{StaticResource Brush.Term.Border}"
                                     BorderThickness="1"
                                     CornerRadius="7"
                                     Background="{StaticResource Brush.Term.Panel}">
@@ -821,7 +526,7 @@
                                                        HorizontalAlignment="Right"/>
                                         </DockPanel>
                                     </Border>
-                                    <Grid x:Name="HistoryPreviewHost" Margin="10">
+                                    <Grid x:Name="HistoryPreviewHost" Height="170" Margin="10">
                                         <TextBlock Text="{Binding PreviewPlaceholderText}"
                                                    TextWrapping="Wrap"
                                                    FontFamily="Cascadia Mono, Consolas, Courier New"
@@ -863,169 +568,9 @@
                                     </Grid>
                                 </DockPanel>
                             </Border>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- 3. AI相談用データ -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,2">
-                    <StackPanel>
-                        <DockPanel LastChildFill="True">
-                            <Border Style="{StaticResource StepBadgeStyle}" DockPanel.Dock="Left" Margin="0,0,10,0">
-                                <TextBlock Text="3" Style="{StaticResource StepBadgeTextStyle}"/>
-                            </Border>
-                            <TextBlock Text="AI 相談用データを作る" Style="{StaticResource SectionTitleStyle}"/>
-                        </DockPanel>
-                        <TextBlock Text=""
-                                   Style="{StaticResource SectionHintStyle}"
-                                   Margin="0,4,0,14"/>
-
-                        <!-- 通常は記録停止のたびにここで自動的に結合画像がシームレスに作成されます。
-                             特定コマだけ選びたい／結合せずコピーしたいときだけ、下のボタンから別窓を開いてください（あくまでオプション）。 -->
-                        <StackPanel>
-                        <!-- 結合様式のオプション設定: 既定は非表示。開かなくても初期状態は「全コマを1枚に結合」のまま動作します。 -->
-                        <Expander Header="結合様式のオプション設定"
-                                  IsExpanded="False"
-                                  FontWeight="SemiBold"
-                                  FontSize="13"
-                                  Margin="0,0,0,10">
-                            <Border Style="{StaticResource InnerBoxStyle}" Margin="0,10,0,0">
-                                <StackPanel>
-                                    <TextBlock Text="1枚あたりのコマ数" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <Button Content="－" MinWidth="34" MinHeight="30" Padding="0"
-                                                Style="{StaticResource SecondaryButtonStyle}" FontWeight="Bold" FontSize="14" Margin="0,0,4,0" Click="OnFramesPerImageDecrementClick"/>
-                                        <TextBox x:Name="MainFramesPerImageTextBox" Width="56" MinHeight="30" Padding="4,0"
-                                                 VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                                                 Text="{Binding FramesPerImageDisplay, Mode=TwoWay}"
-                                                 IsEnabled="{Binding IsFramesPerImageAll, Converter={StaticResource InverseBooleanConverter}}"
-                                                 PreviewMouseWheel="OnFramesPerImageSpinnerPreviewMouseWheel"
-                                                 PreviewTextInput="OnFramesPerImageTextInput"
-                                                 PreviewKeyDown="OnFramesPerImageTextBoxPreviewKeyDown"
-                                                 Margin="0,0,4,0"/>
-                                        <Button Content="＋" MinWidth="34" MinHeight="30" Padding="0"
-                                                Style="{StaticResource SecondaryButtonStyle}" FontWeight="Bold" FontSize="14" Margin="0,0,6,0" Click="OnFramesPerImageIncrementClick"/>
-                                        <TextBlock Text="枚" VerticalAlignment="Center" Foreground="{StaticResource Brush.TextSecondary}" Margin="0,0,14,0"/>
-                                        <CheckBox Content="すべて" Style="{StaticResource ToggleChipStyle}"
-                                                  IsChecked="{Binding IsFramesPerImageAll, Mode=TwoWay}"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="並び方" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <Button Content="－" MinWidth="34" MinHeight="30" Padding="0"
-                                                Style="{StaticResource SecondaryButtonStyle}" FontWeight="Bold" FontSize="14" Margin="0,0,4,0" Click="OnLayoutColumnsDecrementClick"/>
-                                        <TextBox x:Name="MainLayoutColumnsTextBox" Width="56" MinHeight="30" Padding="4,0"
-                                                 VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                                                 Text="{Binding LayoutColumns, Mode=TwoWay}"
-                                                 IsEnabled="{Binding IsLayoutAuto, Converter={StaticResource InverseBooleanConverter}}"
-                                                 PreviewMouseWheel="OnLayoutColumnsSpinnerPreviewMouseWheel"
-                                                 PreviewTextInput="OnLayoutColumnsTextInput"
-                                                 PreviewKeyDown="OnLayoutColumnsTextBoxPreviewKeyDown"
-                                                 Margin="0,0,4,0"/>
-                                        <Button Content="＋" MinWidth="34" MinHeight="30" Padding="0"
-                                                Style="{StaticResource SecondaryButtonStyle}" FontWeight="Bold" FontSize="14" Margin="0,0,6,0" Click="OnLayoutColumnsIncrementClick"/>
-                                        <TextBlock Text="列" VerticalAlignment="Center" Foreground="{StaticResource Brush.TextSecondary}" Margin="0,0,14,0"/>
-                                        <CheckBox Content="自動" Style="{StaticResource ToggleChipStyle}"
-                                                  IsChecked="{Binding IsLayoutAuto, Mode=TwoWay}"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="画質" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                                        <RadioButton Content="文字優先" Style="{StaticResource SegmentedRadioButtonStyle}"
-                                                     IsChecked="{Binding IsQualityTextPriority, Mode=TwoWay}"
-                                                     GroupName="MainQualityGroup" Margin="0,0,6,0"/>
-                                        <RadioButton Content="標準" Style="{StaticResource SegmentedRadioButtonStyle}"
-                                                     IsChecked="{Binding IsQualityStandard, Mode=TwoWay}"
-                                                     GroupName="MainQualityGroup" Margin="0,0,6,0"/>
-                                        <RadioButton Content="容量優先" Style="{StaticResource SegmentedRadioButtonStyle}"
-                                                     IsChecked="{Binding IsQualitySizePriority, Mode=TwoWay}"
-                                                     GroupName="MainQualityGroup"/>
-                                    </StackPanel>
-
-                                    <Separator Margin="0,0,0,10" Background="{StaticResource Brush.Border}"/>
-
-                                    <CheckBox Content="この設定で自動結合する（オフなら従来どおり全コマを1枚に結合）"
-                                              IsChecked="{Binding UseCustomAutoCombineSettings, Mode=TwoWay}"/>
-                                </StackPanel>
-                            </Border>
-                        </Expander>
-
-                        <Border Style="{StaticResource InnerBoxStyle}" Padding="14,12">
-                            <StackPanel>
-                                <TextBlock Text="生成した画像のプレビュー" Style="{StaticResource LabelStyle}" Margin="0,0,0,8"/>
-                                <Border BorderBrush="{StaticResource Brush.Border}"
-                                        BorderThickness="1"
-                                        Background="White"
-                                        Height="210"
-                                        CornerRadius="6"
-                                        Margin="0,0,0,10">
-                                    <Grid>
-                                        <TextBlock Text="{Binding ConsultationPreviewPlaceholder}"
-                                                   TextWrapping="Wrap"
-                                                   Foreground="{StaticResource Brush.TextSecondary}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Margin="8">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding HasConsultationPreview}" Value="True">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        <ScrollViewer x:Name="ConsultationPreviewScrollViewer"
-                                                      HorizontalScrollBarVisibility="Auto"
-                                                      VerticalScrollBarVisibility="Auto"
-                                                      PanningMode="Both"
-                                                      PreviewMouseWheel="OnNestedScrollViewerPreviewMouseWheel">
-                                            <Image Source="{Binding ConsultationPreviewImage}"
-                                                   Stretch="Uniform"
-                                                   MaxWidth="420"
-                                                   SnapsToDevicePixels="True"
-                                                   RenderOptions.BitmapScalingMode="HighQuality"
-                                                   Cursor="Hand"
-                                                   MouseLeftButtonUp="OnConsultationPreviewImageClick">
-                                                <Image.Style>
-                                                    <Style TargetType="Image">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding HasConsultationPreview}" Value="True">
-                                                                <Setter Property="Visibility" Value="Visible"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Image.Style>
-                                            </Image>
-                                        </ScrollViewer>
-                                    </Grid>
-                                </Border>
-                                <!-- 結合方法を変える／結合せずコピーは、通常は使わなくてよい任意の手動オプション（特定コマだけ選びたい／結合せずコピーしたいときだけ）。 -->
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Content="画像をコピー"
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            MinWidth="152"
-                                            Margin="0,0,10,0"
-                                            Command="{Binding CopyConsultationImageCommand}"/>
-                                    <Button Content="結合方法を変える"
-                                            Style="{StaticResource SecondaryButtonStyle}"
-
-                                            MinWidth="160"
-                                            Margin="0,0,10,0"
-                                            Click="OnOpenImageListClick"/>
-                                    <Button Content="結合せずコピー"
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            MinWidth="140"
-                                            Command="{Binding CopySelectedAsFilesCommand}"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
+                </Expander>
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

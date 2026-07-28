@@ -146,65 +146,6 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    /// <summary>
-    /// プレビュー内 ScrollViewer のホイール処理です。
-    /// 画像が無い・スクロール不要・端まで到達したときは、メイン画面全体をスクロールします。
-    /// （内側 ScrollViewer がイベントを飲み込み外側が動かないのを防ぎます）。
-    /// </summary>
-    private void OnNestedScrollViewerPreviewMouseWheel(object sender, MouseWheelEventArgs e)
-    {
-        if (sender is not ScrollViewer scrollViewer)
-        {
-            return;
-        }
-
-        bool canScrollVertically = scrollViewer.ScrollableHeight > 0.5;
-        bool canScrollHorizontally = scrollViewer.ScrollableWidth > 0.5;
-
-        // 空欄・画像が枠に収まっている → 全体ページをスクロール
-        if (!canScrollVertically && !canScrollHorizontally)
-        {
-            ScrollMainPage(e);
-            return;
-        }
-
-        // Shift+ホイール → 横スクロール（画像が横に大きいとき）
-        if (Keyboard.Modifiers == ModifierKeys.Shift)
-        {
-            if (canScrollHorizontally)
-            {
-                scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset - e.Delta);
-                e.Handled = true;
-            }
-            else
-            {
-                ScrollMainPage(e);
-            }
-
-            return;
-        }
-
-        HandleNestedVerticalScroll(scrollViewer, e);
-        if (e.Handled)
-        {
-            return;
-        }
-
-        // 縦は端でも横だけ余白がある場合は横スクロールを試す
-        bool scrollingDown = e.Delta < 0;
-        bool canScrollRight = scrollViewer.HorizontalOffset < scrollViewer.ScrollableWidth - 0.5;
-        bool canScrollLeft = scrollViewer.HorizontalOffset > 0.5;
-        if ((scrollingDown && canScrollRight) || (!scrollingDown && canScrollLeft))
-        {
-            scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset - e.Delta);
-            e.Handled = true;
-            return;
-        }
-
-        // 内側で動けない（端に到達など） → 全体ページへ
-        ScrollMainPage(e);
-    }
-
     private static void HandleNestedVerticalScroll(ScrollViewer scrollViewer, MouseWheelEventArgs e)
     {
         bool scrollingDown = e.Delta < 0;
@@ -239,98 +180,15 @@ public partial class MainWindow : Window
         return null;
     }
 
-    /// <summary>
-    /// スクショトリガー欄: クリックで入力待ち。入力待ち中はマウスボタン1つを確定。
-    /// </summary>
-    private void OnScreenshotTriggerBoxPreviewMouseDown(object sender, MouseButtonEventArgs e)
+    /// <summary>⚙ 設定ボタン: 頻度・保持・記録対象などの詳細設定を別窓で開きます。</summary>
+    private void OnOpenSettingsClick(object sender, RoutedEventArgs e)
     {
-        if (!_viewModel.IsScreenshotTriggerEditorEnabled)
+        var window = new SettingsWindow(_viewModel)
         {
-            return;
-        }
-
-        if (!_viewModel.IsScreenshotTriggerListening)
-        {
-            _viewModel.BeginScreenshotTriggerListen();
-            if (sender is UIElement el)
-            {
-                el.Focus();
-            }
-
-            e.Handled = true;
-            return;
-        }
-
-        string? button = e.ChangedButton switch
-        {
-            MouseButton.Left => "Left",
-            MouseButton.Right => "Right",
-            MouseButton.Middle => "Middle",
-            MouseButton.XButton1 => "XButton1",
-            MouseButton.XButton2 => "XButton2",
-            _ => null
-        };
-        if (button is null) return;
-
-        string display = button switch
-        {
-            "Left" => "左クリック",
-            "Right" => "右クリック",
-            "Middle" => "中クリック",
-            "XButton1" => "マウスボタン4",
-            "XButton2" => "マウスボタン5",
-            _ => button
+            Owner = this
         };
 
-        _viewModel.TryAssignScreenshotTrigger(CapturedInputBinding.FromMouse(button, display));
-        e.Handled = true;
-    }
-
-    private void OnScreenshotTriggerBoxPreviewMouseWheel(object sender, MouseWheelEventArgs e)
-    {
-        if (!_viewModel.IsScreenshotTriggerListening || !_viewModel.IsScreenshotTriggerEditorEnabled)
-        {
-            return;
-        }
-
-        _viewModel.TryAssignScreenshotTrigger(CapturedInputBinding.FromMouse("Wheel", "マウスホイール"));
-        e.Handled = true;
-    }
-
-    private void OnScreenshotTriggerBoxPreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (!_viewModel.IsScreenshotTriggerListening)
-        {
-            return;
-        }
-
-        Key key = e.Key == Key.System ? e.SystemKey : e.Key;
-        if (key is Key.LeftCtrl or Key.RightCtrl
-            or Key.LeftAlt or Key.RightAlt
-            or Key.LeftShift or Key.RightShift
-            or Key.LWin or Key.RWin
-            or Key.System)
-        {
-            return;
-        }
-
-        int vk = KeyInterop.VirtualKeyFromKey(key);
-        if (vk == 0) return;
-
-        bool ctrl = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
-        bool alt = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
-        bool shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
-        bool win = Keyboard.IsKeyDown(Key.LWin) || Keyboard.IsKeyDown(Key.RWin);
-
-        string display = KeyboardHookService.BuildDisplayLabel(vk, ctrl, alt, shift, win);
-        if (string.IsNullOrWhiteSpace(display))
-        {
-            display = key.ToString();
-        }
-
-        _viewModel.TryAssignScreenshotTrigger(
-            CapturedInputBinding.FromKeyboard(vk, ctrl, alt, shift, win, display));
-        e.Handled = true;
+        window.ShowDialog();
     }
 
     private void OnHistoryPreviewImageClick(object sender, MouseButtonEventArgs e)
@@ -344,46 +202,7 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void OnConsultationPreviewImageClick(object sender, MouseButtonEventArgs e)
-{
-    if (!_viewModel.TryGetConsultationPreviewPath(out string path))
-    {
-        return;
-    }
-
-    OpenConsultationImageAnnotator(path);
-    e.Handled = true;
-}
-
-private void OnConsultationPreviewThumbnailClick(object sender, MouseButtonEventArgs e)
-{
-    if (sender is not FrameworkElement element
-        || !_viewModel.TryGetConsultationPreviewPathFromEntry(element.DataContext, out string path))
-    {
-        return;
-    }
-
-    OpenConsultationImageAnnotator(path);
-    e.Handled = true;
-}
-
-private void OpenConsultationImageAnnotator(string imagePath)
-{
-    List<string> paths = _viewModel.GeneratedMontagePaths
-        .Where(File.Exists)
-        .ToList();
-
-    int initialIndex = paths.IndexOf(imagePath);
-    if (initialIndex < 0)
-    {
-        paths = new List<string> { imagePath };
-        initialIndex = 0;
-    }
-
-    OpenImageAnnotator(paths, initialIndex, "相談用画像 — 赤ペン記入", reloadHistory: false);
-}
-
-    /// <summary>「選択画像を一覧化」ボタン: サムネイル選択用の別窓を開きます（選択はオプション）。</summary>
+    /// <summary>「内容を確認・選び直す」ボタン: サムネイル選択・結合設定用の別窓を開きます（選択はオプション）。</summary>
     private void OnOpenImageListClick(object sender, RoutedEventArgs e)
     {
         var window = new ConsultationImageListWindow(_viewModel)
@@ -393,47 +212,6 @@ private void OpenConsultationImageAnnotator(string imagePath)
 
         window.ShowDialog();
     }
-
-    // ---- 1枚あたりのコマ数 / 並び方（列数） ホイール・上下矢印・直接入力対応のスピナー ----
-
-    private const int MinFramesPerImage = 1;
-    private const int MaxFramesPerImage = 200;
-    private const int MinLayoutColumns = 1;
-    private const int MaxLayoutColumns = 12;
-
-    private void OnFramesPerImageSpinnerPreviewMouseWheel(object sender, MouseWheelEventArgs e) =>
-        SpinnerInteraction.OnPreviewMouseWheel(e, MinFramesPerImage, MaxFramesPerImage, () => _viewModel.FramesPerImageDisplay, v => _viewModel.FramesPerImageDisplay = v);
-
-    private void OnFramesPerImageTextBoxPreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (sender is not TextBox tb) return;
-        SpinnerInteraction.OnPreviewKeyDown(e, tb, MinFramesPerImage, MaxFramesPerImage, () => _viewModel.FramesPerImageDisplay, v => _viewModel.FramesPerImageDisplay = v);
-    }
-
-    private void OnFramesPerImageTextInput(object sender, TextCompositionEventArgs e) => SpinnerInteraction.OnPreviewTextInput(e);
-
-    private void OnFramesPerImageIncrementClick(object sender, RoutedEventArgs e) =>
-        SpinnerInteraction.Nudge(1, MinFramesPerImage, MaxFramesPerImage, () => _viewModel.FramesPerImageDisplay, v => _viewModel.FramesPerImageDisplay = v);
-
-    private void OnFramesPerImageDecrementClick(object sender, RoutedEventArgs e) =>
-        SpinnerInteraction.Nudge(-1, MinFramesPerImage, MaxFramesPerImage, () => _viewModel.FramesPerImageDisplay, v => _viewModel.FramesPerImageDisplay = v);
-
-    private void OnLayoutColumnsSpinnerPreviewMouseWheel(object sender, MouseWheelEventArgs e) =>
-        SpinnerInteraction.OnPreviewMouseWheel(e, MinLayoutColumns, MaxLayoutColumns, () => _viewModel.LayoutColumns, v => _viewModel.LayoutColumns = v);
-
-    private void OnLayoutColumnsTextBoxPreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (sender is not TextBox tb) return;
-        SpinnerInteraction.OnPreviewKeyDown(e, tb, MinLayoutColumns, MaxLayoutColumns, () => _viewModel.LayoutColumns, v => _viewModel.LayoutColumns = v);
-    }
-
-    private void OnLayoutColumnsTextInput(object sender, TextCompositionEventArgs e) => SpinnerInteraction.OnPreviewTextInput(e);
-
-    private void OnLayoutColumnsIncrementClick(object sender, RoutedEventArgs e) =>
-        SpinnerInteraction.Nudge(1, MinLayoutColumns, MaxLayoutColumns, () => _viewModel.LayoutColumns, v => _viewModel.LayoutColumns = v);
-
-    private void OnLayoutColumnsDecrementClick(object sender, RoutedEventArgs e) =>
-        SpinnerInteraction.Nudge(-1, MinLayoutColumns, MaxLayoutColumns, () => _viewModel.LayoutColumns, v => _viewModel.LayoutColumns = v);
 
     private void OpenImageAnnotator(string imagePath, string title, bool reloadHistory)
 {
