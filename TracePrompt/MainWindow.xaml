@@ -11,7 +11,8 @@
         ResizeMode="CanMinimize"
         Background="{StaticResource Brush.Term.Bg}"
         FontFamily="Yu Gothic UI, Segoe UI"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        PreviewMouseDown="OnWindowPreviewMouseDownForPopups">
     <Window.Resources>
 
         <!-- ツールバー主操作（開始／再開）の下地: 常設シャドウ＋記録中は赤グローが脈打つ丸ボタン。
@@ -138,19 +139,29 @@
             </Setter>
         </Style>
 
-        <!-- 範囲モードのドロップダウンメニュー（Snipping Tool の「四角形／ウィンドウ／全画面表示／フリーフォーム」
-             メニューを参考にした、アイコン＋文字の行）。手作りの Popup + StaysOpen 管理は
-             実機の実クリックで反応しないことがあったため、WPF 標準の ContextMenu / MenuItem に置き換え、
-             開閉・外側クリックでの自動ドロップ・マウスキャプチャをフレームワーク側に任せます。 -->
+        <!-- 範囲モード／モニター選択のドロップダウン（Snipping Tool の「四角形／ウィンドウ／全画面表示／フリーフォーム」
+             メニューを参考にした、アイコン＋文字の行）。
+             以前は WPF 標準の ContextMenu / MenuItem に開閉を任せていましたが、ContextMenu は既定で
+             「外側クリックで自動的に閉じる」ため、開いている状態でトグルボタン自身をもう一度押すと
+             ①その自動クローズが先に発生し ②直後にボタンの Click が飛んで開き直す、という競合が起き、
+             「ボタンを押している間だけ消え、離すと再び開く」不具合になっていました。
+             そこで Popup（StaysOpen="True" で自動クローズを無効化）に置き換え、開閉は
+             ボタンの Click ハンドラーで IsOpen を明示的に反転する一本の経路だけに統一します。
+             「外をクリックしたら閉じる」ぶんは Window レベルの PreviewMouseDown で自前に判定します
+             （OnWindowPreviewMouseDownForPopups 参照）。 -->
         <!-- 「今どちらが選ばれているか」を分かりやすくするため、独自アイコンではなく
-             チェックマーク（✓）1つだけに統一します（IsCheckable="True" の行にだけ表示）。 -->
-        <Style x:Key="RegionModeMenuItemStyle" TargetType="MenuItem">
+             チェックマーク（✓）1つだけに統一します（IsChecked="True" の行にだけ表示）。 -->
+        <Style x:Key="RegionModeOptionButtonStyle" TargetType="ToggleButton">
             <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
             <Setter Property="Padding" Value="10,9"/>
             <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="MenuItem">
+                    <ControlTemplate TargetType="ToggleButton">
                         <Border x:Name="Bg" CornerRadius="6" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                             <DockPanel LastChildFill="True">
                                 <TextBlock x:Name="CheckGlyph"
@@ -162,11 +173,11 @@
                                            Width="22"
                                            VerticalAlignment="Center"
                                            Visibility="Hidden"/>
-                                <ContentPresenter ContentSource="Header" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             </DockPanel>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
+                            <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{StaticResource Brush.SurfaceAlt}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
@@ -178,12 +189,17 @@
             </Setter>
         </Style>
 
-        <Style x:Key="RegionModeContextMenuStyle" TargetType="ContextMenu">
+        <Style x:Key="DropdownPopupBorderStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="6"/>
-            <Setter Property="HasDropShadow" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" BlurRadius="14" ShadowDepth="2" Opacity="0.22"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="ToolbarDividerStyle" TargetType="Border">
@@ -240,9 +256,9 @@
             <StackPanel Orientation="Horizontal" Margin="10,8" VerticalAlignment="Center">
 
                 <!-- 範囲モード（全画面／クリップ）: Snipping Tool の「四角形／ウィンドウ／全画面表示／…」
-                     ドロップダウンを参考にしたメニュー形式。WPF 標準の ContextMenu を左クリックで開くことで、
-                     開閉・外側クリックでの自動ドロップ・マウスキャプチャの面倒な自前実装を避け、
-                     確実に反応する標準の仕組みに任せています。 -->
+                     ドロップダウンを参考にしたメニュー形式。開閉は Click ハンドラーで RegionModePopup.IsOpen を
+                     明示的に反転するだけの単純な作りです（詳しい経緯は RegionModeOptionButtonStyle の
+                     コメント、および OnRegionModeToggleButtonClick 参照）。 -->
                 <Button x:Name="RegionModeToggleButton"
                         Style="{StaticResource ToolbarNeutralButtonStyle}"
                         ToolTip="キャプチャ範囲のモードを選ぶ（全画面表示／クリップ）"
@@ -279,34 +295,32 @@
                         </Grid>
                         <TextBlock Text="&#9662;" Foreground="{StaticResource Brush.Term.TextDim}" FontSize="9"
                                    Margin="4,0,0,0" VerticalAlignment="Center"/>
-                        <StackPanel.ContextMenu>
-                            <ContextMenu x:Name="RegionModeContextMenu"
-                                         Style="{StaticResource RegionModeContextMenuStyle}"
-                                         DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"
-                                         Placement="Bottom">
-                                <MenuItem x:Name="FullScreenModeMenuItem"
-                                          Header="全画面表示"
-                                          Style="{StaticResource RegionModeMenuItemStyle}"
-                                          IsCheckable="True"
-                                          StaysOpenOnClick="True"
-                                          IsChecked="{Binding IsFullScreenRegionMode, Mode=OneWay}"
-                                          Click="OnSelectFullScreenModeClick"/>
-                                <MenuItem x:Name="ClipModeMenuItem"
-                                          Header="クリップ"
-                                          Style="{StaticResource RegionModeMenuItemStyle}"
-                                          IsCheckable="True"
-                                          StaysOpenOnClick="True"
-                                          IsChecked="{Binding IsFreeClipRegionMode, Mode=OneWay}"
-                                          Click="OnSelectClipModeClick"/>
-                            </ContextMenu>
-                        </StackPanel.ContextMenu>
                     </StackPanel>
                 </Button>
+                <Popup x:Name="RegionModePopup"
+                       PlacementTarget="{Binding ElementName=RegionModeToggleButton}"
+                       Placement="Bottom"
+                       StaysOpen="True"
+                       AllowsTransparency="True"
+                       DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                    <Border Style="{StaticResource DropdownPopupBorderStyle}">
+                        <StackPanel>
+                            <ToggleButton x:Name="FullScreenModeMenuItem"
+                                          Content="全画面表示"
+                                          Style="{StaticResource RegionModeOptionButtonStyle}"
+                                          IsChecked="{Binding IsFullScreenRegionMode, Mode=OneWay}"
+                                          Click="OnSelectFullScreenModeClick"/>
+                            <ToggleButton x:Name="ClipModeMenuItem"
+                                          Content="クリップ"
+                                          Style="{StaticResource RegionModeOptionButtonStyle}"
+                                          IsChecked="{Binding IsFreeClipRegionMode, Mode=OneWay}"
+                                          Click="OnSelectClipModeClick"/>
+                        </StackPanel>
+                    </Border>
+                </Popup>
 
-                <!-- モニター選択（全画面モードのときだけ表示）。
-                     ComboBox を自前 Popup の中に入れる形は「Popup の中に Popup」となり、
-                     ComboBox 自身のドロップダウンが正しく開閉できないことがあったため、
-                     範囲モードと同じく WPF 標準の ContextMenu（一覧はクリック時に動的生成）に置き換えています。 -->
+                <!-- モニター選択（全画面モードのときだけ表示）。一覧はクリック時に動的生成しますが、
+                     開閉自体は範囲モードと同じ Popup + 明示トグル方式です。 -->
                 <Button x:Name="MonitorToggleButton"
                         Style="{StaticResource ToolbarNeutralButtonStyle}"
                         ToolTip="撮影するモニターを選ぶ"
@@ -328,29 +342,28 @@
                                    Margin="4,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                <Popup x:Name="MonitorPopup"
+                       PlacementTarget="{Binding ElementName=MonitorToggleButton}"
+                       Placement="Bottom"
+                       StaysOpen="True"
+                       AllowsTransparency="True">
+                    <Border Style="{StaticResource DropdownPopupBorderStyle}">
+                        <StackPanel x:Name="MonitorPopupItemsPanel"/>
+                    </Border>
+                </Popup>
 
                 <Border Style="{StaticResource ToolbarDividerStyle}"/>
 
-                <!-- キャプチャする: 全画面モードでは選んだモニターに枠を表示、クリップモードでは
+                <!-- キャプチャする: 押すたびに毎回、必ず枠を表示させる一方通行のボタンです（選択・非選択の
+                     2状態は持ちません）。全画面モードでは選んだモニターに枠を表示、クリップモードでは
                      ドラッグでの範囲選択操作を開始し、選び終わったらそのまま枠を表示します。
-                     もう一度押すと（選択操作なしで）枠を消します。 -->
-                <ToggleButton x:Name="CaptureToggleButton"
-                              Style="{StaticResource ToolbarIconToggleButtonStyle}"
-                              ToolTip="キャプチャする"
-                              IsEnabled="{Binding IsIdle}"
-                              Click="OnCaptureButtonClick">
-                    <Grid Width="16" Height="16">
-                        <!-- ビューファインダー風の四隅の角括弧 -->
-                        <Line X1="1" Y1="5" X2="1" Y2="1" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        <Line X1="1" Y1="1" X2="5" Y2="1" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        <Line X1="15" Y1="5" X2="15" Y2="1" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        <Line X1="11" Y1="1" X2="15" Y2="1" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        <Line X1="1" Y1="11" X2="1" Y2="15" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        <Line X1="1" Y1="15" X2="5" Y2="15" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        <Line X1="15" Y1="11" X2="15" Y2="15" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        <Line X1="11" Y1="15" X2="15" Y2="15" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                    </Grid>
-                </ToggleButton>
+                     ツールバーの中で唯一の主要操作なので、色を付けて目立たせています。 -->
+                <Button x:Name="CaptureButton"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        FontSize="12.5"
+                        IsEnabled="{Binding IsIdle}"
+                        Click="OnCaptureButtonClick"
+                        Content="キャプチャ"/>
 
                 <Border Style="{StaticResource ToolbarDividerStyle}"/>
 
@@ -390,46 +403,9 @@
 
                 <Border Style="{StaticResource ToolbarDividerStyle}"/>
 
-                <!-- 記録の開始／一時停止／再開／停止: 状態ごとに表示するボタンの組み合わせを切り替える（同時に出るのは最大2つ） -->
-                <Button Style="{StaticResource ToolbarPrimaryToggleStyle}"
-                        ToolTip="記録開始"
-                        Command="{Binding StartRecordingCommand}">
-                    <Button.Visibility>
-                        <Binding Path="IsIdle"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
-                    </Button.Visibility>
-                    <Ellipse Style="{StaticResource RecordIconStyle}"/>
-                </Button>
-                <Button Style="{StaticResource ToolbarNeutralButtonStyle}"
-                        ToolTip="一時停止"
-                        Command="{Binding PauseRecordingCommand}">
-                    <Button.Visibility>
-                        <Binding Path="IsRecording"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
-                    </Button.Visibility>
-                    <StackPanel Orientation="Horizontal">
-                        <Rectangle Style="{StaticResource ToolbarPauseBarStyle}" Margin="0,0,3,0"/>
-                        <Rectangle Style="{StaticResource ToolbarPauseBarStyle}"/>
-                    </StackPanel>
-                </Button>
-                <Button Style="{StaticResource ToolbarPrimaryToggleStyle}"
-                        ToolTip="再開"
-                        Command="{Binding ResumeRecordingCommand}">
-                    <Button.Visibility>
-                        <Binding Path="IsPaused"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
-                    </Button.Visibility>
-                    <Ellipse Style="{StaticResource RecordIconStyle}"/>
-                </Button>
-                <Button Style="{StaticResource ToolbarPrimaryToggleStyle}"
-                        Background="{StaticResource Brush.Danger}"
-                        Tag="{Binding IsRecording}"
-                        ToolTip="停止"
-                        Command="{Binding StopRecordingCommand}">
-                    <Button.Visibility>
-                        <Binding Path="IsSessionActive"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
-                    </Button.Visibility>
-                    <Rectangle Style="{StaticResource StopIconStyle}"/>
-                </Button>
-
-                <Border Style="{StaticResource ToolbarDividerStyle}"/>
+                <!-- 記録の開始／一時停止／再開／停止の操作はこのウィンドウには置きません。
+                     キャプチャ範囲確定後は小型ウィンドウ（CompactRecordingWindow）側に一本化しています
+                     （このウィンドウは記録中も「戻る」で表示され得ますが、操作は小型ウィンドウ専用です）。 -->
 
                 <!-- AI相談用データ: 記録停止のたびに自動生成・自動コピー済み。ここは確認・選び直し専用の入口。
                      未確認のデータがあるとき（HasConsultationPreview）は右上に緑のバッジを出します。 -->
@@ -466,21 +442,32 @@
                     </Grid>
                 </Button>
 
-                <!-- 設定: 頻度・保持・記録対象などの詳細設定を別窓で開きます（スライダー3本のアイコン） -->
+                <!-- スクショ保存フォルダを開く（フォルダアイコン）。SettingsWindow / ConsultationImageListWindow と
+                     同じ OpenTempFolderCommand をここからも直接呼べるようにします。
+                     アイコンはタブ付きフォルダのアウトライン1本（塗りなし・角丸）。24単位の座標系で描き、
+                     Stretch="Uniform" で他のツールバーアイコンと同じ 16x16 相当に収めています。 -->
+                <Button Style="{StaticResource ToolbarNeutralButtonStyle}"
+                        ToolTip="スクショ保存フォルダを開く"
+                        Command="{Binding OpenTempFolderCommand}">
+                    <Path Data="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                          Stretch="Uniform"
+                          Width="16"
+                          Height="16"
+                          Stroke="{StaticResource Brush.Term.Text}"
+                          StrokeThickness="2"
+                          StrokeLineJoin="Round"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"/>
+                </Button>
+
+                <!-- 設定: 頻度・保持・記録対象などの詳細設定を別窓で開きます（歯車アイコン） -->
                 <Button Style="{StaticResource ToolbarNeutralButtonStyle}"
                         ToolTip="記録の設定（頻度・保持・記録対象など）"
                         Click="OnOpenSettingsClick">
-                    <Grid Width="16" Height="16">
-                        <Line X1="1" Y1="3" X2="15" Y2="3" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.2"/>
-                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource Brush.Term.Text}"
-                                 HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3.5,0.75,0,0"/>
-                        <Line X1="1" Y1="8" X2="15" Y2="8" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.2"/>
-                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource Brush.Term.Text}"
-                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5.75,4,0"/>
-                        <Line X1="1" Y1="13" X2="15" Y2="13" Stroke="{StaticResource Brush.Term.Text}" StrokeThickness="1.2"/>
-                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource Brush.Term.Text}"
-                                 HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6.5,10.75,0,0"/>
-                    </Grid>
+                    <TextBlock Text="&#xE713;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="16"
+                               Foreground="{StaticResource Brush.Term.Text}"/>
                 </Button>
             </StackPanel>
         </Border>

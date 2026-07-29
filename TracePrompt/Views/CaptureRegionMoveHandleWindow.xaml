@@ -1,0 +1,41 @@
+<Window x:Class="TracePrompt.Views.CaptureRegionMoveHandleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AIヘルプキャプチャ 範囲移動ハンドル"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        ResizeMode="NoResize"
+        Width="32"
+        Height="32"
+        WindowStartupLocation="Manual">
+    <!-- キャプチャ範囲の中央だけに置く、ドラッグ移動用の小さなつまみです。
+         枠線（CaptureRegionBorderWindow）自体は常にクリックスルーのままにし、
+         「動かせる場所」をこの円だけに絞ることで、範囲の内側での通常のクリック操作を邪魔しません。
+         DragMove() は使わず、マウスキャプチャ＋MouseMove で自前追跡しています。
+         DragMove（OS のモーダルな移動ループ）は完了するまで呼び出し元に制御が戻らないため、
+         ドラッグ中に枠線側を同時に動かすこと（LiveRegionUpdate）ができませんでした。 -->
+    <Border x:Name="HandleBorder"
+            Width="28"
+            Height="28"
+            CornerRadius="14"
+            Background="#CC1A1D28"
+            Cursor="SizeAll"
+            MouseLeftButtonDown="OnHandleMouseLeftButtonDown"
+            MouseMove="OnHandleMouseMove"
+            MouseLeftButtonUp="OnHandleMouseLeftButtonUp">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="1" Opacity="0.4"/>
+        </Border.Effect>
+        <TextBlock Text="&#xE7C2;"
+                   FontFamily="Segoe MDL2 Assets"
+                   FontSize="14"
+                   Foreground="White"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   IsHitTestVisible="False"/>
+    </Border>
+</Window>

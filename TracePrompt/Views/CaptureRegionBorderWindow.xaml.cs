@@ -9,6 +9,7 @@ namespace TracePrompt.Views;
 /// キャプチャ範囲を薄い枠線で常時プレビュー表示する、クリックスルーのオーバーレイです。
 /// 自分自身は BitBlt によるキャプチャに映り込まないよう、
 /// WS_EX_TRANSPARENT（マウス透過）と WDA_EXCLUDEFROMCAPTURE（キャプチャ除外）を設定します。
+/// ドラッグでの位置調整は、別ウィンドウの中央ハンドル（<see cref="CaptureRegionMoveHandleWindow"/>）が担当します。
 /// </summary>
 public partial class CaptureRegionBorderWindow : Window
 {

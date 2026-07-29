@@ -1,0 +1,137 @@
+<Window x:Class="TracePrompt.Views.CompactRecordingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AIヘルプキャプチャ"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="Manual"
+        FontFamily="Yu Gothic UI, Segoe UI"
+        KeyDown="OnWindowKeyDown">
+    <Window.Resources>
+        <Style x:Key="CompactPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="CompactSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="CompactGhostButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="Opacity" Value="0.92"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- タイトルバーが無いので、この Border の余白をドラッグしてウィンドウを移動します。
+         ボタン上のクリックはドラッグ扱いにしません（OnRootBorderPreviewMouseLeftButtonDown 参照）。
+         Cursor="SizeAll" はここに設定するだけで十分です。WPF のカーソル解決はマウス直下の要素から
+         上へ辿って最初に見つかった非 null の Cursor を使うため、各 Button は自分の Cursor="Hand"
+         （BaseButtonStyle 由来）が優先され、ボタン以外の余白だけがこの十字矢印になります。 -->
+    <Border x:Name="RootBorder"
+            Background="#EE1A1D28"
+            CornerRadius="10"
+            Padding="8,6"
+            Cursor="SizeAll"
+            PreviewMouseLeftButtonDown="OnRootBorderPreviewMouseLeftButtonDown">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="16" ShadowDepth="2" Opacity="0.35"/>
+        </Border.Effect>
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+            <Button Content="● 開始"
+                    Style="{StaticResource CompactPrimaryButtonStyle}"
+                    Foreground="White"
+                    Command="{Binding StartRecordingCommand}">
+                <Button.Visibility>
+                    <Binding Path="IsIdle"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                </Button.Visibility>
+            </Button>
+            <Button Content="一時停止"
+                    Style="{StaticResource CompactSecondaryButtonStyle}"
+                    Command="{Binding PauseRecordingCommand}">
+                <Button.Visibility>
+                    <Binding Path="IsRecording"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                </Button.Visibility>
+            </Button>
+            <Button Content="● 再開"
+                    Style="{StaticResource CompactPrimaryButtonStyle}"
+                    Foreground="White"
+                    Command="{Binding ResumeRecordingCommand}">
+                <Button.Visibility>
+                    <Binding Path="IsPaused"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                </Button.Visibility>
+            </Button>
+            <Button Content="■ 停止"
+                    Style="{StaticResource CompactSecondaryButtonStyle}"
+                    Margin="6,0,0,0"
+                    Command="{Binding StopRecordingCommand}">
+                <Button.Visibility>
+                    <Binding Path="IsSessionActive"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                </Button.Visibility>
+            </Button>
+
+            <TextBlock Text="{Binding RecordingElapsedCompactText}"
+                       Foreground="#F2F6FF"
+                       FontFamily="Cascadia Mono, Consolas, Courier New"
+                       FontSize="12.5"
+                       VerticalAlignment="Center"
+                       Margin="10,0,0,0"/>
+
+            <!-- キャプチャ枚数: キャプチャのたびに CaptureCountCompactText がリアルタイムに更新されます。 -->
+            <TextBlock Text="{Binding CaptureCountCompactText}"
+                       Foreground="#B7C0D8"
+                       FontFamily="Cascadia Mono, Consolas, Courier New"
+                       FontSize="12.5"
+                       VerticalAlignment="Center"
+                       Margin="8,0,0,0"/>
+
+            <!-- 「設定」「戻る」はキャプチャ開始前（IsIdle）だけ出します。記録中に設定を変えたり
+                 メイン画面へ迷い込んだりできないようにするためです。区切り線も一緒に隠します。 -->
+            <Border Width="1" Height="20" Background="#3A3F52" Margin="10,0">
+                <Border.Visibility>
+                    <Binding Path="IsIdle"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                </Border.Visibility>
+            </Border>
+
+            <Button Content="設定"
+                    Style="{StaticResource CompactGhostButtonStyle}"
+                    ToolTip="記録の設定（頻度・保持・記録対象など）"
+                    Margin="0,0,6,0"
+                    Click="OnSettingsButtonClick">
+                <Button.Visibility>
+                    <Binding Path="IsIdle"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                </Button.Visibility>
+            </Button>
+
+            <Button Content="戻る"
+                    Style="{StaticResource CompactGhostButtonStyle}"
+                    ToolTip="通常のウィンドウ表示に戻る"
+                    Click="OnReturnButtonClick">
+                <Button.Visibility>
+                    <Binding Path="IsIdle"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                </Button.Visibility>
+            </Button>
+        </StackPanel>
+
+            <TextBlock Text="Esc で閉じる"
+                       FontSize="9.5"
+                       Foreground="#8A90A2"
+                       Opacity="0.75"
+                       HorizontalAlignment="Right"
+                       Margin="0,3,2,0">
+                <TextBlock.Visibility>
+                    <Binding Path="IsIdle"><Binding.Converter><BooleanToVisibilityConverter/></Binding.Converter></Binding>
+                </TextBlock.Visibility>
+            </TextBlock>
+        </StackPanel>
+    </Border>
+</Window>

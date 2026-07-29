@@ -298,6 +298,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         ? string.Empty
         : $"経過 {FormatRecordingOverlayElapsed(GetRecordingOverlayElapsed())}";
 
+    /// <summary>小型の操作ウィンドウ用: 接頭辞なし・常に時:分:秒（未開始時は "00:00:00"）で表示します。</summary>
+    public string RecordingElapsedCompactText => _recordingSessionStartedAt is null
+        ? "00:00:00"
+        : FormatRecordingElapsedCompact(GetRecordingOverlayElapsed());
+
+    /// <summary>小型の操作ウィンドウ用: 今バッファに保持しているキャプチャ枚数（"N 枚"）。キャプチャのたびに更新されます。</summary>
+    public string CaptureCountCompactText => $"{_captureBuffer.Count} 枚";
+
     public string RecordingOverlayActivityText
     {
         get
@@ -2234,11 +2242,16 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             : $"{elapsed.Minutes:00}:{elapsed.Seconds:00}";
     }
 
+    private static string FormatRecordingElapsedCompact(TimeSpan elapsed) =>
+        $"{(int)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
+
     private void RaiseRecordingOverlayStatusProperties()
     {
         OnPropertyChanged(nameof(HasRecordingOverlayStatus));
         OnPropertyChanged(nameof(RecordingOverlayElapsedText));
         OnPropertyChanged(nameof(RecordingOverlayActivityText));
+        OnPropertyChanged(nameof(RecordingElapsedCompactText));
+        OnPropertyChanged(nameof(CaptureCountCompactText));
     }
 
     private void StopCaptureTimer()
@@ -2853,8 +2866,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
 
         ThumbnailFrames.Clear();
-        ClearCaptureBuffer(deleteFiles: true);
-        _tempStorageService.ClearAll();
+        // アプリ終了時に一時ファイルを削除する仕様は廃止しました。次回起動時も残しておきます。
+        ClearCaptureBuffer(deleteFiles: false);
     }
 }
 
