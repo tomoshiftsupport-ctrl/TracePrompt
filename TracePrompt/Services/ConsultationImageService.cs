@@ -488,28 +488,28 @@ public sealed class ConsultationImageService
 
     private static void DrawClickMarker(DrawingContext dc, double centerX, double centerY, Color fillColor, bool doubleCircle)
     {
-        const double radius = 14;
-        var outline = new Pen(Brushes.White, 3);
+        const double radius = 10;
+        var outline = new Pen(Brushes.White, 2.5);
         outline.Freeze();
         var fill = new SolidColorBrush(fillColor);
         fill.Freeze();
-        var crossPen = new Pen(Brushes.White, 2);
+        var crossPen = new Pen(Brushes.White, 1.6);
         crossPen.Freeze();
-        var outerRing = new Pen(new SolidColorBrush(Color.FromArgb(180, fillColor.R, fillColor.G, fillColor.B)), 2);
+        var outerRing = new Pen(new SolidColorBrush(Color.FromArgb(180, fillColor.R, fillColor.G, fillColor.B)), 1.6);
         outerRing.Freeze();
-        dc.DrawEllipse(null, outerRing, new Point(centerX, centerY), radius + 4, radius + 4);
+        dc.DrawEllipse(null, outerRing, new Point(centerX, centerY), radius + 3, radius + 3);
         if (doubleCircle)
         {
-            var ring2 = new Pen(fill, 2.5);
+            var ring2 = new Pen(fill, 2);
             ring2.Freeze();
-            dc.DrawEllipse(null, ring2, new Point(centerX, centerY), radius + 8, radius + 8);
+            dc.DrawEllipse(null, ring2, new Point(centerX, centerY), radius + 6, radius + 6);
         }
 
         dc.DrawEllipse(fill, outline, new Point(centerX, centerY), radius, radius);
-        double arm = radius - 3;
+        double arm = radius - 2;
         dc.DrawLine(crossPen, new Point(centerX - arm, centerY), new Point(centerX + arm, centerY));
         dc.DrawLine(crossPen, new Point(centerX, centerY - arm), new Point(centerX, centerY + arm));
-        dc.DrawEllipse(Brushes.White, null, new Point(centerX, centerY), 2.5, 2.5);
+        dc.DrawEllipse(Brushes.White, null, new Point(centerX, centerY), 2, 2);
     }
 
     private static void DrawDragArrow(DrawingContext dc, double x1, double y1, double x2, double y2)
