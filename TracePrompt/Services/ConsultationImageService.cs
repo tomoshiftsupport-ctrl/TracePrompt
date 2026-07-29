@@ -150,6 +150,7 @@ public sealed class ConsultationImageService
         }
 
         double scale = source.PixelWidth > maxWidth ? (double)maxWidth / source.PixelWidth : 1.0;
+        int drawWidth = Math.Max(1, (int)Math.Round(source.PixelWidth * scale));
         int drawHeight = Math.Max(1, (int)Math.Round(source.PixelHeight * scale));
 
         string title = $"コマ 1 / 1　{entry.Frame.RecordedAt:HH:mm:ss.fff}";
@@ -159,6 +160,7 @@ public sealed class ConsultationImageService
 
         FormattedText titleText = CreateFormattedText(title, 16, Brushes.Black, bold: true);
         FormattedText detailText = CreateFormattedText(detail, 12, Brushes.Black, bold: false);
+        detailText.MaxTextWidth = drawWidth;
         double headerHeight = titleText.Height + 2 + detailText.Height;
 
         return CardPadding + headerHeight + HeaderBottomMargin + drawHeight + CardPadding;
@@ -204,6 +206,9 @@ public sealed class ConsultationImageService
                 12,
                 new SolidColorBrush(Color.FromRgb(50, 60, 70)),
                 bold: false);
+            // 操作記録が長い（連続クリック等を結合した）場合でも、キャプチャ画像の幅を超えて
+            // カードごと横に広がらないよう、画像の描画幅で折り返します。
+            detailText.MaxTextWidth = drawWidth;
             double headerHeight = titleText.Height + 2 + detailText.Height;
 
             timed.Add((entry.Frame.RecordedAt, new PanelLayout(entry, source, drawWidth, drawHeight, titleText, detailText, headerHeight)));
@@ -211,8 +216,11 @@ public sealed class ConsultationImageService
 
         foreach (RecordedAction action in outOfRegionActions)
         {
-            string title = $"画面外での操作　{action.RecordedAt:HH:mm:ss.fff}";
-            string detail = $"{action.TypeLabel}：{action.Summary}";
+            string title = $"{action.NoImageReasonLabel}　{action.RecordedAt:HH:mm:ss.fff}";
+            // ここに来る action は必ず MainViewModel.CollapseOutOfRegionActionsToSingleCard を通った
+            // 結合済みの1件で、項目ごとの種類ラベルは Summary 側に既に埋め込まれているため、
+            // ここで TypeLabel を重ねて付けません。
+            string detail = action.Summary;
 
             FormattedText titleText = CreateFormattedText(title, 16, Brushes.Black, bold: true);
             FormattedText detailText = CreateFormattedText(
@@ -220,6 +228,8 @@ public sealed class ConsultationImageService
                 12,
                 new SolidColorBrush(Color.FromRgb(50, 60, 70)),
                 bold: false);
+            // 画像を伴わないカードにも、他のカードと横幅がそろうよう同じ上限幅で折り返します。
+            detailText.MaxTextWidth = maxWidth;
             double headerHeight = titleText.Height + 2 + detailText.Height;
 
             timed.Add((action.RecordedAt, new PanelLayout(titleText, detailText, headerHeight)));

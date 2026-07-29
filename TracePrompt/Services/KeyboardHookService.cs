@@ -53,9 +53,13 @@ public sealed class KeyboardHookService : IDisposable
     private bool _disposed;
 
     /// <summary>
-    /// キー押し下げ時。引数は仮想キーコードと、修飾キー込みの表示用ラベルです。
+    /// キー押し下げ時。引数は仮想キーコード、修飾キー込みの表示用ラベル、
+    /// 続けて Ctrl/Alt/Shift/Win の押下状態です（いずれも <c>GetAsyncKeyState</c> によるグローバルな
+    /// 状態で、自アプリのウィンドウがフォーカスを持っているかどうかに関係なく正しく取れます。
+    /// 呼び出し側は <c>System.Windows.Input.Keyboard.Modifiers</c> のような WPF のフォーカス依存 API を
+    /// 使わず、必ずこの値を使ってください）。
     /// </summary>
-    public event Action<int, string>? KeyDown;
+    public event Action<int, string, bool, bool, bool, bool>? KeyDown;
 
     public bool IsRunning => _hookId != nint.Zero;
 
@@ -124,7 +128,7 @@ public sealed class KeyboardHookService : IDisposable
                 string display = BuildDisplayLabel(vk, ctrl, alt, shift, win);
                 if (!string.IsNullOrEmpty(display))
                 {
-                    KeyDown?.Invoke(vk, display);
+                    KeyDown?.Invoke(vk, display, ctrl, alt, shift, win);
                 }
             }
             catch

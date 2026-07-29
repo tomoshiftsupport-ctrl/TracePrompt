@@ -30,7 +30,8 @@ public sealed class RecordedAction
         bool? wheelUp = null,
         double? dragDistance = null,
         string? dragDirection = null,
-        bool isOutOfRegion = false)
+        bool isOutOfRegion = false,
+        bool isGeometricallyOutOfRegion = false)
     {
         ActionType = actionType;
         RecordedAt = recordedAt;
@@ -56,6 +57,7 @@ public sealed class RecordedAction
         DragDistance = dragDistance;
         DragDirection = dragDirection;
         IsOutOfRegion = isOutOfRegion;
+        IsGeometricallyOutOfRegion = isGeometricallyOutOfRegion;
     }
 
     public RecordedActionType ActionType { get; }
@@ -87,8 +89,20 @@ public sealed class RecordedAction
     public double? DragDistance { get; }
     public string? DragDirection { get; }
 
-    /// <summary>キャプチャ範囲の外で起きた操作か。true の場合、画像には紐づかず「画面外での操作」として扱います。</summary>
+    /// <summary>
+    /// 画像に紐づかず、テキストのみのカードとして扱うべき操作か。
+    /// 実際にキャプチャ範囲の外で起きた場合（<see cref="IsGeometricallyOutOfRegion"/>）だけでなく、
+    /// 範囲内で起きたのに紐づく画像が無かった場合（操作キャプチャのトリガー不一致など）も true にします
+    /// （<see cref="NoImageReasonLabel"/> がこの違いに応じて表示文言を出し分けます）。
+    /// </summary>
     public bool IsOutOfRegion { get; }
+
+    /// <summary>
+    /// 実際にキャプチャ範囲の外でマウス操作が起きたか。<see cref="IsOutOfRegion"/> と異なり、
+    /// 「範囲内だが紐づく画像が無かっただけ」のケースは含みません。範囲座標という概念が無い
+    /// キーボード操作では常に false です。
+    /// </summary>
+    public bool IsGeometricallyOutOfRegion { get; }
 
     public string TypeLabel => ActionType switch
     {
@@ -102,14 +116,33 @@ public sealed class RecordedAction
         _ => "操作"
     };
 
+    /// <summary>
+    /// 画像が紐づかないときの見出し文言です。実際に範囲外で起きたときだけ「画面外での操作」とし、
+    /// 範囲内なのに紐づく画像が無かっただけのとき（キーボードに限らずマウスも含む）は、
+    /// 誤解を招かないよう中立的な文言にします。
+    /// </summary>
+    public string NoImageReasonLabel =>
+        IsGeometricallyOutOfRegion ? "画面外での操作" : "キャプチャなしの操作";
+
     public string ToHistoryText()
     {
         // 操作キャプチャで画像が付いた行は【画面】を付け、キャプチャ無し操作と区別する
         string captureMark = string.IsNullOrWhiteSpace(ScreenshotPath) ? string.Empty : " 【画面】";
-        string label = IsOutOfRegion ? $"画面外での操作（{TypeLabel}）" : TypeLabel;
-        return $"{RecordedAt:HH:mm:ss.fff}{captureMark} {label}：{Summary}";
+        // キーボードは Summary 自体が押されたキー表示（例: Ctrl + S）で見出しとして十分なため、
+        // 冗長な「キーボード：」は付けません。
+        string body = ActionType == RecordedActionType.Keyboard && !IsOutOfRegion
+            ? Summary
+            : $"{(IsOutOfRegion ? $"{NoImageReasonLabel}（{TypeLabel}）" : TypeLabel)}：{Summary}";
+        return $"{RecordedAt:HH:mm:ss.fff}{captureMark} {body}";
     }
 
-    public string ToConsultationDetail() =>
-        IsOutOfRegion ? $"画面外での操作（{TypeLabel}）：{Summary}" : $"{TypeLabel}：{Summary}";
+    public string ToConsultationDetail()
+    {
+        if (IsOutOfRegion)
+        {
+            return $"{NoImageReasonLabel}（{TypeLabel}）：{Summary}";
+        }
+
+        return ActionType == RecordedActionType.Keyboard ? Summary : $"{TypeLabel}：{Summary}";
+    }
 }

@@ -49,6 +49,22 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private readonly List<CaptureFrame> _captureBuffer = new();
     private long _nextCaptureId = 1;
 
+    /// <summary>
+    /// 秒でキャプチャモードで、操作した瞬間にはまだ存在しない「次の定期キャプチャ」を待っている操作です。
+    /// 次のフレームが実際に撮れたら <see cref="ResolvePendingIntervalLinks"/> が遡って紐づけ直し、
+    /// 記録が終わるまでどのフレームも来なければ <see cref="FlushPendingIntervalLinks"/> が
+    /// 「キャプチャなしの操作」として確定させます（<see cref="AddActionWithCaptureLink"/> 参照）。
+    /// </summary>
+    private readonly List<(Func<CaptureFrame?, RecordedAction> BuildAction, HistoryItem Item)> _pendingIntervalLinks = new();
+
+    /// <summary>
+    /// 操作キャプチャモードで、設定したトリガーには一致しなかったがキャプチャ範囲内で起きたマウス操作
+    /// （左右クリック・ホイール・ドラッグ）です。位置情報があるため、次にトリガーが一致して実際に
+    /// 1枚撮れた瞬間にその画像へ遡って紐づけ直し、位置マークを描けるようにします。
+    /// キーボードには位置の概念が無いためここには積みません（従来どおり「キャプチャなしの操作」）。
+    /// </summary>
+    private readonly List<(Func<CaptureFrame?, RecordedAction> BuildAction, HistoryItem Item)> _pendingOperationCaptureLinks = new();
+
     private RecordingState _state = RecordingState.Stopped;
     private MonitorInfo? _selectedMonitor;
     private CaptureRegionMode _captureRegionMode = CaptureRegionMode.FullScreen;
@@ -211,7 +227,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _mouseHookService.RightButtonUp += (x, y) => Dispatch(() => ProcessRightButtonUp(x, y));
         _mouseHookService.MouseMoveWhileLeftDown += (x, y) => Dispatch(() => ProcessMouseMoveWhileLeftDown(x, y));
         _mouseHookService.MouseWheel += (x, y, d) => Dispatch(() => ProcessMouseWheel(x, y, d));
-        _keyboardHookService.KeyDown += (vk, display) => Dispatch(() => ProcessKeyDown(vk, display));
+        _keyboardHookService.KeyDown += (vk, display, ctrl, alt, shift, win) =>
+            Dispatch(() => ProcessKeyDown(vk, display, ctrl, alt, shift, win));
 
         RefreshMonitorsCommand = new RelayCommand(RefreshMonitors, () => IsIdle);
         StartRecordingCommand = new RelayCommand(StartRecording, () => IsIdle);
@@ -1169,6 +1186,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         if (!IsSessionActive) return;
         FlushPendingInputs();
+        FlushPendingIntervalLinks();
+        FlushPendingOperationCaptureLinks();
         EndSessionCore(flushPending: false);
         AddMessageHistory("記録を停止しました");
         RaiseCommandStates();
@@ -1313,7 +1332,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
             _tempStorageService.TryDeleteSplitConsultationImages();
             string outputPath = _tempStorageService.ConsultationImagePath;
-            if (!_consultationImageService.TryBuildConsultationImage(timeline, outOfRegionActions, outputPath, out string? imageError))
+            List<RecordedAction> collapsedOutOfRegionActions = CollapseOutOfRegionActionsToSingleCard(outOfRegionActions);
+            if (!_consultationImageService.TryBuildConsultationImage(timeline, collapsedOutOfRegionActions, outputPath, out string? imageError))
             {
                 GeneratedMontagePaths = Array.Empty<string>();
                 ConsultationPreviewImage = null;
@@ -1439,6 +1459,64 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         .Select(h => h.Action!)
         .OrderBy(a => a.RecordedAt)
         .ToList();
+
+    /// <summary>
+    /// 画像なしカード（<see cref="CollectOutOfRegionActions"/> の結果、または各グループへの割り振り後の
+    /// 一部）を、1つの画像につき1枚のカードにまとめます。カードごとに何件あっても省略はしません。
+    /// 種類をまたいでも行を分けず、1件ずつ「→」で横につないだ1行にします
+    /// （例:「左クリック：(526, 545) → a×13 → Backspace×14」）。
+    /// 同じ内容が連続するときは「値×件数」に畳み、連続しない場合（a→b→a 等）はそのまま並べます。
+    /// この結果を渡された側（ConsultationImageService）は、各項目に既にラベルが入っているので
+    /// TypeLabel を重ねて付けません。アプリ本体の操作履歴一覧（OperationHistory）には影響せず、
+    /// 相談用画像の生成時にだけ使います。
+    /// </summary>
+    private static List<RecordedAction> CollapseOutOfRegionActionsToSingleCard(IReadOnlyList<RecordedAction> actions)
+    {
+        if (actions.Count == 0)
+        {
+            return new List<RecordedAction>();
+        }
+
+        var segments = new List<string>();
+        int i = 0;
+        while (i < actions.Count)
+        {
+            string label = DescribeForMergedCard(actions[i]);
+            int count = 1;
+            int j = i + 1;
+            while (j < actions.Count && DescribeForMergedCard(actions[j]) == label)
+            {
+                count++;
+                j++;
+            }
+
+            segments.Add(count > 1 ? $"{label}×{count}" : label);
+            i = j;
+        }
+
+        string joined = string.Join(" → ", segments);
+
+        RecordedAction first = actions[0];
+        RecordedAction last = actions[^1];
+        var merged = new RecordedAction(
+            actionType: first.ActionType,
+            recordedAt: first.RecordedAt,
+            summary: joined,
+            endedAt: last.RecordedAt,
+            isOutOfRegion: true,
+            isGeometricallyOutOfRegion: actions.Any(a => a.IsGeometricallyOutOfRegion));
+
+        return new List<RecordedAction> { merged };
+    }
+
+    /// <summary>
+    /// 結合カード内の1件分の表示文言です。キーボードは Summary 自体が押されたキー表示
+    /// （例: Ctrl + S）で見出しとして十分なため、冗長な「キーボード：」は付けません。
+    /// </summary>
+    private static string DescribeForMergedCard(RecordedAction a) =>
+        a.ActionType == RecordedActionType.Keyboard
+            ? (a.KeyboardDisplay ?? a.Summary)
+            : $"{a.TypeLabel}：{a.Summary}";
 
     private void CopyConsultationImage()
     {
@@ -1719,8 +1797,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         if (groups.Count == 0 && outOfRegionActions.Count > 0)
         {
             string singlePath = _tempStorageService.GetSplitConsultationImagePath(1);
+            List<RecordedAction> collapsed = CollapseOutOfRegionActionsToSingleCard(outOfRegionActions);
             if (!_consultationImageService.TryBuildConsultationImage(
-                    new List<ConsultationTimelineEntry>(), outOfRegionActions, singlePath, resolvedColumns, QualityPreset, out errorMessage))
+                    new List<ConsultationTimelineEntry>(), collapsed, singlePath, resolvedColumns, QualityPreset, out errorMessage))
             {
                 return false;
             }
@@ -1734,8 +1813,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         for (int i = 0; i < groups.Count; i++)
         {
             string outputPath = _tempStorageService.GetSplitConsultationImagePath(i + 1);
+            List<RecordedAction> collapsedGroup = CollapseOutOfRegionActionsToSingleCard(outOfRegionByGroup[i]);
             if (!_consultationImageService.TryBuildConsultationImage(
-                    groups[i], outOfRegionByGroup[i], outputPath, resolvedColumns, QualityPreset, out string? groupError))
+                    groups[i], collapsedGroup, outputPath, resolvedColumns, QualityPreset, out string? groupError))
             {
                 errorMessage = $"{i + 1} 枚目の結合画像を作れませんでした。{groupError}";
                 return false;
@@ -1944,13 +2024,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             ? Math.Clamp(KeepCaptureCount, MinKeepCaptureCount, AbsoluteMaxFrames)
             : Math.Clamp(CapturesPerSecond * RetentionSeconds + 8, 10, AbsoluteMaxFrames);
 
-    /// <summary>
-    /// 操作を紐づけるとき、この時間以内のキャプチャを「近い」とみなします（秒でキャプチャモード用）。
-    /// 間隔の 1.5 倍、下限 400ms、上限 2s。
-    /// </summary>
-    private double MaxLinkDistanceMs =>
-        Math.Clamp(1000.0 / Math.Max(1, CapturesPerSecond) * 1.5, 400, 2000);
-
     private void CapturePeriodicFrame()
     {
         if (_disposed || CaptureMode != ScreenshotCaptureMode.Interval || State != RecordingState.Recording) return;
@@ -1975,6 +2048,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             OperationHistory.Insert(0, HistoryItem.FromFrame(frame));
         }
 
+        // 保護対象（TrimCaptureBuffer が見る LinkedCaptureId）を確定させてからトリムします。
+        ResolvePendingIntervalLinks(frame);
+        ResolvePendingOperationCaptureLinks(frame);
         TrimCaptureBuffer();
         _lastCaptureRecordedAt = at;
         RaiseRecordingOverlayStatusProperties();
@@ -1983,46 +2059,121 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 
     /// <summary>
-    /// 操作に紐づくキャプチャを決めます。
-    /// ・秒でキャプチャ: 最寄り定期フレーム（遠ければ補助撮影）
-    /// ・操作キャプチャ: 設定した単一トリガーに一致するときだけ1枚撮影
+    /// 操作にキャプチャを紐づけつつ履歴へ追加します。
+    /// ・操作キャプチャモード: 設定したトリガーに一致するときは、その場で1枚撮って即確定します。
+    ///   一致しないマウス操作（左右クリック・ホイール・ドラッグ）は範囲内で起きている前提のため、
+    ///   <see cref="_pendingOperationCaptureLinks"/> に積んで次にトリガーが一致し実際に撮れた瞬間
+    ///   （<see cref="ResolvePendingOperationCaptureLinks"/>）に遡って紐づけ直し、位置マークを描けるように
+    ///   します。キーボードには位置の概念が無いため、一致しなければ即「キャプチャなしの操作」にします。
+    /// ・秒でキャプチャモード: 操作した瞬間には「次に撮られる定期キャプチャ」がまだ存在しないため、
+    ///   いったん未紐づけのまま追加し、<see cref="_pendingIntervalLinks"/> に積んで
+    ///   次の定期キャプチャが実際に撮れた瞬間（<see cref="ResolvePendingIntervalLinks"/>）に
+    ///   遡って紐づけ直します。記録終了までどの定期キャプチャも来なければ
+    ///   <see cref="FlushPendingIntervalLinks"/> が「キャプチャなしの操作」として確定させます。
     /// </summary>
-    private CaptureFrame? ResolveCaptureForMoment(DateTime moment, RecordedActionType actionType, int? keyboardVk = null)
+    private RecordedAction AddActionWithCaptureLink(
+        DateTime moment,
+        RecordedActionType actionType,
+        Func<CaptureFrame?, RecordedAction> buildAction,
+        int? keyboardVk = null,
+        bool keyboardCtrl = false,
+        bool keyboardAlt = false,
+        bool keyboardShift = false,
+        bool keyboardWin = false)
     {
         if (CaptureMode == ScreenshotCaptureMode.OnOperation)
         {
-            if (!IsScreenshotTriggerMatch(actionType, keyboardVk))
+            CaptureFrame? frame = ResolveOperationCapture(moment, actionType, keyboardVk, keyboardCtrl, keyboardAlt, keyboardShift, keyboardWin);
+            if (frame is null && actionType != RecordedActionType.Keyboard)
             {
-                return null;
+                // ここに来る呼び出し元（CommitClickAction/CommitDrag/ホイールの範囲内ブランチ）は
+                // すでに範囲内判定を終えているため、位置マークを次のキャプチャへ持ち越せます。
+                RecordedAction pendingMouse = buildAction(null);
+                AddActionHistory(pendingMouse);
+                _pendingOperationCaptureLinks.Add((buildAction, OperationHistory[0]));
+                return pendingMouse;
             }
 
-            return TryCaptureForOperation(moment);
+            RecordedAction resolved = buildAction(frame);
+            AddActionHistory(resolved);
+            return resolved;
         }
 
-        CaptureFrame? nearest = null;
-        double bestMs = double.MaxValue;
-        foreach (CaptureFrame f in _captureBuffer)
-        {
-            if (!File.Exists(f.ScreenshotPath)) continue;
-            double ms = Math.Abs((f.RecordedAt - moment).TotalMilliseconds);
-            if (ms < bestMs)
-            {
-                bestMs = ms;
-                nearest = f;
-            }
-        }
-
-        if (nearest is not null && bestMs <= MaxLinkDistanceMs)
-        {
-            return nearest;
-        }
-
-        // 補助キャプチャ（秒モードで近い定期が無いとき）
-        CaptureFrame? aux = TryCaptureForOperation(moment);
-        return aux ?? nearest;
+        RecordedAction pending = buildAction(null);
+        AddActionHistory(pending);
+        _pendingIntervalLinks.Add((buildAction, OperationHistory[0]));
+        return pending;
     }
 
-    private bool IsScreenshotTriggerMatch(RecordedActionType actionType, int? keyboardVk)
+    /// <summary>秒でキャプチャモードで保留中の操作を、いま撮れた定期キャプチャへ遡って紐づけます。</summary>
+    private void ResolvePendingIntervalLinks(CaptureFrame newFrame) => ResolvePendingLinks(_pendingIntervalLinks, newFrame);
+
+    /// <summary>
+    /// 記録停止時、次の定期キャプチャが来ないまま残った保留中の操作を、
+    /// 「キャプチャなしの操作」として確定させます。StopRecording から FlushPendingInputs の後に呼びます。
+    /// </summary>
+    private void FlushPendingIntervalLinks() => ResolvePendingLinks(_pendingIntervalLinks, null);
+
+    /// <summary>操作キャプチャモードで保留中のマウス操作を、いま撮れたキャプチャへ遡って紐づけます。</summary>
+    private void ResolvePendingOperationCaptureLinks(CaptureFrame newFrame) => ResolvePendingLinks(_pendingOperationCaptureLinks, newFrame);
+
+    /// <summary>
+    /// 記録停止時、次のトリガーが来ないまま残った保留中のマウス操作を、
+    /// 「キャプチャなしの操作」として確定させます。
+    /// </summary>
+    private void FlushPendingOperationCaptureLinks() => ResolvePendingLinks(_pendingOperationCaptureLinks, null);
+
+    private void ResolvePendingLinks(
+        List<(Func<CaptureFrame?, RecordedAction> BuildAction, HistoryItem Item)> pendingLinks,
+        CaptureFrame? frame)
+    {
+        if (pendingLinks.Count == 0) return;
+
+        foreach (var pending in pendingLinks)
+        {
+            RecordedAction resolved = pending.BuildAction(frame);
+            int index = OperationHistory.IndexOf(pending.Item);
+            if (index >= 0)
+            {
+                OperationHistory[index] = HistoryItem.FromAction(resolved);
+            }
+        }
+
+        pendingLinks.Clear();
+    }
+
+    /// <summary>操作キャプチャモード専用: 設定した単一トリガーに一致するときだけ1枚撮影します。</summary>
+    private CaptureFrame? ResolveOperationCapture(
+        DateTime moment,
+        RecordedActionType actionType,
+        int? keyboardVk = null,
+        bool keyboardCtrl = false,
+        bool keyboardAlt = false,
+        bool keyboardShift = false,
+        bool keyboardWin = false)
+    {
+        if (!IsScreenshotTriggerMatch(actionType, keyboardVk, keyboardCtrl, keyboardAlt, keyboardShift, keyboardWin))
+        {
+            return null;
+        }
+
+        return TryCaptureForOperation(moment);
+    }
+
+    /// <summary>
+    /// キーボードの修飾キー状態（ctrl/alt/shift/win）は、呼び出し元（KeyboardHookService）が
+    /// GetAsyncKeyState で取得したグローバルな値をそのまま受け取ります。
+    /// System.Windows.Input.Keyboard.Modifiers / Keyboard.IsKeyDown は WPF の入力管理が追跡する
+    /// フォーカス依存の状態のため、記録対象（自アプリの外の別ウィンドウ）にフォーカスがあるとき
+    /// 正しく更新されず、操作キャプチャのトリガー判定が常に不一致になるバグの原因になっていました。
+    /// </summary>
+    private bool IsScreenshotTriggerMatch(
+        RecordedActionType actionType,
+        int? keyboardVk,
+        bool keyboardCtrl = false,
+        bool keyboardAlt = false,
+        bool keyboardShift = false,
+        bool keyboardWin = false)
     {
         CapturedInputBinding? t = ScreenshotTrigger;
         // 未設定なら操作キャプチャでは撮らない（必ず枠で指定）
@@ -2047,11 +2198,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             && keyboardVk is int vk
             && t.VirtualKey == vk)
         {
-            bool ctrl = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
-            bool alt = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
-            bool shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
-            bool win = Keyboard.IsKeyDown(Key.LWin) || Keyboard.IsKeyDown(Key.RWin);
-            return t.Ctrl == ctrl && t.Alt == alt && t.Shift == shift && t.Win == win;
+            return t.Ctrl == keyboardCtrl && t.Alt == keyboardAlt && t.Shift == keyboardShift && t.Win == keyboardWin;
         }
 
         return false;
@@ -2488,9 +2635,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         WindowBounds bounds)
     {
         RelativeFromBounds(bounds, screenX, screenY, out int wx, out int wy, out double rx, out double ry);
-        CaptureFrame? frame = ResolveCaptureForMoment(at, type);
 
-        var action = new RecordedAction(
+        RecordedAction BuildAction(CaptureFrame? frame) => new(
             actionType: type,
             recordedAt: at,
             summary: $"画面座標({screenX}, {screenY}) / 相対({rx * 100:0.0}%, {ry * 100:0.0}%)",
@@ -2502,12 +2648,15 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             windowY: wy,
             relativeX: rx,
             relativeY: ry,
-            windowBounds: bounds);
+            windowBounds: bounds,
+            isOutOfRegion: frame is null);
 
-        AddActionHistory(action);
-        StatusMessage = frame is null
-            ? $"{action.TypeLabel}を記録（画像なし / 操作 {CountActionRecords()} 件）。"
-            : $"{action.TypeLabel}を記録（キャプチャ紐づけ / 操作 {CountActionRecords()} 件）。";
+        RecordedAction action = AddActionWithCaptureLink(at, type, BuildAction);
+        StatusMessage = action.LinkedCaptureId is not null
+            ? $"{action.TypeLabel}を記録（キャプチャ紐づけ / 操作 {CountActionRecords()} 件）。"
+            : CaptureMode == ScreenshotCaptureMode.Interval
+                ? $"{action.TypeLabel}を記録（次のキャプチャに紐づけ予定 / 操作 {CountActionRecords()} 件）。"
+                : $"{action.TypeLabel}を記録（画像なし / 操作 {CountActionRecords()} 件）。";
     }
 
     /// <summary>
@@ -2522,7 +2671,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             summary: $"画面座標({screenX}, {screenY})",
             screenX: screenX,
             screenY: screenY,
-            isOutOfRegion: true);
+            isOutOfRegion: true,
+            isGeometricallyOutOfRegion: true);
 
         AddActionHistory(action);
         StatusMessage = $"画面外での{action.TypeLabel}を記録（操作 {CountActionRecords()} 件）。";
@@ -2538,9 +2688,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         RelativeFromBounds(bounds, x2, y2, out _, out _, out double rx2, out double ry2);
         double dist = Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
         string dir = DescribeDirection(x2 - x1, y2 - y1);
-        CaptureFrame? frame = ResolveCaptureForMoment(start, RecordedActionType.Drag);
 
-        var action = new RecordedAction(
+        RecordedAction BuildAction(CaptureFrame? frame) => new(
             actionType: RecordedActionType.Drag,
             recordedAt: start,
             summary: $"{dir}へ移動（距離 {dist:0}px）",
@@ -2557,9 +2706,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             endRelativeY: ry2,
             windowBounds: bounds,
             dragDistance: dist,
-            dragDirection: dir);
+            dragDirection: dir,
+            isOutOfRegion: frame is null);
 
-        AddActionHistory(action);
+        AddActionWithCaptureLink(start, RecordedActionType.Drag, BuildAction);
         StatusMessage = $"ドラッグを記録（操作 {CountActionRecords()} 件）。";
     }
 
@@ -2638,14 +2788,15 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 wheelDelta: delta,
                 wheelNotchCount: notches,
                 wheelUp: up,
-                isOutOfRegion: true);
+                isOutOfRegion: true,
+                isGeometricallyOutOfRegion: true);
+            AddActionHistory(action);
         }
         else
         {
             RelativeFromBounds(bounds, sx, sy, out _, out _, out double rx, out double ry);
-            CaptureFrame? frame = ResolveCaptureForMoment(now, RecordedActionType.MouseWheel);
 
-            action = new RecordedAction(
+            RecordedAction BuildAction(CaptureFrame? frame) => new(
                 actionType: RecordedActionType.MouseWheel,
                 recordedAt: now,
                 summary: $"{dir}に{notches}回スクロール",
@@ -2658,29 +2809,36 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 windowBounds: bounds,
                 wheelDelta: delta,
                 wheelNotchCount: notches,
-                wheelUp: up);
+                wheelUp: up,
+                isOutOfRegion: frame is null);
+
+            action = AddActionWithCaptureLink(now, RecordedActionType.MouseWheel, BuildAction);
         }
 
-        AddActionHistory(action);
         StatusMessage = $"ホイールを記録（{action.Summary}）。";
     }
 
-    private void ProcessKeyDown(int virtualKey, string displayLabel)
+    private void ProcessKeyDown(int virtualKey, string displayLabel, bool ctrl, bool alt, bool shift, bool win)
     {
         if (!RecordKeyboard || !CanRecordNow()) return;
         if (OwnWindowHitTest.IsForegroundWindowOwnProcess()) return;
         DateTime now = DateTime.Now;
-        CaptureFrame? frame = ResolveCaptureForMoment(now, RecordedActionType.Keyboard, virtualKey);
 
-        var action = new RecordedAction(
+        // キャプチャに紐づかなかった（操作キャプチャのトリガー不一致・秒キャプチャで次の定期フレームが
+        // まだ来ていない等）キーボード操作は、IsOutOfRegion=true にしてテキストのみのカードとして
+        // 相談用画像に含めます（表示文言は RecordedAction.NoImageReasonLabel が「画面外」ではなく
+        // 中立的な言い方にします）。これを付けないと、BuildActionsByCaptureId（LinkedCaptureId 必須）にも
+        // CollectOutOfRegionActions（IsOutOfRegion 必須）にも拾われず、画像から完全に抜け落ちていました。
+        RecordedAction BuildAction(CaptureFrame? frame) => new(
             actionType: RecordedActionType.Keyboard,
             recordedAt: now,
             summary: displayLabel,
             linkedCaptureId: frame?.Id,
             screenshotPath: frame?.ScreenshotPath,
-            keyboardDisplay: displayLabel);
+            keyboardDisplay: displayLabel,
+            isOutOfRegion: frame is null);
 
-        AddActionHistory(action);
+        AddActionWithCaptureLink(now, RecordedActionType.Keyboard, BuildAction, virtualKey, ctrl, alt, shift, win);
         StatusMessage = $"キーボードを記録（{displayLabel}）。";
     }
 
