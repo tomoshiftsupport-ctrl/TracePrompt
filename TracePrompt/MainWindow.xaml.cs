@@ -52,8 +52,21 @@ public partial class MainWindow : Window
 
         _viewModel.PropertyChanged += OnViewModelPropertyChangedForOverlay;
         Closed += OnClosed;
+        LocationChanged += OnWindowLocationOrStateChangedForPopups;
+        StateChanged += OnWindowLocationOrStateChangedForPopups;
 
         UpdateCaptureRegionOverlay();
+    }
+
+    /// <summary>
+    /// 範囲モード／モニターの Popup は WPF の既定動作だと、本体ウィンドウを動かしたり
+    /// 最小化したりしても追従・非表示にならず、開いた位置にそのまま浮いて残ってしまいます。
+    /// 外側クリックで閉じるのと同じ考え方で、ウィンドウが動いた・状態が変わった瞬間に閉じます。
+    /// </summary>
+    private void OnWindowLocationOrStateChangedForPopups(object? sender, EventArgs e)
+    {
+        RegionModePopup.IsOpen = false;
+        MonitorPopup.IsOpen = false;
     }
 
     /// <summary>

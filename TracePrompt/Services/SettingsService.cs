@@ -18,8 +18,7 @@ public sealed class SettingsService
 
     public SettingsService()
     {
-        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        string directory = Path.Combine(localAppData, "TracePrompt");
+        string directory = AppDataPaths.GetTracePromptRootDirectory();
         Directory.CreateDirectory(directory);
         SettingsFilePath = Path.Combine(directory, "settings.json");
     }

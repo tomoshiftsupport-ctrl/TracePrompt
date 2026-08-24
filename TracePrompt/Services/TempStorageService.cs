@@ -12,8 +12,7 @@ public sealed class TempStorageService
 
     public TempStorageService()
     {
-        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        TempDirectory = Path.Combine(localAppData, "TracePrompt", "Temp");
+        TempDirectory = Path.Combine(AppDataPaths.GetTracePromptRootDirectory(), "Temp");
     }
 
     /// <summary>一時ファイルを置くフォルダのフルパスです。</summary>

@@ -223,10 +223,13 @@
                                                 <StackPanel>
                                                     <TextBlock Text="保持枚数" Style="{StaticResource ToolTipTitleStyle}"/>
                                                     <TextBlock TextWrapping="Wrap"
-                                                               Text="操作キャプチャで残しておく画像の最大枚数です。超えた分は古いものから削除します（操作に紐づく画像は優先して残します）。"/>
+                                                               Text="操作キャプチャで残しておく画像の最大枚数です。超えた分は古いものから画像を削除します（操作の記録自体は「画像なしの操作」として残ります）。"/>
                                                     <TextBlock TextWrapping="Wrap" Margin="0,8,0,0"
                                                                Foreground="{StaticResource Brush.TextSecondary}"
                                                                Text="範囲: 1～200。記録停止後は自動削除しません。"/>
+                                                    <TextBlock TextWrapping="Wrap" Margin="0,4,0,0"
+                                                               Foreground="{StaticResource Brush.TextSecondary}"
+                                                               Text="開始時・終了時も必ず1枚撮りますが、この2枚も保持枚数のカウントに含まれます。上限を超えれば他のキャプチャと同様に古いものから削除され、常に直近の枚数分だけが残ります。"/>
                                                 </StackPanel>
                                             </ToolTip>
                                         </Border.ToolTip>

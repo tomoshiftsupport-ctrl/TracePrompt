@@ -124,6 +124,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private int _leftDownY;
     private bool _leftIsDragging;
     private WindowBounds _leftDownBounds;
+    /// <summary>押した瞬間（操作キャプチャモードでトリガーがLeftのとき）に撮っておく「直前」フレーム。</summary>
+    private CaptureFrame? _leftDownFrame;
     private PendingClick? _pendingLeftClick;
 
     private bool _rightTracking;
@@ -131,6 +133,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private int _rightDownX;
     private int _rightDownY;
     private WindowBounds _rightDownBounds;
+    /// <summary>押した瞬間（操作キャプチャモードでトリガーがRightのとき）に撮っておく「直前」フレーム。</summary>
+    private CaptureFrame? _rightDownFrame;
     private PendingClick? _pendingRightClick;
 
     private int _wheelAccumDelta;
@@ -139,6 +143,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private WindowBounds _wheelBounds;
     private bool _wheelHasPending;
     private bool _wheelIsOutOfRegion;
+    /// <summary>ホイール開始（最初の一振り）の瞬間に撮っておく「直前」フレーム。</summary>
+    private CaptureFrame? _wheelFrame;
 
     private bool _disposed;
 
@@ -149,6 +155,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         public required int ScreenY { get; init; }
         public required WindowBounds Bounds { get; init; }
         public required bool IsLeft { get; init; }
+        /// <summary>押した瞬間に撮っておいた「直前」フレーム（操作キャプチャモードでトリガー一致時のみ）。</summary>
+        public CaptureFrame? Frame { get; init; }
     }
 
     public MainViewModel(
@@ -1143,6 +1151,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         State = RecordingState.Recording;
         RaiseRecordingOverlayStatusProperties();
 
+        // モードによらず、記録開始時点の状態を必ず1枚撮る（最初の操作より前の基準点）。
+        CaptureMilestoneFrame();
+
         AddMessageHistory("記録を開始しました");
         StatusMessage = CaptureMode == ScreenshotCaptureMode.Interval
             ? $"記録中です。【秒でキャプチャ】{CapturesPerSecond} 枚/秒（最大おおよそ {MaxBufferCapacity} 枚）。操作は最寄りフレームに紐づけます。"
@@ -1186,6 +1197,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         if (!IsSessionActive) return;
         FlushPendingInputs();
+        // モードによらず、記録終了時点の状態を必ず1枚撮る（最後の操作より後の基準点）。
+        // このあとの Flush*Links は、まだ紐づいていない保留中の操作があればこの1枚へ遡って紐づける。
+        CaptureMilestoneFrame();
         FlushPendingIntervalLinks();
         FlushPendingOperationCaptureLinks();
         EndSessionCore(flushPending: false);
@@ -1276,10 +1290,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             _tempStorageService.EnsureDirectory();
             string path = _tempStorageService.TempDirectory;
 
+            // FileName にフォルダの絶対パスを直接渡す（シェル経由でそのフォルダを開く）。
+            // explorer.exe に引数としてパスを渡す方式は、そのパスが何らかの理由で相対パスに
+            // なっていた場合、explorer.exe 自身の既定フォルダ（例: システムフォルダ）を基準に
+            // 解決されてしまい、実際の保存先とズレて開いてしまう。
             Process.Start(new ProcessStartInfo
             {
-                FileName = "explorer.exe",
-                Arguments = $"\"{path}\"",
+                FileName = path,
                 UseShellExecute = true
             });
 
@@ -1975,11 +1992,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         _leftTracking = false;
         _leftIsDragging = false;
+        _leftDownFrame = null;
         _rightTracking = false;
+        _rightDownFrame = null;
         _pendingLeftClick = null;
         _pendingRightClick = null;
         _wheelHasPending = false;
         _wheelAccumDelta = 0;
+        _wheelFrame = null;
         _wheelFlushTimer.Stop();
     }
 
@@ -1989,11 +2009,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             if (_leftIsDragging && RecordMouseOperations)
             {
-                CommitDrag(_leftDownAt, DateTime.Now, _leftDownX, _leftDownY, _leftDownX, _leftDownY, _leftDownBounds);
+                CommitDrag(_leftDownAt, DateTime.Now, _leftDownX, _leftDownY, _leftDownX, _leftDownY, _leftDownBounds, _leftDownFrame);
             }
             else if (RecordMouseOperations)
             {
-                CommitClickAction(RecordedActionType.LeftClick, _leftDownAt, _leftDownX, _leftDownY, _leftDownBounds);
+                CommitClickAction(RecordedActionType.LeftClick, _leftDownAt, _leftDownX, _leftDownY, _leftDownBounds, _leftDownFrame);
             }
 
             _leftTracking = false;
@@ -2004,7 +2024,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             if (RecordMouseOperations)
             {
-                CommitClickAction(RecordedActionType.RightClick, _rightDownAt, _rightDownX, _rightDownY, _rightDownBounds);
+                CommitClickAction(RecordedActionType.RightClick, _rightDownAt, _rightDownX, _rightDownY, _rightDownBounds, _rightDownFrame);
             }
 
             _rightTracking = false;
@@ -2079,11 +2099,16 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         bool keyboardCtrl = false,
         bool keyboardAlt = false,
         bool keyboardShift = false,
-        bool keyboardWin = false)
+        bool keyboardWin = false,
+        CaptureFrame? preResolvedFrame = null)
     {
         if (CaptureMode == ScreenshotCaptureMode.OnOperation)
         {
-            CaptureFrame? frame = ResolveOperationCapture(moment, actionType, keyboardVk, keyboardCtrl, keyboardAlt, keyboardShift, keyboardWin);
+            // マウス操作は押した瞬間（＝操作の直前）に撮影済みのフレームをそのまま使う。
+            // キーボードには「押す前」に相当する事前撮影の起点が無いため、従来どおり検知時点で撮る。
+            CaptureFrame? frame = actionType == RecordedActionType.Keyboard
+                ? ResolveOperationCapture(moment, actionType, keyboardVk, keyboardCtrl, keyboardAlt, keyboardShift, keyboardWin)
+                : preResolvedFrame;
             if (frame is null && actionType != RecordedActionType.Keyboard)
             {
                 // ここに来る呼び出し元（CommitClickAction/CommitDrag/ホイールの範囲内ブランチ）は
@@ -2204,6 +2229,32 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         return false;
     }
 
+    /// <summary>
+    /// マウスの押下時点（＝操作の直前）で、設定中のトリガーがそのボタンと一致するときだけ1枚撮ります。
+    /// 一致しない場合はここでは撮らず null を返し、<see cref="AddActionWithCaptureLink"/> 側の
+    /// 保留リンク機構（未一致でも次に撮れたフレームへ遡って紐づける）に任せます。
+    /// </summary>
+    private CaptureFrame? CaptureOperationFrameIfTriggerMatchesMouseButton(string mouseButton, DateTime moment)
+    {
+        if (CaptureMode != ScreenshotCaptureMode.OnOperation) return null;
+        if (ScreenshotTrigger is not { Kind: CapturedInputKind.Mouse } trigger) return null;
+        if (trigger.MouseButton != mouseButton) return null;
+
+        return TryCaptureForOperation(moment);
+    }
+
+    /// <summary>
+    /// モードによらず1枚撮ってバッファ・履歴に加えます（記録開始直後・記録終了直前の基準フレーム用）。
+    /// 撮ること自体は必ず行いますが、保持枚数（スライディングウィンドウ）の対象としては他の
+    /// フレームと同列に扱われるため、上限を超えれば古いものから削除され得ます。
+    /// 失敗しても記録の開始・終了自体は続行します。
+    /// </summary>
+    private void CaptureMilestoneFrame()
+    {
+        if (!TrySaveScreenshotPng(out string? path, out _) || path is null) return;
+        AddCaptureFrame(DateTime.Now, path, isAuxiliary: false, addToHistory: true);
+    }
+
     /// <summary>操作タイミングで1枚撮影しバッファへ入れます（履歴行は操作側に任せる）。</summary>
     private CaptureFrame? TryCaptureForOperation(DateTime moment)
     {
@@ -2245,8 +2296,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 
     /// <summary>
-    /// リングバッファ: 容量超過時、操作と無関係な古いフレームから削除。
-    /// 操作紐づけフレームとその直前・直後は優先保持。記録停止後は自動削除しない。
+    /// リングバッファ: 容量（保持枚数）を超えたら、古いフレームから単純に削除します。
+    /// 開始・終了の基準フレームや操作紐づけの有無による例外はなく、常に「直近 capacity 枚だけ残す」
+    /// スライディングウィンドウです。操作に紐づいたフレームが削除対象になった場合は、その画像だけを
+    /// 外し、操作の記録行自体は「画像なしの操作」として残します（<see cref="RemoveCaptureFrame"/> 参照）。
+    /// 記録停止後は自動削除しません。
     /// </summary>
     private void TrimCaptureBuffer()
     {
@@ -2255,47 +2309,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         int capacity = MaxBufferCapacity;
         if (_captureBuffer.Count <= capacity) return;
 
-        HashSet<long> linkedIds = OperationHistory
-            .Where(h => h.Action?.LinkedCaptureId is not null)
-            .Select(h => h.Action!.LinkedCaptureId!.Value)
-            .ToHashSet();
-
         List<CaptureFrame> ordered = _captureBuffer.OrderBy(f => f.RecordedAt).ThenBy(f => f.Id).ToList();
-        var protectedIds = new HashSet<long>(linkedIds);
-        for (int i = 0; i < ordered.Count; i++)
-        {
-            if (!linkedIds.Contains(ordered[i].Id)) continue;
-            if (i > 0) protectedIds.Add(ordered[i - 1].Id);
-            if (i < ordered.Count - 1) protectedIds.Add(ordered[i + 1].Id);
-        }
-
-        // 古い順に、保護されていないものから削除
-        var removable = ordered.Where(f => !protectedIds.Contains(f.Id)).ToList();
         int needRemove = _captureBuffer.Count - capacity;
-        foreach (CaptureFrame frame in removable)
+        for (int i = 0; i < ordered.Count && needRemove > 0; i++)
         {
-            if (needRemove <= 0) break;
-            RemoveCaptureFrame(frame);
+            RemoveCaptureFrame(ordered[i]);
             needRemove--;
-        }
-
-        // まだ多い場合は保護付きでも最古から（操作は残す）
-        while (_captureBuffer.Count > capacity && _captureBuffer.Count > 0)
-        {
-            CaptureFrame? victim = _captureBuffer
-                .OrderBy(f => protectedIds.Contains(f.Id) ? 1 : 0)
-                .ThenBy(f => f.RecordedAt)
-                .FirstOrDefault();
-            if (victim is null) break;
-            // 操作に直接リンクされたものは最後まで残す
-            if (linkedIds.Contains(victim.Id) && _captureBuffer.Count(f => linkedIds.Contains(f.Id)) <= linkedIds.Count)
-            {
-                // リンク済みが全部だと削れない → 容量超過を許容
-                if (_captureBuffer.All(f => linkedIds.Contains(f.Id))) break;
-            }
-
-            if (linkedIds.Contains(victim.Id)) break;
-            RemoveCaptureFrame(victim);
         }
     }
 
@@ -2304,14 +2323,27 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _captureBuffer.RemoveAll(f => f.Id == frame.Id);
         for (int i = OperationHistory.Count - 1; i >= 0; i--)
         {
-            if (OperationHistory[i].Frame?.Id == frame.Id)
+            HistoryItem item = OperationHistory[i];
+            if (item.Frame?.Id == frame.Id)
             {
-                if (ReferenceEquals(SelectedHistoryItem, OperationHistory[i]))
+                if (ReferenceEquals(SelectedHistoryItem, item))
                 {
                     SelectedHistoryItem = null;
                 }
 
                 OperationHistory.RemoveAt(i);
+            }
+            else if (item.Action is { LinkedCaptureId: long linkedId } action && linkedId == frame.Id)
+            {
+                // 保持枚数の上限で画像だけ削除する場合はここに来る。操作の記録行そのものは
+                // 消さず、「画像なしの操作」として残す（RecordedAction.WithoutImage 参照）。
+                HistoryItem stripped = HistoryItem.FromAction(action.WithoutImage());
+                bool wasSelected = ReferenceEquals(SelectedHistoryItem, item);
+                OperationHistory[i] = stripped;
+                if (wasSelected)
+                {
+                    SelectedHistoryItem = stripped;
+                }
             }
         }
 
@@ -2474,8 +2506,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
             if (RecordMouseOperations)
             {
-                // ダブルクリックとして1件記録（シングルは出さない）
-                CommitClickAction(RecordedActionType.LeftDoubleClick, now, screenX, screenY, first.Bounds);
+                // ダブルクリックとして1件記録（シングルは出さない）。画像は1クリック目の押下時点のもの。
+                CommitClickAction(RecordedActionType.LeftDoubleClick, now, screenX, screenY, first.Bounds, first.Frame);
             }
 
             return;
@@ -2484,11 +2516,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         CommitPendingLeftClickIfAny();
         if (RecordMouseOperations)
         {
-            BeginLeftTracking(now, screenX, screenY, bounds);
+            CaptureFrame? frame = CaptureOperationFrameIfTriggerMatchesMouseButton("Left", now);
+            BeginLeftTracking(now, screenX, screenY, bounds, frame);
         }
     }
 
-    private void BeginLeftTracking(DateTime now, int screenX, int screenY, WindowBounds bounds)
+    private void BeginLeftTracking(DateTime now, int screenX, int screenY, WindowBounds bounds, CaptureFrame? frame)
     {
         _leftTracking = true;
         _leftIsDragging = false;
@@ -2496,6 +2529,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _leftDownX = screenX;
         _leftDownY = screenY;
         _leftDownBounds = bounds;
+        _leftDownFrame = frame;
     }
 
     private void ProcessMouseMoveWhileLeftDown(int screenX, int screenY)
@@ -2523,7 +2557,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             _leftIsDragging = false;
             if (RecordMouseOperations && CanRecordNow())
             {
-                CommitDrag(_leftDownAt, now, _leftDownX, _leftDownY, screenX, screenY, _leftDownBounds);
+                CommitDrag(_leftDownAt, now, _leftDownX, _leftDownY, screenX, screenY, _leftDownBounds, _leftDownFrame);
             }
 
             return;
@@ -2537,7 +2571,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             ScreenX = _leftDownX,
             ScreenY = _leftDownY,
             Bounds = _leftDownBounds,
-            IsLeft = true
+            IsLeft = true,
+            Frame = _leftDownFrame
         };
         _leftClickCommitTimer.Stop();
         _leftClickCommitTimer.Interval = TimeSpan.FromMilliseconds(MouseHookService.GetOsDoubleClickTimeMs());
@@ -2552,7 +2587,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _leftClickCommitTimer.Stop();
         if (RecordMouseOperations)
         {
-            CommitClickAction(RecordedActionType.LeftClick, pending.At, pending.ScreenX, pending.ScreenY, pending.Bounds);
+            CommitClickAction(RecordedActionType.LeftClick, pending.At, pending.ScreenX, pending.ScreenY, pending.Bounds, pending.Frame);
         }
     }
 
@@ -2580,7 +2615,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             _pendingRightClick = null;
             if (RecordMouseOperations)
             {
-                CommitClickAction(RecordedActionType.RightDoubleClick, now, screenX, screenY, first.Bounds);
+                // 画像は1クリック目の押下時点のもの（左のダブルクリックと同じ考え方）。
+                CommitClickAction(RecordedActionType.RightDoubleClick, now, screenX, screenY, first.Bounds, first.Frame);
             }
 
             return;
@@ -2594,6 +2630,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _rightDownX = screenX;
         _rightDownY = screenY;
         _rightDownBounds = bounds;
+        _rightDownFrame = CaptureOperationFrameIfTriggerMatchesMouseButton("Right", now);
     }
 
     private void ProcessRightButtonUp(int screenX, int screenY)
@@ -2608,7 +2645,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             ScreenX = _rightDownX,
             ScreenY = _rightDownY,
             Bounds = _rightDownBounds,
-            IsLeft = false
+            IsLeft = false,
+            Frame = _rightDownFrame
         };
         _rightClickCommitTimer.Stop();
         _rightClickCommitTimer.Interval = TimeSpan.FromMilliseconds(MouseHookService.GetOsDoubleClickTimeMs());
@@ -2623,7 +2661,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _rightClickCommitTimer.Stop();
         if (RecordMouseOperations)
         {
-            CommitClickAction(RecordedActionType.RightClick, pending.At, pending.ScreenX, pending.ScreenY, pending.Bounds);
+            CommitClickAction(RecordedActionType.RightClick, pending.At, pending.ScreenX, pending.ScreenY, pending.Bounds, pending.Frame);
         }
     }
 
@@ -2632,7 +2670,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         DateTime at,
         int screenX,
         int screenY,
-        WindowBounds bounds)
+        WindowBounds bounds,
+        CaptureFrame? preResolvedFrame = null)
     {
         RelativeFromBounds(bounds, screenX, screenY, out int wx, out int wy, out double rx, out double ry);
 
@@ -2651,7 +2690,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             windowBounds: bounds,
             isOutOfRegion: frame is null);
 
-        RecordedAction action = AddActionWithCaptureLink(at, type, BuildAction);
+        RecordedAction action = AddActionWithCaptureLink(at, type, BuildAction, preResolvedFrame: preResolvedFrame);
         StatusMessage = action.LinkedCaptureId is not null
             ? $"{action.TypeLabel}を記録（キャプチャ紐づけ / 操作 {CountActionRecords()} 件）。"
             : CaptureMode == ScreenshotCaptureMode.Interval
@@ -2682,7 +2721,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         DateTime start,
         DateTime end,
         int x1, int y1, int x2, int y2,
-        WindowBounds bounds)
+        WindowBounds bounds,
+        CaptureFrame? preResolvedFrame = null)
     {
         RelativeFromBounds(bounds, x1, y1, out _, out _, out double rx1, out double ry1);
         RelativeFromBounds(bounds, x2, y2, out _, out _, out double rx2, out double ry2);
@@ -2709,7 +2749,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             dragDirection: dir,
             isOutOfRegion: frame is null);
 
-        AddActionWithCaptureLink(start, RecordedActionType.Drag, BuildAction);
+        AddActionWithCaptureLink(start, RecordedActionType.Drag, BuildAction, preResolvedFrame: preResolvedFrame);
         StatusMessage = $"ドラッグを記録（操作 {CountActionRecords()} 件）。";
     }
 
@@ -2736,6 +2776,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             _wheelHasPending = true;
             _wheelAccumDelta = 0;
+            // 一連のスクロールの最初の一振り＝「直前」の状態をここで撮っておく（範囲外なら撮らない）。
+            _wheelFrame = bounds.Contains(screenX, screenY)
+                ? CaptureOperationFrameIfTriggerMatchesMouseButton("Wheel", DateTime.Now)
+                : null;
         }
 
         _wheelAccumDelta += delta;
@@ -2768,8 +2812,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         int sy = _wheelScreenY;
         WindowBounds bounds = _wheelBounds;
         bool isOutOfRegion = _wheelIsOutOfRegion;
+        CaptureFrame? preResolvedFrame = _wheelFrame;
         _wheelHasPending = false;
         _wheelAccumDelta = 0;
+        _wheelFrame = null;
 
         DateTime now = DateTime.Now;
         bool up = delta > 0;
@@ -2812,7 +2858,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 wheelUp: up,
                 isOutOfRegion: frame is null);
 
-            action = AddActionWithCaptureLink(now, RecordedActionType.MouseWheel, BuildAction);
+            action = AddActionWithCaptureLink(now, RecordedActionType.MouseWheel, BuildAction, preResolvedFrame: preResolvedFrame);
         }
 
         StatusMessage = $"ホイールを記録（{action.Summary}）。";
@@ -2853,7 +2899,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public void ProcessLeftClickForTest(int screenX, int screenY)
     {
         if (!CanRecordPointerInRegion(out WindowBounds bounds) || !bounds.Contains(screenX, screenY)) return;
-        CommitClickAction(RecordedActionType.LeftClick, DateTime.Now, screenX, screenY, bounds);
+        DateTime now = DateTime.Now;
+        CaptureFrame? frame = CaptureOperationFrameIfTriggerMatchesMouseButton("Left", now);
+        CommitClickAction(RecordedActionType.LeftClick, now, screenX, screenY, bounds, frame);
     }
 
     public void GenerateConsultationForTest() => GenerateConsultation();

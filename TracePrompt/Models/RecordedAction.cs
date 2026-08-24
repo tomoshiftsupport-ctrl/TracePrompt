@@ -124,6 +124,42 @@ public sealed class RecordedAction
     public string NoImageReasonLabel =>
         IsGeometricallyOutOfRegion ? "画面外での操作" : "キャプチャなしの操作";
 
+    /// <summary>
+    /// 紐づいていた画像だけを外した複製を返します。保持枚数の上限を超えて古い画像が削除されたときに、
+    /// 操作そのものの記録（種別・座標・時刻など）は残しつつ「画像なしの操作」として扱えるようにします。
+    /// </summary>
+    public RecordedAction WithoutImage()
+    {
+        if (LinkedCaptureId is null && ScreenshotPath is null) return this;
+
+        return new RecordedAction(
+            actionType: ActionType,
+            recordedAt: RecordedAt,
+            summary: Summary,
+            linkedCaptureId: null,
+            screenshotPath: null,
+            endedAt: EndedAt,
+            screenX: ScreenX,
+            screenY: ScreenY,
+            endScreenX: EndScreenX,
+            endScreenY: EndScreenY,
+            windowX: WindowX,
+            windowY: WindowY,
+            relativeX: RelativeX,
+            relativeY: RelativeY,
+            endRelativeX: EndRelativeX,
+            endRelativeY: EndRelativeY,
+            windowBounds: WindowBounds,
+            keyboardDisplay: KeyboardDisplay,
+            wheelDelta: WheelDelta,
+            wheelNotchCount: WheelNotchCount,
+            wheelUp: WheelUp,
+            dragDistance: DragDistance,
+            dragDirection: DragDirection,
+            isOutOfRegion: true,
+            isGeometricallyOutOfRegion: IsGeometricallyOutOfRegion);
+    }
+
     public string ToHistoryText()
     {
         // 操作キャプチャで画像が付いた行は【画面】を付け、キャプチャ無し操作と区別する

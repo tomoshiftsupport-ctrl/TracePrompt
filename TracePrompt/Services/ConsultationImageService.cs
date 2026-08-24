@@ -255,7 +255,12 @@ public sealed class ConsultationImageService
             colWidth = Math.Max(colWidth, cardWidth);
         }
 
-        // 各パネルの高さを見積り、その時点でいちばん低い列へ貪欲に割り当てて列間の高さを揃える
+        // 時系列順（panels の並び順）を先頭から columnCount 個の「連続したかたまり」に分割し、
+        // 左の列から順に詰める（新聞の段組みと同じ考え方）。列の高さバランスより、
+        // 左列を上から下まで読み切ってから右列に進む、という自然な読み順を優先する。
+        // （1行ごとに列を切り替える方式だと、右列の先頭カードが時系列としては
+        // 左列2枚目より前に来てしまい、読み順と時系列がズレて見える）
+        int itemsPerColumn = (int)Math.Ceiling(panels.Count / (double)columnCount);
         var columns = new List<PanelLayout>[columnCount];
         var columnHeights = new double[columnCount];
         for (int i = 0; i < columnCount; i++)
@@ -264,17 +269,11 @@ public sealed class ConsultationImageService
             columnHeights[i] = OuterPadding;
         }
 
-        foreach (PanelLayout panel in panels)
+        for (int i = 0; i < panels.Count; i++)
         {
+            PanelLayout panel = panels[i];
             double cardHeight = CardPadding + panel.HeaderHeight + HeaderBottomMargin + panel.DrawHeight + CardPadding;
-            int target = 0;
-            for (int i = 1; i < columnCount; i++)
-            {
-                if (columnHeights[i] < columnHeights[target])
-                {
-                    target = i;
-                }
-            }
+            int target = Math.Min(i / itemsPerColumn, columnCount - 1);
 
             if (columns[target].Count > 0)
             {
