@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
 using TracePrompt.Models;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.ViewModels;
 
@@ -60,7 +61,7 @@ public sealed class CaptureFrameThumbnailViewModel : INotifyPropertyChanged
     {
         0 => $"{Frame.RecordedAt:HH:mm:ss.fff}",
         1 => $"{Frame.RecordedAt:HH:mm:ss.fff}　{LinkedActions[0].ToConsultationDetail()}",
-        _ => $"{Frame.RecordedAt:HH:mm:ss.fff}　操作 {LinkedActions.Count} 件",
+        _ => Loc.Instance.Format("Thumbnail_Label_Format", Frame.RecordedAt, LinkedActions.Count),
     };
 
     /// <summary>編集（赤ペン記入）保存後に、ディスク上の最新画像でサムネイルを読み直します。</summary>

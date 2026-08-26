@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Services;
 
@@ -125,7 +126,7 @@ public sealed class MouseHookService : IDisposable
         {
             _proc = null;
             int error = Marshal.GetLastWin32Error();
-            throw new InvalidOperationException($"マウスフックの開始に失敗しました。Win32 エラー: {error}");
+            throw new InvalidOperationException(Loc.Instance.Format("Error_MouseHookStartFailed_Format", error));
         }
     }
 

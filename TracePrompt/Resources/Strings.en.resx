@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============ Common ============ -->
+  <data name="App_Title" xml:space="preserve"><value>AI Help Capture</value></data>
+  <data name="Common_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Common_Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Common_Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Common_Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Common_OpenScreenshotFolder" xml:space="preserve"><value>Open screenshot folder</value></data>
+  <data name="Common_DeleteRecordedDataNow" xml:space="preserve"><value>Delete recorded data now</value></data>
+  <data name="Common_RedPenBadge" xml:space="preserve"><value>Red pen</value></data>
+  <data name="ContextMenu_CopyImage" xml:space="preserve"><value>Copy image (Ctrl+C)</value></data>
+  <data name="Dialog_SaveFailed_Format" xml:space="preserve"><value>Save failed.&#x0a;{0}</value></data>
+  <data name="Dialog_ImageLoadFailed" xml:space="preserve"><value>Couldn't load the image.</value></data>
+  <data name="Unit_Frames" xml:space="preserve"><value>frames</value></data>
+  <data name="Unit_Columns" xml:space="preserve"><value>columns</value></data>
+
+  <!-- ============ Main window ============ -->
+  <data name="MainWindow_RegionModeButton_ToolTip" xml:space="preserve"><value>Choose the capture region mode (Full screen / Clip)</value></data>
+  <data name="MainWindow_RegionMode_FullScreen" xml:space="preserve"><value>Full screen</value></data>
+  <data name="MainWindow_RegionMode_Clip" xml:space="preserve"><value>Clip</value></data>
+  <data name="MainWindow_MonitorButton_ToolTip" xml:space="preserve"><value>Choose the monitor to capture</value></data>
+  <data name="MainWindow_MonitorRefresh" xml:space="preserve"><value>Refresh list</value></data>
+  <data name="MainWindow_CaptureButton_Content" xml:space="preserve"><value>Capture</value></data>
+  <data name="MainWindow_IntervalMode_ToolTip" xml:space="preserve"><value>Interval capture: continuously captures at the configured frames per second</value></data>
+  <data name="MainWindow_OperationMode_ToolTip" xml:space="preserve"><value>Action capture: captures only on the key or mouse action you specify</value></data>
+  <data name="MainWindow_ConsultationButton_Title" xml:space="preserve"><value>AI consultation data</value></data>
+  <data name="MainWindow_ConsultationButton_Description" xml:space="preserve"><value>Every time recording stops, a consultation image combining your actions and screens is generated and copied automatically. Open this to pick specific frames or change how they're combined.</value></data>
+  <data name="MainWindow_OpenFolder_ToolTip" xml:space="preserve"><value>Open screenshot folder</value></data>
+  <data name="MainWindow_Settings_ToolTip" xml:space="preserve"><value>Recording settings (frequency, retention, what to record, etc.)</value></data>
+  <data name="MainWindow_History_Header" xml:space="preserve"><value>Recent action history / view individual previews</value></data>
+  <data name="MainWindow_History_Hint" xml:space="preserve"><value>Select a row to show its capture below.</value></data>
+  <data name="MainWindow_HistoryPreviewAnnotatorTitle" xml:space="preserve"><value>History preview — Red pen annotation</value></data>
+
+  <!-- ============ Compact recording window ============ -->
+  <data name="Compact_Start" xml:space="preserve"><value>● Start</value></data>
+  <data name="Compact_Pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="Compact_Resume" xml:space="preserve"><value>● Resume</value></data>
+  <data name="Compact_Stop" xml:space="preserve"><value>■ Stop</value></data>
+  <data name="Compact_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Compact_Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Compact_Back_ToolTip" xml:space="preserve"><value>Return to the normal window view</value></data>
+  <data name="Compact_EscToClose" xml:space="preserve"><value>Press Esc to close</value></data>
+
+  <!-- ============ Region selector window ============ -->
+  <data name="RegionSelector_Title" xml:space="preserve"><value>Select capture region</value></data>
+  <data name="RegionSelector_Instruction" xml:space="preserve"><value>Drag to select the capture region (Esc to cancel)</value></data>
+  <data name="CaptureRegionBorder_Title" xml:space="preserve"><value>AI Help Capture — Capture region</value></data>
+  <data name="CaptureRegionHandle_Title" xml:space="preserve"><value>AI Help Capture — Region move handle</value></data>
+
+  <!-- ============ Settings window ============ -->
+  <data name="Settings_Title" xml:space="preserve"><value>Recording settings</value></data>
+  <data name="Settings_CaptureMode_Label" xml:space="preserve"><value>Capture mode</value></data>
+  <data name="Settings_CaptureMode_Tooltip_Interval" xml:space="preserve"><value>· Interval capture — captures continuously at the configured frames per second and links actions to the nearest image.</value></data>
+  <data name="Settings_CaptureMode_Tooltip_Operation" xml:space="preserve"><value>· Action capture — takes a screenshot only for the specified key or mouse action. No continuous periodic capture.</value></data>
+  <data name="Settings_IntervalCaptureMode_Content" xml:space="preserve"><value>Interval capture</value></data>
+  <data name="Settings_OperationCaptureMode_Content" xml:space="preserve"><value>Action capture</value></data>
+  <data name="Settings_CaptureFrequency_Label" xml:space="preserve"><value>Capture frequency</value></data>
+  <data name="Settings_CaptureFrequency_Tooltip" xml:space="preserve"><value>How many screenshots to take per second.</value></data>
+  <data name="Settings_FramesPerSecond_Unit" xml:space="preserve"><value>frames/sec (1–10)</value></data>
+  <data name="Settings_RetentionTime_Label" xml:space="preserve"><value>Retention time</value></data>
+  <data name="Settings_RetentionTime_Tooltip" xml:space="preserve"><value>A rough guide to buffer capacity (about frequency × seconds frames). Frames linked to actions are kept with priority.</value></data>
+  <data name="Settings_RetentionSeconds_Unit" xml:space="preserve"><value>sec (1–120)</value></data>
+  <data name="Settings_ScreenshotTrigger_Label" xml:space="preserve"><value>Action that takes a screenshot</value></data>
+  <data name="Settings_ScreenshotTrigger_Tooltip1" xml:space="preserve"><value>Click the box, then press a single key or mouse button to set it. A screenshot is taken only for that action.</value></data>
+  <data name="Settings_ScreenshotTrigger_Tooltip2" xml:space="preserve"><value>The default is left click. Use "Clear" to reset it to unset.</value></data>
+  <data name="Settings_KeepCaptureCount_Label" xml:space="preserve"><value>Frames to keep</value></data>
+  <data name="Settings_KeepCaptureCount_Tooltip1" xml:space="preserve"><value>The maximum number of images kept during action capture. Older images beyond this limit are deleted (the action itself still remains recorded as an "action without an image").</value></data>
+  <data name="Settings_KeepCaptureCount_Tooltip2" xml:space="preserve"><value>Range: 1–200. Not deleted automatically after recording stops.</value></data>
+  <data name="Settings_KeepCaptureCount_Tooltip3" xml:space="preserve"><value>A capture is always taken at the start and end too, and both count toward this limit. If the limit is exceeded, the oldest images are deleted like any other capture, so only the most recent ones remain.</value></data>
+  <data name="Settings_KeepCaptureCount_Unit" xml:space="preserve"><value>frames (1–200)</value></data>
+  <data name="Settings_AdvancedRecording_Header" xml:space="preserve"><value>Advanced recording settings (what to record)</value></data>
+  <data name="Settings_RecordMouse_Content" xml:space="preserve"><value>Record mouse actions</value></data>
+  <data name="Settings_RecordKeyboard_Content" xml:space="preserve"><value>Record keyboard actions</value></data>
+  <data name="Settings_Language_SectionLabel" xml:space="preserve"><value>言語 / Language</value></data>
+  <data name="Settings_Language_Japanese" xml:space="preserve"><value>日本語</value></data>
+  <data name="Settings_Language_English" xml:space="preserve"><value>English</value></data>
+
+  <!-- ============ "Change how images are combined" window ============ -->
+  <data name="ConsultationList_Title" xml:space="preserve"><value>Change how images are combined</value></data>
+  <data name="ConsultationList_Instruction" xml:space="preserve"><value>Check only the frames you need and adjust how they're combined. Selection is optional — by default all frames are included. Click an image to view it enlarged.</value></data>
+  <data name="ConsultationList_SelectAll" xml:space="preserve"><value>Select all</value></data>
+  <data name="ConsultationList_DeselectAll" xml:space="preserve"><value>Deselect all</value></data>
+  <data name="ConsultationList_EmptyHint" xml:space="preserve"><value>If nothing appears in the thumbnail list, stop recording to see the captured frames here.</value></data>
+  <data name="ConsultationList_ClickToEnlarge_ToolTip" xml:space="preserve"><value>Click to enlarge</value></data>
+  <data name="ConsultationList_FramesPerImage_Label" xml:space="preserve"><value>Frames per image</value></data>
+  <data name="ConsultationList_DecreaseFrames_ToolTip" xml:space="preserve"><value>Decrease by 1</value></data>
+  <data name="ConsultationList_IncreaseFrames_ToolTip" xml:space="preserve"><value>Increase by 1</value></data>
+  <data name="ConsultationList_All_Content" xml:space="preserve"><value>All</value></data>
+  <data name="ConsultationList_Layout_Label" xml:space="preserve"><value>Layout</value></data>
+  <data name="ConsultationList_DecreaseColumns_ToolTip" xml:space="preserve"><value>Decrease by 1</value></data>
+  <data name="ConsultationList_IncreaseColumns_ToolTip" xml:space="preserve"><value>Increase by 1</value></data>
+  <data name="ConsultationList_Auto_Content" xml:space="preserve"><value>Auto</value></data>
+  <data name="ConsultationList_Quality_Label" xml:space="preserve"><value>Quality</value></data>
+  <data name="ConsultationList_Quality_TextPriority" xml:space="preserve"><value>Text priority</value></data>
+  <data name="ConsultationList_Quality_Standard" xml:space="preserve"><value>Standard</value></data>
+  <data name="ConsultationList_Quality_SizePriority" xml:space="preserve"><value>Size priority</value></data>
+  <data name="ConsultationList_UseCustomSettings_Content" xml:space="preserve"><value>Use these settings for future combining (also applies when recording stops automatically)</value></data>
+  <data name="ConsultationList_UseCustomSettings_ToolTip" xml:space="preserve"><value>When on, the consultation image generated automatically each time recording stops will also use this frames-per-image, layout, and quality setting.&#x0a;When off (default), all frames are combined into a single image as before.</value></data>
+  <data name="ConsultationList_ClipboardReview_Label" xml:space="preserve"><value>Review the copied result (what's currently on the clipboard)</value></data>
+  <data name="ConsultationList_Recheck" xml:space="preserve"><value>Check again</value></data>
+  <data name="ConsultationList_ClickToAnnotate_ToolTip" xml:space="preserve"><value>Click to annotate</value></data>
+  <data name="ConsultationList_CombineAndCopy_Content" xml:space="preserve"><value>Combine selected images and copy</value></data>
+  <data name="ConsultationList_CombineAndCopy_ToolTip" xml:space="preserve"><value>Splits the checked images by the specified frame count, combines them, and copies the result to the clipboard</value></data>
+  <data name="ConsultationList_CopyWithoutCombining_Content" xml:space="preserve"><value>Copy without combining</value></data>
+  <data name="ConsultationList_CopyWithoutCombining_ToolTip" xml:space="preserve"><value>Copies the checked original images to the clipboard as separate files, without combining</value></data>
+  <data name="ConsultationList_OpenFolder_ToolTip_Format" xml:space="preserve"><value>Opens the screenshot temp folder in File Explorer&#x0a;{0}</value></data>
+  <data name="ConsultationList_SelectThisImage_Content" xml:space="preserve"><value>Select this image</value></data>
+  <data name="ConsultationList_CloseViewer_Content" xml:space="preserve"><value>Close ×</value></data>
+  <data name="ConsultationList_Undo_Content" xml:space="preserve"><value>Undo</value></data>
+  <data name="ConsultationList_Undo_ToolTip" xml:space="preserve"><value>Undoes the last line (Ctrl+Z)</value></data>
+  <data name="ConsultationList_Redo_Content" xml:space="preserve"><value>Redo</value></data>
+  <data name="ConsultationList_Redo_ToolTip" xml:space="preserve"><value>Restores the undone line (Ctrl+Y)</value></data>
+  <data name="ConsultationList_ClearLines_Content" xml:space="preserve"><value>Clear</value></data>
+  <data name="ConsultationList_ClearLines_ToolTip" xml:space="preserve"><value>Clears all drawn lines</value></data>
+  <data name="ConsultationList_Save_ToolTip" xml:space="preserve"><value>Writes the red pen annotation into the image and saves it (Ctrl+S)</value></data>
+  <data name="ConsultationList_ZoomOut_ToolTip" xml:space="preserve"><value>Zoom out (Ctrl+-)</value></data>
+  <data name="ConsultationList_ZoomReset_ToolTip" xml:space="preserve"><value>Fit to window (Ctrl+0)</value></data>
+  <data name="ConsultationList_ZoomIn_ToolTip" xml:space="preserve"><value>Zoom in (Ctrl++)</value></data>
+  <data name="ConsultationList_PrevImage_ToolTip" xml:space="preserve"><value>Previous image (← key)</value></data>
+  <data name="ConsultationList_NextImage_ToolTip" xml:space="preserve"><value>Next image (→ key)</value></data>
+  <data name="ConsultationList_ViewerHint" xml:space="preserve"><value>Drag to draw a red line. Use ← → to move between images (you'll be asked about unsaved changes). Ctrl+C or right-click to copy the image, Esc to close.</value></data>
+  <data name="ConsultationList_ThumbnailSelectionSummary_Format" xml:space="preserve"><value>{0} of {1} selected</value></data>
+  <data name="ConsultationList_CopiedAnnotatorTitle" xml:space="preserve"><value>Copied image — Red pen annotation</value></data>
+  <data name="Confirm_SaveChanges_Message" xml:space="preserve"><value>The changes haven't been saved. Save them?</value></data>
+
+  <!-- ============ Open image / red pen annotation window ============ -->
+  <data name="Annotator_Title" xml:space="preserve"><value>Open image · Red pen annotation</value></data>
+  <data name="Annotator_UndoButton_Content" xml:space="preserve"><value>Undo (Ctrl+Z)</value></data>
+  <data name="Annotator_RedoButton_Content" xml:space="preserve"><value>Redo (Ctrl+Y)</value></data>
+  <data name="Annotator_ClearAll_Content" xml:space="preserve"><value>Clear all</value></data>
+  <data name="Annotator_ZoomLabel" xml:space="preserve"><value>Zoom</value></data>
+  <data name="Annotator_ZoomOut_ToolTip" xml:space="preserve"><value>Zoom out (Ctrl+- / Ctrl+wheel)</value></data>
+  <data name="Annotator_ZoomReset_ToolTip" xml:space="preserve"><value>Fit to window (Ctrl+0)</value></data>
+  <data name="Annotator_ZoomIn_ToolTip" xml:space="preserve"><value>Zoom in (Ctrl++ / Ctrl+wheel)</value></data>
+  <data name="Annotator_InitialStatus" xml:space="preserve"><value>Drag to draw a red line</value></data>
+  <data name="Annotator_CopyButton_ToolTip" xml:space="preserve"><value>Copies the displayed image (including the red pen annotation) to the clipboard (Ctrl+C)</value></data>
+  <data name="Annotator_SaveButton_ToolTip" xml:space="preserve"><value>Writes the annotation into the image and saves it</value></data>
+  <data name="Annotator_HintText" xml:space="preserve"><value>Drag to draw a red line. Use the left/right keys or the arrow buttons to switch images. Ctrl+wheel or Ctrl+± to zoom, Ctrl+0 to fit to window. Ctrl+C or right-click to copy the image. Saving overwrites the original image file.</value></data>
+  <data name="Annotator_PrevImage_ToolTip" xml:space="preserve"><value>Go to the previous image</value></data>
+  <data name="Annotator_NextImage_ToolTip" xml:space="preserve"><value>Go to the next image</value></data>
+  <data name="Annotator_Status_ImageSwitched" xml:space="preserve"><value>Switched images</value></data>
+  <data name="Annotator_Status_UnsavedChanges" xml:space="preserve"><value>There are unsaved changes</value></data>
+  <data name="Annotator_Status_ClearedAll" xml:space="preserve"><value>Cleared all lines (Ctrl+Z to restore)</value></data>
+  <data name="Annotator_Status_Saved" xml:space="preserve"><value>Saved</value></data>
+  <data name="Annotator_Status_NoImageToCopy" xml:space="preserve"><value>There's no image to copy</value></data>
+  <data name="Annotator_Status_ImageCopied" xml:space="preserve"><value>Copied the image (including the red pen annotation)</value></data>
+  <data name="Annotator_Status_CopyFailed_Format" xml:space="preserve"><value>Copy failed: {0}</value></data>
+  <data name="Confirm_SaveAnnotation_Message" xml:space="preserve"><value>The annotation hasn't been saved. Save it?</value></data>
+
+  <!-- ============ MainViewModel: status, history, confirmation dialogs ============ -->
+  <data name="Status_Ready" xml:space="preserve"><value>Ready. ① Choose a capture region → ② Start recording → ③ Perform actions → ④ Generate consultation data</value></data>
+  <data name="Clipboard_NothingCopiedYet" xml:space="preserve"><value>Nothing copied yet.</value></data>
+  <data name="RecordingState_Recording" xml:space="preserve"><value>Recording</value></data>
+  <data name="RecordingState_Paused" xml:space="preserve"><value>Paused</value></data>
+  <data name="RecordingState_Stopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="RecordingOverlay_Elapsed_Format" xml:space="preserve"><value>Elapsed {0}</value></data>
+  <data name="CaptureCountCompact_Format" xml:space="preserve"><value>{0} frames</value></data>
+  <data name="Status_PausedWithTotal_Format" xml:space="preserve"><value>Paused / {0} frames total</value></data>
+  <data name="Status_LatestWithTotal_Format" xml:space="preserve"><value>Latest {0} / {1} frames total</value></data>
+  <data name="Status_WaitingFirstCapture" xml:space="preserve"><value>Waiting for the first capture</value></data>
+  <data name="Status_WaitingForAction" xml:space="preserve"><value>Waiting for an action</value></data>
+  <data name="CaptureModeDescription_Operation" xml:space="preserve"><value>Action capture mode: takes a screenshot only for the key or mouse action set below.</value></data>
+  <data name="CaptureModeDescription_Interval" xml:space="preserve"><value>Interval capture mode: captures continuously at the configured frames per second and links actions to the nearest capture.</value></data>
+  <data name="ScreenshotTrigger_Listening" xml:space="preserve"><value>Press a key or click a mouse button…</value></data>
+  <data name="ScreenshotTrigger_Unset" xml:space="preserve"><value>(Not set — click to assign)</value></data>
+  <data name="KeyboardPrivacyNote" xml:space="preserve"><value>Keyboard recording logs the physical key names you press (not the text after IME conversion). Turn keyboard recording off before typing passwords or other sensitive information.</value></data>
+  <data name="MonitorRegionDescription_NoMonitor" xml:space="preserve"><value>No monitor selected.</value></data>
+  <data name="MonitorRegionDescription_WillCapture_Format" xml:space="preserve"><value>Will capture {0}.</value></data>
+  <data name="ClipRegionDescription_WillCapture_Format" xml:space="preserve"><value>Will capture {0} × {1} at ({2}, {3}).</value></data>
+  <data name="ClipRegionDescription_NotSelected" xml:space="preserve"><value>No region selected. Click "Clip" to select a region.</value></data>
+  <data name="HistoryPreviewPlaceholder_SelectHint" xml:space="preserve"><value>Select a history entry to preview its linked capture.</value></data>
+  <data name="HistoryPreviewPlaceholder_StateRow" xml:space="preserve"><value>This row is a status message. Select a capture or action row instead.</value></data>
+  <data name="HistoryPreviewPlaceholder_NoCaptureYet" xml:space="preserve"><value>No linked capture yet (for example, right after continuous capture starts).</value></data>
+  <data name="HistoryPreviewPlaceholder_FileNotFound" xml:space="preserve"><value>Image file not found.</value></data>
+  <data name="HistoryPreviewPlaceholder_LoadFailed" xml:space="preserve"><value>Couldn't load the preview.</value></data>
+  <data name="HistoryPreviewPlaceholder_Default" xml:space="preserve"><value>The preview will appear here.</value></data>
+  <data name="Status_CannotRefreshMonitorsWhileRecording" xml:space="preserve"><value>Can't refresh the monitor list while recording or paused.</value></data>
+  <data name="Status_NoMonitorsFound" xml:space="preserve"><value>No monitors found.</value></data>
+  <data name="Status_MonitorListRefreshed_Format" xml:space="preserve"><value>Monitor list refreshed ({0} found).</value></data>
+  <data name="Status_RegionSet_Format" xml:space="preserve"><value>Capture region set ({0} × {1}).</value></data>
+  <data name="Status_Error_RegionNotSet" xml:space="preserve"><value>Error: capture region is not set.</value></data>
+  <data name="History_RecordingStarted" xml:space="preserve"><value>Recording started</value></data>
+  <data name="Status_RecordingIntervalStarted_Format" xml:space="preserve"><value>Recording. [Interval capture] {0} frames/sec (up to about {1} frames). Actions are linked to the nearest frame.</value></data>
+  <data name="Status_RecordingOperationStarted_Format" xml:space="preserve"><value>Recording. [Action capture] Captures on every action (keeps up to {0} frames).</value></data>
+  <data name="History_RecordingPaused" xml:space="preserve"><value>Recording paused</value></data>
+  <data name="Status_Paused" xml:space="preserve"><value>Paused. Press "Resume" to continue recording.</value></data>
+  <data name="History_RecordingResumed" xml:space="preserve"><value>Recording resumed</value></data>
+  <data name="Status_RecordingIntervalResumed_Format" xml:space="preserve"><value>Recording (interval capture, {0} frames/sec).</value></data>
+  <data name="Status_RecordingOperationResumed" xml:space="preserve"><value>Recording (action capture mode).</value></data>
+  <data name="History_RecordingStopped" xml:space="preserve"><value>Recording stopped</value></data>
+  <data name="Status_NoDataToDelete" xml:space="preserve"><value>There's no recorded data to delete.</value></data>
+  <data name="Confirm_DeleteRecordedData_Message" xml:space="preserve"><value>This will delete all recorded action history, captured images, and consultation data. This can't be undone. Continue?</value></data>
+  <data name="Status_DataDeleted" xml:space="preserve"><value>Recorded and consultation data deleted.</value></data>
+  <data name="Status_TempFolderOpened_Format" xml:space="preserve"><value>Opened the temp folder: {0}</value></data>
+  <data name="Status_Error_TempFolderOpenFailed_Format" xml:space="preserve"><value>Error: couldn't open the temp folder. {0}</value></data>
+  <data name="Status_Error_NoCaptures" xml:space="preserve"><value>Error: no captures yet. Bring the target window to the front during recording and make sure continuous capture is on before performing actions.</value></data>
+  <data name="Status_Error_ConsultationImageFailed_Format" xml:space="preserve"><value>Error: couldn't create the consultation image. {0}</value></data>
+  <data name="Status_ConsultationGeneratedPreviewFailed" xml:space="preserve"><value>The image was generated, but the preview failed. You can still try copying it.</value></data>
+  <data name="Status_ConsultationGeneratedSplit_Format" xml:space="preserve"><value>Consultation data generated (split into {0} images / {1} frames / {2} actions).</value></data>
+  <data name="Status_ConsultationGenerated_Format" xml:space="preserve"><value>Consultation data generated ({0} frames / {1} actions).</value></data>
+  <data name="Status_Error_ConsultationGenerationFailed_Format" xml:space="preserve"><value>Error: a problem occurred while generating consultation data. {0}</value></data>
+  <data name="Clipboard_ImageCopied_Format" xml:space="preserve"><value>1 image ({0}×{1}px) is copied.</value></data>
+  <data name="Clipboard_OneFileCopied_Format" xml:space="preserve"><value>1 file is copied: {0}</value></data>
+  <data name="Clipboard_FilesCopied_Format" xml:space="preserve"><value>{0} files are copied.</value></data>
+  <data name="Clipboard_TextCopied_Format" xml:space="preserve"><value>Text ({0} characters) is copied.</value></data>
+  <data name="Clipboard_Empty" xml:space="preserve"><value>There's no image or file on the clipboard.</value></data>
+  <data name="Status_Error_NoImageSelected" xml:space="preserve"><value>Error: no image selected.</value></data>
+  <data name="Status_Error_CombineImageFailed_Format" xml:space="preserve"><value>Error: couldn't create the combined image. {0}</value></data>
+  <data name="Status_CombinedAndCopiedSplit_Format" xml:space="preserve"><value>Copied the {0} selected images as {1} combined images. Paste them into the AI input field.</value></data>
+  <data name="Status_CombinedAndCopied_Format" xml:space="preserve"><value>Combined the {0} selected images into one and copied it. Paste it into the AI input field.</value></data>
+  <data name="Status_CombinedButCopyFailed_Format" xml:space="preserve"><value>The images were combined, but copying failed. {0}</value></data>
+  <data name="Status_Error_CombineFailed_Format" xml:space="preserve"><value>Error: a problem occurred while combining images. {0}</value></data>
+  <data name="Error_CombineImageAt_Format" xml:space="preserve"><value>Couldn't create combined image #{0}. {1}</value></data>
+  <data name="Status_Error_CopyImageFailed_Format" xml:space="preserve"><value>Error: couldn't copy the image. {0}</value></data>
+  <data name="Status_FilesCopiedIndividually_Format" xml:space="preserve"><value>Copied the {0} selected images as separate files. Paste them into the AI input field.</value></data>
+  <data name="Status_Error_MouseHookFailed_Format" xml:space="preserve"><value>Error: couldn't start mouse monitoring. {0}</value></data>
+  <data name="Status_Error_KeyboardHookToggleFailed_Format" xml:space="preserve"><value>Error: couldn't toggle keyboard monitoring. {0}</value></data>
+  <data name="Status_Warning_IntervalCaptureFailed_Format" xml:space="preserve"><value>Warning: periodic capture failed. {0}</value></data>
+  <data name="Error_RegionNotSet" xml:space="preserve"><value>Capture region is not set.</value></data>
+  <data name="Action_Summary_ScreenAndRelative_Format" xml:space="preserve"><value>Screen ({0}, {1}) / Relative ({2:0.0}%, {3:0.0}%)</value></data>
+  <data name="History_ActionLinked_Format" xml:space="preserve"><value>Recorded {0} (linked to capture / {1} actions).</value></data>
+  <data name="History_ActionLinkPending_Format" xml:space="preserve"><value>Recorded {0} (will link to the next capture / {1} actions).</value></data>
+  <data name="History_ActionNoImage_Format" xml:space="preserve"><value>Recorded {0} (no image / {1} actions).</value></data>
+  <data name="Action_Summary_ScreenOnly_Format" xml:space="preserve"><value>Screen ({0}, {1})</value></data>
+  <data name="Status_ActionOutOfScreen_Format" xml:space="preserve"><value>Recorded {0} outside the screen ({1} actions).</value></data>
+  <data name="Action_Summary_DragTo_Format" xml:space="preserve"><value>Moved {0} (distance {1:0}px)</value></data>
+  <data name="Status_DragRecorded_Format" xml:space="preserve"><value>Recorded a drag ({0} actions).</value></data>
+  <data name="Direction_AlmostSamePlace" xml:space="preserve"><value>almost in place</value></data>
+  <data name="Direction_LeftToRight" xml:space="preserve"><value>left to right</value></data>
+  <data name="Direction_RightToLeft" xml:space="preserve"><value>right to left</value></data>
+  <data name="Direction_TopToBottom" xml:space="preserve"><value>top to bottom</value></data>
+  <data name="Direction_BottomToTop" xml:space="preserve"><value>bottom to top</value></data>
+  <data name="Direction_Up" xml:space="preserve"><value>upward</value></data>
+  <data name="Direction_Down" xml:space="preserve"><value>downward</value></data>
+  <data name="Action_Summary_WheelWithScreen_Format" xml:space="preserve"><value>Scrolled {0} {1} time(s) (screen {2}, {3})</value></data>
+  <data name="Action_Summary_Wheel_Format" xml:space="preserve"><value>Scrolled {0} {1} time(s)</value></data>
+  <data name="Status_WheelRecorded_Format" xml:space="preserve"><value>Recorded a wheel scroll ({0}).</value></data>
+  <data name="Status_KeyboardRecorded_Format" xml:space="preserve"><value>Recorded a key press ({0}).</value></data>
+  <data name="Status_HistoryPreviewUpdated" xml:space="preserve"><value>History preview image updated (red pen annotation saved).</value></data>
+  <data name="Status_ConsultationPreviewUpdated" xml:space="preserve"><value>Consultation image updated (red pen annotation saved).</value></data>
+  <data name="Status_RecordingStoppedNoActions" xml:space="preserve"><value>Recording stopped. No consultation data was created because no actions were recorded.</value></data>
+  <data name="Status_ConsultationCopiedPasteReady" xml:space="preserve"><value>Copied. You can paste it directly into the AI</value></data>
+  <data name="Status_MultipleCombinedCopied_Format" xml:space="preserve"><value>Copied {0} combined images. Continue pasting them into the same AI input field.</value></data>
+  <data name="Status_SingleCombinedCopied" xml:space="preserve"><value>Copied the image. Continue pasting it into the same AI input field.</value></data>
+  <data name="Status_Error_NoImageToCopy" xml:space="preserve"><value>Error: there's no image to copy.</value></data>
+
+  <!-- ============ Models ============ -->
+  <data name="MouseButton_Left" xml:space="preserve"><value>Left click</value></data>
+  <data name="MouseButton_Right" xml:space="preserve"><value>Right click</value></data>
+  <data name="MouseButton_Middle" xml:space="preserve"><value>Middle click</value></data>
+  <data name="MouseButton_XButton1" xml:space="preserve"><value>Mouse button 4</value></data>
+  <data name="MouseButton_XButton2" xml:space="preserve"><value>Mouse button 5</value></data>
+  <data name="MouseButton_Wheel" xml:space="preserve"><value>Mouse wheel</value></data>
+  <data name="CaptureFrame_ActionCaptureKind" xml:space="preserve"><value>action screenshot</value></data>
+  <data name="CaptureFrame_IntervalCaptureKind" xml:space="preserve"><value>periodic screenshot</value></data>
+  <data name="CaptureFrame_Label_Format" xml:space="preserve"><value>{0:HH:mm:ss.fff}  [Screen] {1}</value></data>
+  <data name="ActionType_LeftClick" xml:space="preserve"><value>Left click</value></data>
+  <data name="ActionType_RightClick" xml:space="preserve"><value>Right click</value></data>
+  <data name="ActionType_LeftDoubleClick" xml:space="preserve"><value>Left double-click</value></data>
+  <data name="ActionType_RightDoubleClick" xml:space="preserve"><value>Right double-click</value></data>
+  <data name="ActionType_MouseWheel" xml:space="preserve"><value>Wheel</value></data>
+  <data name="ActionType_Drag" xml:space="preserve"><value>Drag</value></data>
+  <data name="ActionType_Keyboard" xml:space="preserve"><value>Keyboard</value></data>
+  <data name="ActionType_Generic" xml:space="preserve"><value>Action</value></data>
+  <data name="RecordedAction_OutOfScreen" xml:space="preserve"><value>Action outside the screen</value></data>
+  <data name="RecordedAction_NoCapture" xml:space="preserve"><value>Action without a capture</value></data>
+  <data name="RecordedAction_CaptureMark" xml:space="preserve"><value> [Screen]</value></data>
+  <data name="Label_Separator" xml:space="preserve"><value>: </value></data>
+  <data name="Label_Parenthesize_Format" xml:space="preserve"><value>({0})</value></data>
+  <data name="Thumbnail_Label_Format" xml:space="preserve"><value>{0:HH:mm:ss.fff}  {1} actions</value></data>
+
+  <!-- ============ Services ============ -->
+  <data name="Clipboard_Error_NoText" xml:space="preserve"><value>There's no text to copy.</value></data>
+  <data name="Clipboard_Error_TextCopyFailed_Format" xml:space="preserve"><value>Couldn't copy the description: {0}</value></data>
+  <data name="Clipboard_Error_ImageFileNotFound" xml:space="preserve"><value>No image file to copy. Generate consultation data first.</value></data>
+  <data name="Clipboard_Error_ImageLoadFailed" xml:space="preserve"><value>Couldn't load the image.</value></data>
+  <data name="Clipboard_Error_ImageCopyFailed_Format" xml:space="preserve"><value>Couldn't copy the image: {0}</value></data>
+  <data name="Clipboard_Error_ImageFilesNotFound" xml:space="preserve"><value>No image files to copy.</value></data>
+  <data name="Clipboard_Error_FileCopyFailed_Format" xml:space="preserve"><value>Couldn't copy the file: {0}</value></data>
+  <data name="Consultation_Error_NoCaptures" xml:space="preserve"><value>There are no captures. Check that continuous capture was saved during recording.</value></data>
+  <data name="Error_NoOutputPath" xml:space="preserve"><value>No output path specified.</value></data>
+  <data name="Consultation_Error_NoUsableFrames" xml:space="preserve"><value>There are no readable capture images.</value></data>
+  <data name="Consultation_Error_GenerationFailed_Format" xml:space="preserve"><value>Couldn't generate the consultation image: {0}</value></data>
+  <data name="Consultation_FrameTitle_Single_Format" xml:space="preserve"><value>Frame 1 / 1  {0:HH:mm:ss.fff}</value></data>
+  <data name="Consultation_ScreenDisplay" xml:space="preserve"><value>Screen</value></data>
+  <data name="Consultation_Error_FrameLoadFailed_Format" xml:space="preserve"><value>Couldn't load the capture (frame {0}).</value></data>
+  <data name="Consultation_FrameTitle_Multi_Format" xml:space="preserve"><value>Frame {0} / {1}  {2:HH:mm:ss.fff}</value></data>
+  <data name="Consultation_ScreenChange" xml:space="preserve"><value>Screen change</value></data>
+  <data name="Consultation_Error_InvalidImageSize" xml:space="preserve"><value>The image size to generate is invalid or too large. Reduce the number of frames.</value></data>
+  <data name="CapturedInput_Keyboard" xml:space="preserve"><value>Keyboard</value></data>
+  <data name="Monitor_PrimarySuffix" xml:space="preserve"><value> (Primary)</value></data>
+  <data name="Screenshot_Error_InvalidRegionSize" xml:space="preserve"><value>The capture region size is invalid.</value></data>
+  <data name="Screenshot_Error_ScreenDcFailed" xml:space="preserve"><value>Couldn't get the screen device context.</value></data>
+  <data name="Screenshot_Error_MemoryDcFailed" xml:space="preserve"><value>Couldn't create a memory device context.</value></data>
+  <data name="Screenshot_Error_BitmapCreateFailed" xml:space="preserve"><value>Couldn't create the bitmap.</value></data>
+  <data name="Screenshot_Error_BitBltFailed" xml:space="preserve"><value>Capture via BitBlt failed.</value></data>
+  <data name="Screenshot_Error_SaveFailed_Format" xml:space="preserve"><value>An error occurred while saving the screenshot: {0}</value></data>
+  <data name="Error_KeyboardHookStartFailed_Format" xml:space="preserve"><value>Couldn't start the keyboard hook. Win32 error: {0}</value></data>
+  <data name="Error_MouseHookStartFailed_Format" xml:space="preserve"><value>Couldn't start the mouse hook. Win32 error: {0}</value></data>
+</root>

@@ -3,6 +3,7 @@ using System.Windows.Input;
 using TracePrompt.Models;
 using TracePrompt.Services;
 using TracePrompt.ViewModels;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Views;
 
@@ -56,11 +57,11 @@ public partial class SettingsWindow : Window
 
         string display = button switch
         {
-            "Left" => "左クリック",
-            "Right" => "右クリック",
-            "Middle" => "中クリック",
-            "XButton1" => "マウスボタン4",
-            "XButton2" => "マウスボタン5",
+            "Left" => Loc.Instance.Get("MouseButton_Left"),
+            "Right" => Loc.Instance.Get("MouseButton_Right"),
+            "Middle" => Loc.Instance.Get("MouseButton_Middle"),
+            "XButton1" => Loc.Instance.Get("MouseButton_XButton1"),
+            "XButton2" => Loc.Instance.Get("MouseButton_XButton2"),
             _ => button
         };
 
@@ -75,7 +76,7 @@ public partial class SettingsWindow : Window
             return;
         }
 
-        _viewModel.TryAssignScreenshotTrigger(CapturedInputBinding.FromMouse("Wheel", "マウスホイール"));
+        _viewModel.TryAssignScreenshotTrigger(CapturedInputBinding.FromMouse("Wheel", Loc.Instance.Get("MouseButton_Wheel")));
         e.Handled = true;
     }
 

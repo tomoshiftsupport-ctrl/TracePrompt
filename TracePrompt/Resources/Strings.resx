@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============ 共通 ============ -->
+  <data name="App_Title" xml:space="preserve"><value>AIヘルプキャプチャ</value></data>
+  <data name="Common_Save" xml:space="preserve"><value>保存</value></data>
+  <data name="Common_Close" xml:space="preserve"><value>閉じる</value></data>
+  <data name="Common_Clear" xml:space="preserve"><value>クリア</value></data>
+  <data name="Common_Copy" xml:space="preserve"><value>コピー</value></data>
+  <data name="Common_OpenScreenshotFolder" xml:space="preserve"><value>スクショ保存フォルダを開く</value></data>
+  <data name="Common_DeleteRecordedDataNow" xml:space="preserve"><value>記録データを今すぐ削除</value></data>
+  <data name="Common_RedPenBadge" xml:space="preserve"><value>赤ペン</value></data>
+  <data name="ContextMenu_CopyImage" xml:space="preserve"><value>画像をコピー (Ctrl+C)</value></data>
+  <data name="Dialog_SaveFailed_Format" xml:space="preserve"><value>保存に失敗しました。&#x0a;{0}</value></data>
+  <data name="Dialog_ImageLoadFailed" xml:space="preserve"><value>画像を読み込めませんでした。</value></data>
+  <data name="Unit_Frames" xml:space="preserve"><value>枚</value></data>
+  <data name="Unit_Columns" xml:space="preserve"><value>列</value></data>
+
+  <!-- ============ メイン画面 ============ -->
+  <data name="MainWindow_RegionModeButton_ToolTip" xml:space="preserve"><value>キャプチャ範囲のモードを選ぶ（全画面表示／クリップ）</value></data>
+  <data name="MainWindow_RegionMode_FullScreen" xml:space="preserve"><value>全画面表示</value></data>
+  <data name="MainWindow_RegionMode_Clip" xml:space="preserve"><value>クリップ</value></data>
+  <data name="MainWindow_MonitorButton_ToolTip" xml:space="preserve"><value>撮影するモニターを選ぶ</value></data>
+  <data name="MainWindow_MonitorRefresh" xml:space="preserve"><value>一覧を更新</value></data>
+  <data name="MainWindow_CaptureButton_Content" xml:space="preserve"><value>キャプチャ</value></data>
+  <data name="MainWindow_IntervalMode_ToolTip" xml:space="preserve"><value>時間でキャプチャ：設定した枚/秒で連続撮影します</value></data>
+  <data name="MainWindow_OperationMode_ToolTip" xml:space="preserve"><value>操作でキャプチャ：指定したキー／マウス操作のときだけ撮影します</value></data>
+  <data name="MainWindow_ConsultationButton_Title" xml:space="preserve"><value>AI相談用データ</value></data>
+  <data name="MainWindow_ConsultationButton_Description" xml:space="preserve"><value>記録停止のたびに、操作と画面をまとめた相談用画像を自動生成してコピーします。特定のコマだけ選びたい・結合方法を変えたいときはここを開いてください。</value></data>
+  <data name="MainWindow_OpenFolder_ToolTip" xml:space="preserve"><value>スクショ保存フォルダを開く</value></data>
+  <data name="MainWindow_Settings_ToolTip" xml:space="preserve"><value>記録の設定（頻度・保持・記録対象など）</value></data>
+  <data name="MainWindow_History_Header" xml:space="preserve"><value>直近の操作履歴 / 個別プレビューを見る</value></data>
+  <data name="MainWindow_History_Hint" xml:space="preserve"><value>行を選ぶと、下にそのときのキャプチャ画像が表示されます。</value></data>
+  <data name="MainWindow_HistoryPreviewAnnotatorTitle" xml:space="preserve"><value>履歴プレビュー — 赤ペン記入</value></data>
+
+  <!-- ============ 小型記録ウィンドウ ============ -->
+  <data name="Compact_Start" xml:space="preserve"><value>● 開始</value></data>
+  <data name="Compact_Pause" xml:space="preserve"><value>一時停止</value></data>
+  <data name="Compact_Resume" xml:space="preserve"><value>● 再開</value></data>
+  <data name="Compact_Stop" xml:space="preserve"><value>■ 停止</value></data>
+  <data name="Compact_Settings" xml:space="preserve"><value>設定</value></data>
+  <data name="Compact_Back" xml:space="preserve"><value>戻る</value></data>
+  <data name="Compact_Back_ToolTip" xml:space="preserve"><value>通常のウィンドウ表示に戻る</value></data>
+  <data name="Compact_EscToClose" xml:space="preserve"><value>Esc で閉じる</value></data>
+
+  <!-- ============ 範囲選択ウィンドウ ============ -->
+  <data name="RegionSelector_Title" xml:space="preserve"><value>キャプチャ範囲を選択</value></data>
+  <data name="RegionSelector_Instruction" xml:space="preserve"><value>ドラッグしてキャプチャ範囲を選択してください（Esc で中止）</value></data>
+  <data name="CaptureRegionBorder_Title" xml:space="preserve"><value>AIヘルプキャプチャ キャプチャ範囲</value></data>
+  <data name="CaptureRegionHandle_Title" xml:space="preserve"><value>AIヘルプキャプチャ 範囲移動ハンドル</value></data>
+
+  <!-- ============ 設定画面 ============ -->
+  <data name="Settings_Title" xml:space="preserve"><value>記録の設定</value></data>
+  <data name="Settings_CaptureMode_Label" xml:space="preserve"><value>キャプチャモード</value></data>
+  <data name="Settings_CaptureMode_Tooltip_Interval" xml:space="preserve"><value>・時間でキャプチャ … 設定した枚/秒で連続撮影し、操作は最寄りの画像に紐づけます。</value></data>
+  <data name="Settings_CaptureMode_Tooltip_Operation" xml:space="preserve"><value>・操作でキャプチャ … 指定したキー／マウス操作のときだけスクリーンショットを撮ります。連続の定期撮影はしません。</value></data>
+  <data name="Settings_IntervalCaptureMode_Content" xml:space="preserve"><value>時間でキャプチャ</value></data>
+  <data name="Settings_OperationCaptureMode_Content" xml:space="preserve"><value>操作でキャプチャ</value></data>
+  <data name="Settings_CaptureFrequency_Label" xml:space="preserve"><value>キャプチャ頻度</value></data>
+  <data name="Settings_CaptureFrequency_Tooltip" xml:space="preserve"><value>1秒あたり何枚スクリーンショットを撮るかです。</value></data>
+  <data name="Settings_FramesPerSecond_Unit" xml:space="preserve"><value>枚/秒（1～10）</value></data>
+  <data name="Settings_RetentionTime_Label" xml:space="preserve"><value>保持時間</value></data>
+  <data name="Settings_RetentionTime_Tooltip" xml:space="preserve"><value>バッファ容量の目安です（おおよそ 頻度×秒 枚）。操作に紐づくコマは優先保持します。</value></data>
+  <data name="Settings_RetentionSeconds_Unit" xml:space="preserve"><value>秒（1～120）</value></data>
+  <data name="Settings_ScreenshotTrigger_Label" xml:space="preserve"><value>スクショを取る操作</value></data>
+  <data name="Settings_ScreenshotTrigger_Tooltip1" xml:space="preserve"><value>枠をクリックしてから、キー1つまたはマウスボタン1つを押すと設定されます。その操作のときだけスクリーンショットを撮ります。</value></data>
+  <data name="Settings_ScreenshotTrigger_Tooltip2" xml:space="preserve"><value>既定は左クリックです。「クリア」で未設定に戻せます。</value></data>
+  <data name="Settings_KeepCaptureCount_Label" xml:space="preserve"><value>保持枚数</value></data>
+  <data name="Settings_KeepCaptureCount_Tooltip1" xml:space="preserve"><value>操作キャプチャで残しておく画像の最大枚数です。超えた分は古いものから画像を削除します（操作の記録自体は「画像なしの操作」として残ります）。</value></data>
+  <data name="Settings_KeepCaptureCount_Tooltip2" xml:space="preserve"><value>範囲: 1～200。記録停止後は自動削除しません。</value></data>
+  <data name="Settings_KeepCaptureCount_Tooltip3" xml:space="preserve"><value>開始時・終了時も必ず1枚撮りますが、この2枚も保持枚数のカウントに含まれます。上限を超えれば他のキャプチャと同様に古いものから削除され、常に直近の枚数分だけが残ります。</value></data>
+  <data name="Settings_KeepCaptureCount_Unit" xml:space="preserve"><value>枚（1～200）</value></data>
+  <data name="Settings_AdvancedRecording_Header" xml:space="preserve"><value>詳細な記録設定（記録対象）</value></data>
+  <data name="Settings_RecordMouse_Content" xml:space="preserve"><value>マウス操作を記録する</value></data>
+  <data name="Settings_RecordKeyboard_Content" xml:space="preserve"><value>キーボード操作を記録する</value></data>
+  <data name="Settings_Language_SectionLabel" xml:space="preserve"><value>言語 / Language</value></data>
+  <data name="Settings_Language_Japanese" xml:space="preserve"><value>日本語</value></data>
+  <data name="Settings_Language_English" xml:space="preserve"><value>English</value></data>
+
+  <!-- ============ 結合方法を変える（画像一覧）ウィンドウ ============ -->
+  <data name="ConsultationList_Title" xml:space="preserve"><value>結合方法を変える</value></data>
+  <data name="ConsultationList_Instruction" xml:space="preserve"><value>必要なコマだけチェックして、結合方法を調整してください。選択は任意で、既定では全コマが対象です。画像をクリックすると拡大表示できます。</value></data>
+  <data name="ConsultationList_SelectAll" xml:space="preserve"><value>全選択</value></data>
+  <data name="ConsultationList_DeselectAll" xml:space="preserve"><value>全解除</value></data>
+  <data name="ConsultationList_EmptyHint" xml:space="preserve"><value>サムネイル一覧に何も表示されないときは、記録を停止するとここに撮影分が並びます。</value></data>
+  <data name="ConsultationList_ClickToEnlarge_ToolTip" xml:space="preserve"><value>クリックで拡大表示</value></data>
+  <data name="ConsultationList_FramesPerImage_Label" xml:space="preserve"><value>1枚あたりのコマ数</value></data>
+  <data name="ConsultationList_DecreaseFrames_ToolTip" xml:space="preserve"><value>1枚減らす</value></data>
+  <data name="ConsultationList_IncreaseFrames_ToolTip" xml:space="preserve"><value>1枚増やす</value></data>
+  <data name="ConsultationList_All_Content" xml:space="preserve"><value>すべて</value></data>
+  <data name="ConsultationList_Layout_Label" xml:space="preserve"><value>並び方</value></data>
+  <data name="ConsultationList_DecreaseColumns_ToolTip" xml:space="preserve"><value>1列減らす</value></data>
+  <data name="ConsultationList_IncreaseColumns_ToolTip" xml:space="preserve"><value>1列増やす</value></data>
+  <data name="ConsultationList_Auto_Content" xml:space="preserve"><value>自動</value></data>
+  <data name="ConsultationList_Quality_Label" xml:space="preserve"><value>画質</value></data>
+  <data name="ConsultationList_Quality_TextPriority" xml:space="preserve"><value>文字優先</value></data>
+  <data name="ConsultationList_Quality_Standard" xml:space="preserve"><value>標準</value></data>
+  <data name="ConsultationList_Quality_SizePriority" xml:space="preserve"><value>容量優先</value></data>
+  <data name="ConsultationList_UseCustomSettings_Content" xml:space="preserve"><value>今後はこの設定でスクショを結合する（記録停止時の自動結合にも適用）</value></data>
+  <data name="ConsultationList_UseCustomSettings_ToolTip" xml:space="preserve"><value>オンにすると、記録停止のたびに自動生成される相談用画像にも、この1枚あたりのコマ数・並び方・画質の設定を使うようになります。&#x0a;オフ（既定）のときは、全コマを1枚に結合する従来どおりの自動結合になります。</value></data>
+  <data name="ConsultationList_ClipboardReview_Label" xml:space="preserve"><value>コピー結果の確認（今クリップボードにある内容）</value></data>
+  <data name="ConsultationList_Recheck" xml:space="preserve"><value>再確認</value></data>
+  <data name="ConsultationList_ClickToAnnotate_ToolTip" xml:space="preserve"><value>クリックで赤ペン記入</value></data>
+  <data name="ConsultationList_CombineAndCopy_Content" xml:space="preserve"><value>選択画像を結合してコピー</value></data>
+  <data name="ConsultationList_CombineAndCopy_ToolTip" xml:space="preserve"><value>チェックした画像を、指定コマ数ごとに分割して結合し、そのままクリップボードへコピーします</value></data>
+  <data name="ConsultationList_CopyWithoutCombining_Content" xml:space="preserve"><value>結合せずコピー</value></data>
+  <data name="ConsultationList_CopyWithoutCombining_ToolTip" xml:space="preserve"><value>チェックした元画像を、結合せず複数ファイルのままクリップボードへコピーします</value></data>
+  <data name="ConsultationList_OpenFolder_ToolTip_Format" xml:space="preserve"><value>スクショ一時フォルダをエクスプローラーで開きます&#x0a;{0}</value></data>
+  <data name="ConsultationList_SelectThisImage_Content" xml:space="preserve"><value>この画像を選択する</value></data>
+  <data name="ConsultationList_CloseViewer_Content" xml:space="preserve"><value>閉じる ×</value></data>
+  <data name="ConsultationList_Undo_Content" xml:space="preserve"><value>元に戻す</value></data>
+  <data name="ConsultationList_Undo_ToolTip" xml:space="preserve"><value>直前の線を取り消します（Ctrl+Z）</value></data>
+  <data name="ConsultationList_Redo_Content" xml:space="preserve"><value>やり直す</value></data>
+  <data name="ConsultationList_Redo_ToolTip" xml:space="preserve"><value>取り消した線を戻します（Ctrl+Y）</value></data>
+  <data name="ConsultationList_ClearLines_Content" xml:space="preserve"><value>消す</value></data>
+  <data name="ConsultationList_ClearLines_ToolTip" xml:space="preserve"><value>記入した線をすべて消します</value></data>
+  <data name="ConsultationList_Save_ToolTip" xml:space="preserve"><value>赤ペン記入を画像に書き込んで保存します（Ctrl+S）</value></data>
+  <data name="ConsultationList_ZoomOut_ToolTip" xml:space="preserve"><value>縮小（Ctrl+-）</value></data>
+  <data name="ConsultationList_ZoomReset_ToolTip" xml:space="preserve"><value>画面に合わせて全体表示（Ctrl+0）</value></data>
+  <data name="ConsultationList_ZoomIn_ToolTip" xml:space="preserve"><value>拡大（Ctrl++）</value></data>
+  <data name="ConsultationList_PrevImage_ToolTip" xml:space="preserve"><value>前の画像（←キー）</value></data>
+  <data name="ConsultationList_NextImage_ToolTip" xml:space="preserve"><value>次の画像（→キー）</value></data>
+  <data name="ConsultationList_ViewerHint" xml:space="preserve"><value>ドラッグで赤線を記入。← → キーで前後の画像に移動（未保存の記入があれば確認します）、Ctrl+C または右クリックで画像をコピー、Esc キーで閉じます。</value></data>
+  <data name="ConsultationList_ThumbnailSelectionSummary_Format" xml:space="preserve"><value>{0} 枚選択中 ／ 全 {1} 枚</value></data>
+  <data name="ConsultationList_CopiedAnnotatorTitle" xml:space="preserve"><value>コピーした画像 — 赤ペン記入</value></data>
+  <data name="Confirm_SaveChanges_Message" xml:space="preserve"><value>変更が保存されていません。保存しますか？</value></data>
+
+  <!-- ============ 画像を開く・赤ペン記入ウィンドウ ============ -->
+  <data name="Annotator_Title" xml:space="preserve"><value>画像を開く・赤ペン記入</value></data>
+  <data name="Annotator_UndoButton_Content" xml:space="preserve"><value>元に戻す (Ctrl+Z)</value></data>
+  <data name="Annotator_RedoButton_Content" xml:space="preserve"><value>やり直す (Ctrl+Y)</value></data>
+  <data name="Annotator_ClearAll_Content" xml:space="preserve"><value>すべて消す</value></data>
+  <data name="Annotator_ZoomLabel" xml:space="preserve"><value>表示</value></data>
+  <data name="Annotator_ZoomOut_ToolTip" xml:space="preserve"><value>縮小 (Ctrl+- / Ctrl+ホイール)</value></data>
+  <data name="Annotator_ZoomReset_ToolTip" xml:space="preserve"><value>画面に合わせて全体表示 (Ctrl+0)</value></data>
+  <data name="Annotator_ZoomIn_ToolTip" xml:space="preserve"><value>拡大 (Ctrl++ / Ctrl+ホイール)</value></data>
+  <data name="Annotator_InitialStatus" xml:space="preserve"><value>ドラッグで赤線を描けます</value></data>
+  <data name="Annotator_CopyButton_ToolTip" xml:space="preserve"><value>表示中の画像（赤ペン記入込み）をクリップボードへコピーします（Ctrl+C）</value></data>
+  <data name="Annotator_SaveButton_ToolTip" xml:space="preserve"><value>記入内容を画像に書き込んで保存します</value></data>
+  <data name="Annotator_HintText" xml:space="preserve"><value>ドラッグで赤線を記入。左右キーまたは矢印ボタンで画像を切り替え。Ctrl+ホイール / Ctrl+± で拡大縮小、Ctrl+0 で全体表示に戻します。Ctrl+C または右クリックで画像をコピーできます。保存すると元の画像ファイルを上書きします。</value></data>
+  <data name="Annotator_PrevImage_ToolTip" xml:space="preserve"><value>前の画像へ移動</value></data>
+  <data name="Annotator_NextImage_ToolTip" xml:space="preserve"><value>次の画像へ移動</value></data>
+  <data name="Annotator_Status_ImageSwitched" xml:space="preserve"><value>画像を切り替えました</value></data>
+  <data name="Annotator_Status_UnsavedChanges" xml:space="preserve"><value>未保存の変更があります</value></data>
+  <data name="Annotator_Status_ClearedAll" xml:space="preserve"><value>線をすべて消しました（Ctrl+Z で復元）</value></data>
+  <data name="Annotator_Status_Saved" xml:space="preserve"><value>保存しました</value></data>
+  <data name="Annotator_Status_NoImageToCopy" xml:space="preserve"><value>コピーできる画像がありません</value></data>
+  <data name="Annotator_Status_ImageCopied" xml:space="preserve"><value>画像をコピーしました（赤ペン記入を含む）</value></data>
+  <data name="Annotator_Status_CopyFailed_Format" xml:space="preserve"><value>コピーに失敗しました: {0}</value></data>
+  <data name="Confirm_SaveAnnotation_Message" xml:space="preserve"><value>記入内容が保存されていません。保存しますか？</value></data>
+
+  <!-- ============ MainViewModel: ステータス・履歴・確認ダイアログ ============ -->
+  <data name="Status_Ready" xml:space="preserve"><value>準備完了です。①キャプチャ範囲を選ぶ → ②記録開始 → ③操作 → ④相談用データ生成</value></data>
+  <data name="Clipboard_NothingCopiedYet" xml:space="preserve"><value>まだ何もコピーしていません。</value></data>
+  <data name="RecordingState_Recording" xml:space="preserve"><value>記録中</value></data>
+  <data name="RecordingState_Paused" xml:space="preserve"><value>一時停止中</value></data>
+  <data name="RecordingState_Stopped" xml:space="preserve"><value>停止中</value></data>
+  <data name="RecordingOverlay_Elapsed_Format" xml:space="preserve"><value>経過 {0}</value></data>
+  <data name="CaptureCountCompact_Format" xml:space="preserve"><value>{0} 枚</value></data>
+  <data name="Status_PausedWithTotal_Format" xml:space="preserve"><value>一時停止中 / 累計 {0} 枚</value></data>
+  <data name="Status_LatestWithTotal_Format" xml:space="preserve"><value>最新 {0} / 累計 {1} 枚</value></data>
+  <data name="Status_WaitingFirstCapture" xml:space="preserve"><value>初回キャプチャ待機中</value></data>
+  <data name="Status_WaitingForAction" xml:space="preserve"><value>操作待機中</value></data>
+  <data name="CaptureModeDescription_Operation" xml:space="preserve"><value>操作キャプチャモード: 下の枠で指定したキー／マウス操作のときだけスクリーンショットを撮ります。</value></data>
+  <data name="CaptureModeDescription_Interval" xml:space="preserve"><value>秒でキャプチャモード: 設定した枚/秒で連続撮影し、操作は最寄りのキャプチャに紐づけます。</value></data>
+  <data name="ScreenshotTrigger_Listening" xml:space="preserve"><value>キーまたはマウスをクリック…</value></data>
+  <data name="ScreenshotTrigger_Unset" xml:space="preserve"><value>（未設定・クリックして入力）</value></data>
+  <data name="KeyboardPrivacyNote" xml:space="preserve"><value>キー入力は押した物理キー名を記録します（IME変換後ではありません）。パスワード等重要な情報を入力する際はキーボード記録をOFFにしてください。</value></data>
+  <data name="MonitorRegionDescription_NoMonitor" xml:space="preserve"><value>モニターが選択されていません。</value></data>
+  <data name="MonitorRegionDescription_WillCapture_Format" xml:space="preserve"><value>{0} を撮ります。</value></data>
+  <data name="ClipRegionDescription_WillCapture_Format" xml:space="preserve"><value>{0} × {1} @ ({2}, {3}) を撮ります。</value></data>
+  <data name="ClipRegionDescription_NotSelected" xml:space="preserve"><value>範囲が未選択です。「自由クリップ」をクリックして範囲を選んでください。</value></data>
+  <data name="HistoryPreviewPlaceholder_SelectHint" xml:space="preserve"><value>履歴を選択すると、紐づいたキャプチャをプレビューできます。</value></data>
+  <data name="HistoryPreviewPlaceholder_StateRow" xml:space="preserve"><value>この行は状態メッセージです。キャプチャ行または操作行を選んでください。</value></data>
+  <data name="HistoryPreviewPlaceholder_NoCaptureYet" xml:space="preserve"><value>紐づくキャプチャがまだありません（連続キャプチャ開始直後など）。</value></data>
+  <data name="HistoryPreviewPlaceholder_FileNotFound" xml:space="preserve"><value>画像ファイルが見つかりません。</value></data>
+  <data name="HistoryPreviewPlaceholder_LoadFailed" xml:space="preserve"><value>プレビューを読み込めませんでした。</value></data>
+  <data name="HistoryPreviewPlaceholder_Default" xml:space="preserve"><value>プレビューがここに表示されます。</value></data>
+  <data name="Status_CannotRefreshMonitorsWhileRecording" xml:space="preserve"><value>記録中または一時停止中はモニター一覧を更新できません。</value></data>
+  <data name="Status_NoMonitorsFound" xml:space="preserve"><value>モニターが見つかりませんでした。</value></data>
+  <data name="Status_MonitorListRefreshed_Format" xml:space="preserve"><value>モニター一覧を更新しました（{0} 件）。</value></data>
+  <data name="Status_RegionSet_Format" xml:space="preserve"><value>キャプチャ範囲を設定しました（{0} × {1}）。</value></data>
+  <data name="Status_Error_RegionNotSet" xml:space="preserve"><value>エラー: キャプチャ範囲が未設定です。</value></data>
+  <data name="History_RecordingStarted" xml:space="preserve"><value>記録を開始しました</value></data>
+  <data name="Status_RecordingIntervalStarted_Format" xml:space="preserve"><value>記録中です。【秒でキャプチャ】{0} 枚/秒（最大おおよそ {1} 枚）。操作は最寄りフレームに紐づけます。</value></data>
+  <data name="Status_RecordingOperationStarted_Format" xml:space="preserve"><value>記録中です。【操作キャプチャ】操作のたびに撮影します（保持 {0} 枚まで）。</value></data>
+  <data name="History_RecordingPaused" xml:space="preserve"><value>記録を一時停止しました</value></data>
+  <data name="Status_Paused" xml:space="preserve"><value>一時停止中です。「再開」を押すと記録を再開します。</value></data>
+  <data name="History_RecordingResumed" xml:space="preserve"><value>記録を再開しました</value></data>
+  <data name="Status_RecordingIntervalResumed_Format" xml:space="preserve"><value>記録中です（秒でキャプチャ {0} 枚/秒）。</value></data>
+  <data name="Status_RecordingOperationResumed" xml:space="preserve"><value>記録中です（操作キャプチャモード）。</value></data>
+  <data name="History_RecordingStopped" xml:space="preserve"><value>記録を停止しました</value></data>
+  <data name="Status_NoDataToDelete" xml:space="preserve"><value>削除する記録データがありません。</value></data>
+  <data name="Confirm_DeleteRecordedData_Message" xml:space="preserve"><value>記録した操作履歴・キャプチャ画像・相談用データをすべて削除します。この操作は取り消せません。よろしいですか？</value></data>
+  <data name="Status_DataDeleted" xml:space="preserve"><value>記録データと相談用データを削除しました。</value></data>
+  <data name="Status_TempFolderOpened_Format" xml:space="preserve"><value>一時フォルダを開きました: {0}</value></data>
+  <data name="Status_Error_TempFolderOpenFailed_Format" xml:space="preserve"><value>エラー: 一時フォルダを開けませんでした。{0}</value></data>
+  <data name="Status_Error_NoCaptures" xml:space="preserve"><value>エラー: キャプチャが0件です。記録中に対象を最前面にし、連続キャプチャを有効にしてから操作してください。</value></data>
+  <data name="Status_Error_ConsultationImageFailed_Format" xml:space="preserve"><value>エラー: 相談用画像を作れませんでした。{0}</value></data>
+  <data name="Status_ConsultationGeneratedPreviewFailed" xml:space="preserve"><value>画像は生成しましたがプレビューに失敗しました。コピーは試せます。</value></data>
+  <data name="Status_ConsultationGeneratedSplit_Format" xml:space="preserve"><value>相談用データを生成しました（{0} 枚に分割 / コマ {1} / 操作 {2} 件）。</value></data>
+  <data name="Status_ConsultationGenerated_Format" xml:space="preserve"><value>相談用データを生成しました（コマ {0} / 操作 {1} 件）。</value></data>
+  <data name="Status_Error_ConsultationGenerationFailed_Format" xml:space="preserve"><value>エラー: 相談用データの生成中に問題が発生しました。{0}</value></data>
+  <data name="Clipboard_ImageCopied_Format" xml:space="preserve"><value>画像 1枚（{0}×{1}px）がコピーされています。</value></data>
+  <data name="Clipboard_OneFileCopied_Format" xml:space="preserve"><value>ファイル 1個がコピーされています: {0}</value></data>
+  <data name="Clipboard_FilesCopied_Format" xml:space="preserve"><value>ファイル {0}個がコピーされています。</value></data>
+  <data name="Clipboard_TextCopied_Format" xml:space="preserve"><value>テキスト（{0}文字）がコピーされています。</value></data>
+  <data name="Clipboard_Empty" xml:space="preserve"><value>クリップボードに画像・ファイルがありません。</value></data>
+  <data name="Status_Error_NoImageSelected" xml:space="preserve"><value>エラー: 画像が選択されていません。</value></data>
+  <data name="Status_Error_CombineImageFailed_Format" xml:space="preserve"><value>エラー: 結合画像を作れませんでした。{0}</value></data>
+  <data name="Status_CombinedAndCopiedSplit_Format" xml:space="preserve"><value>選択した {0} 枚を {1} 枚の結合画像に分割してコピーしました。AI 入力欄へ貼り付けてください。</value></data>
+  <data name="Status_CombinedAndCopied_Format" xml:space="preserve"><value>選択した {0} 枚を1枚の結合画像にまとめてコピーしました。AI 入力欄へ貼り付けてください。</value></data>
+  <data name="Status_CombinedButCopyFailed_Format" xml:space="preserve"><value>結合はできましたが、コピーに失敗しました。{0}</value></data>
+  <data name="Status_Error_CombineFailed_Format" xml:space="preserve"><value>エラー: 結合中に問題が発生しました。{0}</value></data>
+  <data name="Error_CombineImageAt_Format" xml:space="preserve"><value>{0} 枚目の結合画像を作れませんでした。{1}</value></data>
+  <data name="Status_Error_CopyImageFailed_Format" xml:space="preserve"><value>エラー: 画像のコピーに失敗しました。{0}</value></data>
+  <data name="Status_FilesCopiedIndividually_Format" xml:space="preserve"><value>選択した {0} 枚を個別ファイルとしてコピーしました。AI 入力欄へ貼り付けてください。</value></data>
+  <data name="Status_Error_MouseHookFailed_Format" xml:space="preserve"><value>エラー: マウス監視を開始できませんでした。{0}</value></data>
+  <data name="Status_Error_KeyboardHookToggleFailed_Format" xml:space="preserve"><value>エラー: キーボード監視を切り替えられませんでした。{0}</value></data>
+  <data name="Status_Warning_IntervalCaptureFailed_Format" xml:space="preserve"><value>警告: 定期キャプチャに失敗しました。{0}</value></data>
+  <data name="Error_RegionNotSet" xml:space="preserve"><value>キャプチャ範囲が未設定です。</value></data>
+  <data name="Action_Summary_ScreenAndRelative_Format" xml:space="preserve"><value>画面座標({0}, {1}) / 相対({2:0.0}%, {3:0.0}%)</value></data>
+  <data name="History_ActionLinked_Format" xml:space="preserve"><value>{0}を記録（キャプチャ紐づけ / 操作 {1} 件）。</value></data>
+  <data name="History_ActionLinkPending_Format" xml:space="preserve"><value>{0}を記録（次のキャプチャに紐づけ予定 / 操作 {1} 件）。</value></data>
+  <data name="History_ActionNoImage_Format" xml:space="preserve"><value>{0}を記録（画像なし / 操作 {1} 件）。</value></data>
+  <data name="Action_Summary_ScreenOnly_Format" xml:space="preserve"><value>画面座標({0}, {1})</value></data>
+  <data name="Status_ActionOutOfScreen_Format" xml:space="preserve"><value>画面外での{0}を記録（操作 {1} 件）。</value></data>
+  <data name="Action_Summary_DragTo_Format" xml:space="preserve"><value>{0}へ移動（距離 {1:0}px）</value></data>
+  <data name="Status_DragRecorded_Format" xml:space="preserve"><value>ドラッグを記録（操作 {0} 件）。</value></data>
+  <data name="Direction_AlmostSamePlace" xml:space="preserve"><value>ほぼその場</value></data>
+  <data name="Direction_LeftToRight" xml:space="preserve"><value>左から右</value></data>
+  <data name="Direction_RightToLeft" xml:space="preserve"><value>右から左</value></data>
+  <data name="Direction_TopToBottom" xml:space="preserve"><value>上から下</value></data>
+  <data name="Direction_BottomToTop" xml:space="preserve"><value>下から上</value></data>
+  <data name="Direction_Up" xml:space="preserve"><value>上方向</value></data>
+  <data name="Direction_Down" xml:space="preserve"><value>下方向</value></data>
+  <data name="Action_Summary_WheelWithScreen_Format" xml:space="preserve"><value>{0}に{1}回スクロール（画面座標 {2}, {3}）</value></data>
+  <data name="Action_Summary_Wheel_Format" xml:space="preserve"><value>{0}に{1}回スクロール</value></data>
+  <data name="Status_WheelRecorded_Format" xml:space="preserve"><value>ホイールを記録（{0}）。</value></data>
+  <data name="Status_KeyboardRecorded_Format" xml:space="preserve"><value>キーボードを記録（{0}）。</value></data>
+  <data name="Status_HistoryPreviewUpdated" xml:space="preserve"><value>履歴プレビューの画像を更新しました（赤ペン記入を保存済み）。</value></data>
+  <data name="Status_ConsultationPreviewUpdated" xml:space="preserve"><value>相談用画像を更新しました（赤ペン記入を保存済み）。</value></data>
+  <data name="Status_RecordingStoppedNoActions" xml:space="preserve"><value>記録を停止しました。操作が記録されていないため、相談用データは作成されません。</value></data>
+  <data name="Status_ConsultationCopiedPasteReady" xml:space="preserve"><value>コピーしました。そのままAIに貼り付け可能です</value></data>
+  <data name="Status_MultipleCombinedCopied_Format" xml:space="preserve"><value>結合画像 {0} 枚をコピーしました。同じ AI 入力欄へ続けて貼り付けてください。</value></data>
+  <data name="Status_SingleCombinedCopied" xml:space="preserve"><value>画像をコピーしました。同じ AI 入力欄へ続けて貼り付けてください。</value></data>
+  <data name="Status_Error_NoImageToCopy" xml:space="preserve"><value>エラー: コピーできる画像がありません。</value></data>
+
+  <!-- ============ モデル ============ -->
+  <data name="MouseButton_Left" xml:space="preserve"><value>左クリック</value></data>
+  <data name="MouseButton_Right" xml:space="preserve"><value>右クリック</value></data>
+  <data name="MouseButton_Middle" xml:space="preserve"><value>中クリック</value></data>
+  <data name="MouseButton_XButton1" xml:space="preserve"><value>マウスボタン4</value></data>
+  <data name="MouseButton_XButton2" xml:space="preserve"><value>マウスボタン5</value></data>
+  <data name="MouseButton_Wheel" xml:space="preserve"><value>マウスホイール</value></data>
+  <data name="CaptureFrame_ActionCaptureKind" xml:space="preserve"><value>操作時スクショ</value></data>
+  <data name="CaptureFrame_IntervalCaptureKind" xml:space="preserve"><value>定期スクショ</value></data>
+  <data name="CaptureFrame_Label_Format" xml:space="preserve"><value>{0:HH:mm:ss.fff}  【画面】 {1}</value></data>
+  <data name="ActionType_LeftClick" xml:space="preserve"><value>左クリック</value></data>
+  <data name="ActionType_RightClick" xml:space="preserve"><value>右クリック</value></data>
+  <data name="ActionType_LeftDoubleClick" xml:space="preserve"><value>左ダブルクリック</value></data>
+  <data name="ActionType_RightDoubleClick" xml:space="preserve"><value>右ダブルクリック</value></data>
+  <data name="ActionType_MouseWheel" xml:space="preserve"><value>ホイール</value></data>
+  <data name="ActionType_Drag" xml:space="preserve"><value>ドラッグ</value></data>
+  <data name="ActionType_Keyboard" xml:space="preserve"><value>キーボード</value></data>
+  <data name="ActionType_Generic" xml:space="preserve"><value>操作</value></data>
+  <data name="RecordedAction_OutOfScreen" xml:space="preserve"><value>画面外での操作</value></data>
+  <data name="RecordedAction_NoCapture" xml:space="preserve"><value>キャプチャなしの操作</value></data>
+  <data name="RecordedAction_CaptureMark" xml:space="preserve"><value> 【画面】</value></data>
+  <data name="Label_Separator" xml:space="preserve"><value>：</value></data>
+  <data name="Label_Parenthesize_Format" xml:space="preserve"><value>（{0}）</value></data>
+  <data name="Thumbnail_Label_Format" xml:space="preserve"><value>{0:HH:mm:ss.fff}　操作 {1} 件</value></data>
+
+  <!-- ============ サービス ============ -->
+  <data name="Clipboard_Error_NoText" xml:space="preserve"><value>コピーする文章がありません。</value></data>
+  <data name="Clipboard_Error_TextCopyFailed_Format" xml:space="preserve"><value>説明文のコピーに失敗しました: {0}</value></data>
+  <data name="Clipboard_Error_ImageFileNotFound" xml:space="preserve"><value>コピーする画像ファイルが見つかりません。先に相談用データを生成してください。</value></data>
+  <data name="Clipboard_Error_ImageLoadFailed" xml:space="preserve"><value>画像の読み込みに失敗しました。</value></data>
+  <data name="Clipboard_Error_ImageCopyFailed_Format" xml:space="preserve"><value>画像のコピーに失敗しました: {0}</value></data>
+  <data name="Clipboard_Error_ImageFilesNotFound" xml:space="preserve"><value>コピーする画像ファイルが見つかりません。</value></data>
+  <data name="Clipboard_Error_FileCopyFailed_Format" xml:space="preserve"><value>ファイルのコピーに失敗しました: {0}</value></data>
+  <data name="Consultation_Error_NoCaptures" xml:space="preserve"><value>キャプチャがありません。記録中に連続キャプチャが保存されているか確認してください。</value></data>
+  <data name="Error_NoOutputPath" xml:space="preserve"><value>保存先パスが指定されていません。</value></data>
+  <data name="Consultation_Error_NoUsableFrames" xml:space="preserve"><value>読み込み可能なキャプチャ画像がありません。</value></data>
+  <data name="Consultation_Error_GenerationFailed_Format" xml:space="preserve"><value>相談用画像の生成に失敗しました: {0}</value></data>
+  <data name="Consultation_FrameTitle_Single_Format" xml:space="preserve"><value>コマ 1 / 1　{0:HH:mm:ss.fff}</value></data>
+  <data name="Consultation_ScreenDisplay" xml:space="preserve"><value>画面表示</value></data>
+  <data name="Consultation_Error_FrameLoadFailed_Format" xml:space="preserve"><value>キャプチャを読み込めませんでした（コマ {0}）。</value></data>
+  <data name="Consultation_FrameTitle_Multi_Format" xml:space="preserve"><value>コマ {0} / {1}　{2:HH:mm:ss.fff}</value></data>
+  <data name="Consultation_ScreenChange" xml:space="preserve"><value>画面変化</value></data>
+  <data name="Consultation_Error_InvalidImageSize" xml:space="preserve"><value>生成する画像サイズが不正、または大きすぎます。コマ数を減らしてください。</value></data>
+  <data name="CapturedInput_Keyboard" xml:space="preserve"><value>キーボード</value></data>
+  <data name="Monitor_PrimarySuffix" xml:space="preserve"><value>（メイン）</value></data>
+  <data name="Screenshot_Error_InvalidRegionSize" xml:space="preserve"><value>キャプチャ範囲のサイズが不正です。</value></data>
+  <data name="Screenshot_Error_ScreenDcFailed" xml:space="preserve"><value>画面 DC の取得に失敗しました。</value></data>
+  <data name="Screenshot_Error_MemoryDcFailed" xml:space="preserve"><value>メモリ DC の作成に失敗しました。</value></data>
+  <data name="Screenshot_Error_BitmapCreateFailed" xml:space="preserve"><value>ビットマップの作成に失敗しました。</value></data>
+  <data name="Screenshot_Error_BitBltFailed" xml:space="preserve"><value>BitBlt によるキャプチャに失敗しました。</value></data>
+  <data name="Screenshot_Error_SaveFailed_Format" xml:space="preserve"><value>スクリーンショット保存中にエラーが発生しました: {0}</value></data>
+  <data name="Error_KeyboardHookStartFailed_Format" xml:space="preserve"><value>キーボードフックの開始に失敗しました。Win32 エラー: {0}</value></data>
+  <data name="Error_MouseHookStartFailed_Format" xml:space="preserve"><value>マウスフックの開始に失敗しました。Win32 エラー: {0}</value></data>
+</root>

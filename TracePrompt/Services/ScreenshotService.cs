@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using TracePrompt.Models;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Services;
 
@@ -55,13 +56,13 @@ public sealed class ScreenshotService
 
         if (region.Width <= 0 || region.Height <= 0)
         {
-            errorMessage = "キャプチャ範囲のサイズが不正です。";
+            errorMessage = Loc.Instance.Get("Screenshot_Error_InvalidRegionSize");
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(outputFilePath))
         {
-            errorMessage = "保存先パスが指定されていません。";
+            errorMessage = Loc.Instance.Get("Error_NoOutputPath");
             return false;
         }
 
@@ -76,21 +77,21 @@ public sealed class ScreenshotService
             screenDc = GetDC(nint.Zero);
             if (screenDc == nint.Zero)
             {
-                errorMessage = "画面 DC の取得に失敗しました。";
+                errorMessage = Loc.Instance.Get("Screenshot_Error_ScreenDcFailed");
                 return false;
             }
 
             memDc = CreateCompatibleDC(screenDc);
             if (memDc == nint.Zero)
             {
-                errorMessage = "メモリ DC の作成に失敗しました。";
+                errorMessage = Loc.Instance.Get("Screenshot_Error_MemoryDcFailed");
                 return false;
             }
 
             hBitmap = CreateCompatibleBitmap(screenDc, region.Width, region.Height);
             if (hBitmap == nint.Zero)
             {
-                errorMessage = "ビットマップの作成に失敗しました。";
+                errorMessage = Loc.Instance.Get("Screenshot_Error_BitmapCreateFailed");
                 return false;
             }
 
@@ -101,7 +102,7 @@ public sealed class ScreenshotService
                 screenDc, region.Left, region.Top, SrcCopy);
             if (!copied)
             {
-                errorMessage = "BitBlt によるキャプチャに失敗しました。";
+                errorMessage = Loc.Instance.Get("Screenshot_Error_BitBltFailed");
                 return false;
             }
 
@@ -132,7 +133,7 @@ public sealed class ScreenshotService
         }
         catch (Exception ex)
         {
-            errorMessage = $"スクリーンショット保存中にエラーが発生しました: {ex.Message}";
+            errorMessage = Loc.Instance.Format("Screenshot_Error_SaveFailed_Format", ex.Message);
             return false;
         }
         finally

@@ -2,6 +2,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Services;
 
@@ -20,7 +21,7 @@ public sealed class ClipboardService
 
         if (string.IsNullOrEmpty(text))
         {
-            errorMessage = "コピーする文章がありません。";
+            errorMessage = Loc.Instance.Get("Clipboard_Error_NoText");
             return false;
         }
 
@@ -31,7 +32,7 @@ public sealed class ClipboardService
         }
         catch (Exception ex)
         {
-            errorMessage = $"説明文のコピーに失敗しました: {ex.Message}";
+            errorMessage = Loc.Instance.Format("Clipboard_Error_TextCopyFailed_Format", ex.Message);
             return false;
         }
     }
@@ -46,7 +47,7 @@ public sealed class ClipboardService
 
         if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
         {
-            errorMessage = "コピーする画像ファイルが見つかりません。先に相談用データを生成してください。";
+            errorMessage = Loc.Instance.Get("Clipboard_Error_ImageFileNotFound");
             return false;
         }
 
@@ -55,7 +56,7 @@ public sealed class ClipboardService
             BitmapSource? source = LoadBitmapWithoutLock(imagePath);
             if (source is null)
             {
-                errorMessage = "画像の読み込みに失敗しました。";
+                errorMessage = Loc.Instance.Get("Clipboard_Error_ImageLoadFailed");
                 return false;
             }
 
@@ -64,7 +65,7 @@ public sealed class ClipboardService
         }
         catch (Exception ex)
         {
-            errorMessage = $"画像のコピーに失敗しました: {ex.Message}";
+            errorMessage = Loc.Instance.Format("Clipboard_Error_ImageCopyFailed_Format", ex.Message);
             return false;
         }
     }
@@ -85,7 +86,7 @@ public sealed class ClipboardService
 
         if (existing.Count == 0)
         {
-            errorMessage = "コピーする画像ファイルが見つかりません。";
+            errorMessage = Loc.Instance.Get("Clipboard_Error_ImageFilesNotFound");
             return false;
         }
 
@@ -102,7 +103,7 @@ public sealed class ClipboardService
         }
         catch (Exception ex)
         {
-            errorMessage = $"ファイルのコピーに失敗しました: {ex.Message}";
+            errorMessage = Loc.Instance.Format("Clipboard_Error_FileCopyFailed_Format", ex.Message);
             return false;
         }
     }

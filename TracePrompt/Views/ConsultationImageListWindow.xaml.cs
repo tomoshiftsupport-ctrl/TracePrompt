@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TracePrompt.ViewModels;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Views;
 
@@ -158,7 +159,7 @@ public partial class ConsultationImageListWindow : Window
     /// </summary>
     private void OpenAnnotatorForClipboardResult(IReadOnlyList<string> paths, int initialIndex)
     {
-        var window = new ImageAnnotatorWindow(paths, initialIndex, "コピーした画像 — 赤ペン記入")
+        var window = new ImageAnnotatorWindow(paths, initialIndex, Loc.Instance.Get("ConsultationList_CopiedAnnotatorTitle"))
         {
             Owner = this
         };
@@ -293,8 +294,8 @@ public partial class ConsultationImageListWindow : Window
 
         MessageBoxResult result = MessageBox.Show(
             this,
-            "変更が保存されていません。保存しますか？",
-            "AIヘルプキャプチャ",
+            Loc.Instance.Get("Confirm_SaveChanges_Message"),
+            Loc.Instance.Get("App_Title"),
             MessageBoxButton.YesNoCancel,
             MessageBoxImage.Question);
 
@@ -583,8 +584,8 @@ public partial class ConsultationImageListWindow : Window
         {
             MessageBox.Show(
                 this,
-                $"保存に失敗しました。\n{ex.Message}",
-                "AIヘルプキャプチャ",
+                Loc.Instance.Format("Dialog_SaveFailed_Format", ex.Message),
+                Loc.Instance.Get("App_Title"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             return false;

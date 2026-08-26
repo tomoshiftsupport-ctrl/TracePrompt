@@ -9,6 +9,7 @@ using TracePrompt.Models;
 using TracePrompt.Services;
 using TracePrompt.ViewModels;
 using TracePrompt.Views;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt;
 
@@ -151,7 +152,7 @@ public partial class MainWindow : Window
         // トグルの見た目・機能自体は使わないが、型を揃えるために ToggleButton にする。
         var refreshItem = new ToggleButton
         {
-            Content = "一覧を更新",
+            Content = Loc.Instance.Get("MainWindow_MonitorRefresh"),
             Style = (Style)FindResource("RegionModeOptionButtonStyle"),
             HorizontalContentAlignment = HorizontalAlignment.Left
         };
@@ -478,7 +479,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        OpenImageAnnotator(path, "履歴プレビュー — 赤ペン記入", reloadHistory: true);
+        OpenImageAnnotator(path, Loc.Instance.Get("MainWindow_HistoryPreviewAnnotatorTitle"), reloadHistory: true);
         e.Handled = true;
     }
 

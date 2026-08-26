@@ -1,3 +1,5 @@
+using Loc = TracePrompt.Localization.LocalizationManager;
+
 namespace TracePrompt.Models;
 
 /// <summary>
@@ -18,8 +20,27 @@ public sealed class CapturedInputBinding
     public bool Shift { get; init; }
     public bool Win { get; init; }
 
-    /// <summary>UI 表示用（例: 左クリック, Ctrl + S）</summary>
+    /// <summary>UI 表示用（例: 左クリック, Ctrl + S）。保存時点の言語のまま固定されるため、
+    /// 表示には <see cref="ResolveDisplayText"/> を使ってください。</summary>
     public string DisplayText { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 現在の表示言語でラベルを解決します。マウスボタンは言語ごとに単語が異なるため、
+    /// 保存済みの <see cref="DisplayText"/> をそのまま使わず、都度 <see cref="MouseButton"/> から組み立て直します。
+    /// キーボードのラベル（例: Ctrl + S）はキー名がもともと言語非依存のため、保存済みの値をそのまま使います。
+    /// </summary>
+    public string ResolveDisplayText() => Kind == CapturedInputKind.Mouse
+        ? MouseButton switch
+        {
+            "Left" => Loc.Instance.Get("MouseButton_Left"),
+            "Right" => Loc.Instance.Get("MouseButton_Right"),
+            "Middle" => Loc.Instance.Get("MouseButton_Middle"),
+            "XButton1" => Loc.Instance.Get("MouseButton_XButton1"),
+            "XButton2" => Loc.Instance.Get("MouseButton_XButton2"),
+            "Wheel" => Loc.Instance.Get("MouseButton_Wheel"),
+            _ => DisplayText
+        }
+        : DisplayText;
 
     public static CapturedInputBinding FromMouse(string mouseButton, string displayText) => new()
     {
@@ -46,7 +67,7 @@ public sealed class CapturedInputBinding
     };
 
     public static CapturedInputBinding DefaultLeftClick() =>
-        FromMouse("Left", "左クリック");
+        FromMouse("Left", Loc.Instance.Get("MouseButton_Left"));
 }
 
 public enum CapturedInputKind

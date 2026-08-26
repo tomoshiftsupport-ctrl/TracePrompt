@@ -10,6 +10,8 @@
     <AssemblyName>AIヘルプキャプチャ</AssemblyName>
     <Product>AIヘルプキャプチャ</Product>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <RootNamespace>TracePrompt</RootNamespace>
+    <NeutralLanguage>ja</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>

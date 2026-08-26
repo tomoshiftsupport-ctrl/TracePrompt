@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="clr-namespace:TracePrompt.Localization"
         mc:Ignorable="d"
         Title="{Binding AppName}"
         Icon="Assets/app.ico"
@@ -261,7 +262,7 @@
                      コメント、および OnRegionModeToggleButtonClick 参照）。 -->
                 <Button x:Name="RegionModeToggleButton"
                         Style="{StaticResource ToolbarNeutralButtonStyle}"
-                        ToolTip="キャプチャ範囲のモードを選ぶ（全画面表示／クリップ）"
+                        ToolTip="{loc:Loc MainWindow_RegionModeButton_ToolTip}"
                         IsEnabled="{Binding IsIdle}"
                         Click="OnRegionModeToggleButtonClick">
                     <StackPanel Orientation="Horizontal">
@@ -306,12 +307,12 @@
                     <Border Style="{StaticResource DropdownPopupBorderStyle}">
                         <StackPanel>
                             <ToggleButton x:Name="FullScreenModeMenuItem"
-                                          Content="全画面表示"
+                                          Content="{loc:Loc MainWindow_RegionMode_FullScreen}"
                                           Style="{StaticResource RegionModeOptionButtonStyle}"
                                           IsChecked="{Binding IsFullScreenRegionMode, Mode=OneWay}"
                                           Click="OnSelectFullScreenModeClick"/>
                             <ToggleButton x:Name="ClipModeMenuItem"
-                                          Content="クリップ"
+                                          Content="{loc:Loc MainWindow_RegionMode_Clip}"
                                           Style="{StaticResource RegionModeOptionButtonStyle}"
                                           IsChecked="{Binding IsFreeClipRegionMode, Mode=OneWay}"
                                           Click="OnSelectClipModeClick"/>
@@ -323,7 +324,7 @@
                      開閉自体は範囲モードと同じ Popup + 明示トグル方式です。 -->
                 <Button x:Name="MonitorToggleButton"
                         Style="{StaticResource ToolbarNeutralButtonStyle}"
-                        ToolTip="撮影するモニターを選ぶ"
+                        ToolTip="{loc:Loc MainWindow_MonitorButton_ToolTip}"
                         IsEnabled="{Binding IsIdle}"
                         Click="OnMonitorToggleButtonClick">
                     <Button.Visibility>
@@ -363,7 +364,7 @@
                         FontSize="12.5"
                         IsEnabled="{Binding IsIdle}"
                         Click="OnCaptureButtonClick"
-                        Content="キャプチャ"/>
+                        Content="{loc:Loc MainWindow_CaptureButton_Content}"/>
 
                 <Border Style="{StaticResource ToolbarDividerStyle}"/>
 
@@ -376,7 +377,7 @@
                      明示的に設定し直すことで、確実に正しい見た目にします。 -->
                 <ToggleButton x:Name="IntervalModeToggleButton"
                               Style="{StaticResource ToolbarIconToggleButtonStyle}"
-                              ToolTip="時間でキャプチャ：設定した枚/秒で連続撮影します"
+                              ToolTip="{loc:Loc MainWindow_IntervalMode_ToolTip}"
                               IsEnabled="{Binding IsIdle}"
                               IsChecked="{Binding IsIntervalCaptureMode, Mode=OneWay}"
                               Click="OnSelectIntervalCaptureModeClick">
@@ -390,7 +391,7 @@
                 </ToggleButton>
                 <ToggleButton x:Name="OperationModeToggleButton"
                               Style="{StaticResource ToolbarIconToggleButtonStyle}"
-                              ToolTip="操作でキャプチャ：指定したキー／マウス操作のときだけ撮影します"
+                              ToolTip="{loc:Loc MainWindow_OperationMode_ToolTip}"
                               IsEnabled="{Binding IsIdle}"
                               IsChecked="{Binding IsOnOperationCaptureMode, Mode=OneWay}"
                               Click="OnSelectOperationCaptureModeClick">
@@ -414,9 +415,9 @@
                     <Button.ToolTip>
                         <ToolTip>
                             <StackPanel MaxWidth="260">
-                                <TextBlock Text="AI相談用データ" Style="{StaticResource ToolTipTitleStyle}"/>
+                                <TextBlock Text="{loc:Loc MainWindow_ConsultationButton_Title}" Style="{StaticResource ToolTipTitleStyle}"/>
                                 <TextBlock TextWrapping="Wrap"
-                                           Text="記録停止のたびに、操作と画面をまとめた相談用画像を自動生成してコピーします。特定のコマだけ選びたい・結合方法を変えたいときはここを開いてください。"/>
+                                           Text="{loc:Loc MainWindow_ConsultationButton_Description}"/>
                             </StackPanel>
                         </ToolTip>
                     </Button.ToolTip>
@@ -447,7 +448,7 @@
                      アイコンはタブ付きフォルダのアウトライン1本（塗りなし・角丸）。24単位の座標系で描き、
                      Stretch="Uniform" で他のツールバーアイコンと同じ 16x16 相当に収めています。 -->
                 <Button Style="{StaticResource ToolbarNeutralButtonStyle}"
-                        ToolTip="スクショ保存フォルダを開く"
+                        ToolTip="{loc:Loc MainWindow_OpenFolder_ToolTip}"
                         Command="{Binding OpenTempFolderCommand}">
                     <Path Data="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
                           Stretch="Uniform"
@@ -462,7 +463,7 @@
 
                 <!-- 設定: 頻度・保持・記録対象などの詳細設定を別窓で開きます（歯車アイコン） -->
                 <Button Style="{StaticResource ToolbarNeutralButtonStyle}"
-                        ToolTip="記録の設定（頻度・保持・記録対象など）"
+                        ToolTip="{loc:Loc MainWindow_Settings_ToolTip}"
                         Click="OnOpenSettingsClick">
                     <TextBlock Text="&#xE713;"
                                FontFamily="Segoe MDL2 Assets"
@@ -488,7 +489,7 @@
 
                 <!-- 操作履歴（起動時は非表示。記録開始後、または履歴があるとき表示）。
                      普段は折りたたんでおき、必要なときだけ開いて本体窓の高さを抑えます。 -->
-                <Expander Header="直近の操作履歴 / 個別プレビューを見る"
+                <Expander Header="{loc:Loc MainWindow_History_Header}"
                           IsExpanded="False"
                           FontWeight="SemiBold"
                           FontSize="13"
@@ -502,7 +503,7 @@
                     </Expander.Visibility>
                     <Border Style="{StaticResource TerminalCardStyle}" Margin="0,10,0,0">
                         <StackPanel>
-                            <TextBlock Text="行を選ぶと、下にそのときのキャプチャ画像が表示されます。"
+                            <TextBlock Text="{loc:Loc MainWindow_History_Hint}"
                                        Style="{StaticResource HintTextStyle}"
                                        Foreground="{StaticResource Brush.Term.TextDim}"
                                        Margin="0,0,0,10"/>

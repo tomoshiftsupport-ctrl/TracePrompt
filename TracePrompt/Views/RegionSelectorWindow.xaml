@@ -1,7 +1,8 @@
 <Window x:Class="TracePrompt.Views.RegionSelectorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="キャプチャ範囲を選択"
+        xmlns:loc="clr-namespace:TracePrompt.Localization"
+        Title="{loc:Loc RegionSelector_Title}"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="#66000000"
@@ -17,7 +18,7 @@
             MouseLeftButtonDown="OnCanvasMouseLeftButtonDown"
             MouseMove="OnCanvasMouseMove"
             MouseLeftButtonUp="OnCanvasMouseLeftButtonUp">
-        <TextBlock Text="ドラッグしてキャプチャ範囲を選択してください（Esc で中止）"
+        <TextBlock Text="{loc:Loc RegionSelector_Instruction}"
                    Foreground="White"
                    FontSize="16"
                    FontWeight="Bold"

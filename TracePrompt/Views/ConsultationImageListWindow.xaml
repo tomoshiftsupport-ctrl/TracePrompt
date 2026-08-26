@@ -1,7 +1,8 @@
 <Window x:Class="TracePrompt.Views.ConsultationImageListWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="&#x7D50;&#x5408;&#x65B9;&#x6CD5;&#x3092;&#x5909;&#x3048;&#x308B;"
+        xmlns:loc="clr-namespace:TracePrompt.Localization"
+        Title="{loc:Loc ConsultationList_Title}"
         Height="760"
         Width="980"
         MinHeight="480"
@@ -20,7 +21,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"
-                       Text="&#x5FC5;&#x8981;&#x306A;&#x30B3;&#x30DE;&#x3060;&#x3051;&#x30C1;&#x30A7;&#x30C3;&#x30AF;&#x3057;&#x3066;&#x3001;&#x7D50;&#x5408;&#x65B9;&#x6CD5;&#x3092;&#x8ABF;&#x6574;&#x3057;&#x3066;&#x304F;&#x3060;&#x3055;&#x3044;&#x3002;&#x9078;&#x629E;&#x306F;&#x4EFB;&#x610F;&#x3067;&#x3001;&#x65E2;&#x5B9A;&#x3067;&#x306F;&#x5168;&#x30B3;&#x30DE;&#x304C;&#x5BFE;&#x8C61;&#x3067;&#x3059;&#x3002;&#x753B;&#x50CF;&#x3092;&#x30AF;&#x30EA;&#x30C3;&#x30AF;&#x3059;&#x308B;&#x3068;&#x62E1;&#x5927;&#x8868;&#x793A;&#x3067;&#x304D;&#x307E;&#x3059;&#x3002;"
+                       Text="{loc:Loc ConsultationList_Instruction}"
                        Foreground="{StaticResource Brush.TextSecondary}"
                        TextWrapping="Wrap"
                        Margin="0,0,0,12"/>
@@ -32,25 +33,20 @@
                     <Border Style="{StaticResource TerminalCardStyle}" Padding="14" Margin="0,0,0,10">
                         <StackPanel>
                             <DockPanel LastChildFill="False" Margin="0,0,0,10">
-                                <TextBlock Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center">
-                                    <Run Text="{Binding SelectedThumbnailCount, Mode=OneWay}"/>
-                                    <Run Text="枚選択中 ／ 全"/>
-                                    <Run Text="{Binding ThumbnailFrameCount, Mode=OneWay}"/>
-                                    <Run Text="枚"/>
-                                </TextBlock>
+                                <TextBlock Text="{Binding ThumbnailSelectionSummaryText}" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                                    <Button Content="全選択"
+                                    <Button Content="{loc:Loc ConsultationList_SelectAll}"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             MinHeight="30" Padding="10,0" Margin="0,0,8,0"
                                             Command="{Binding SelectAllThumbnailsCommand}"/>
-                                    <Button Content="全解除"
+                                    <Button Content="{loc:Loc ConsultationList_DeselectAll}"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             MinHeight="30" Padding="10,0"
                                             Command="{Binding DeselectAllThumbnailsCommand}"/>
                                 </StackPanel>
                             </DockPanel>
 
-                            <TextBlock Text="サムネイル一覧に何も表示されないときは、記録を停止するとここに撮影分が並びます。"
+                            <TextBlock Text="{loc:Loc ConsultationList_EmptyHint}"
                                        Foreground="{StaticResource Brush.Term.TextDim}"
                                        FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10">
                                 <TextBlock.Style>
@@ -105,7 +101,7 @@
                                                     <Image Source="{Binding ThumbnailImage}"
                                                            Stretch="Uniform"
                                                            Cursor="Hand"
-                                                           ToolTip="クリックで拡大表示"
+                                                           ToolTip="{loc:Loc ConsultationList_ClickToEnlarge_ToolTip}"
                                                            MouseLeftButtonUp="OnThumbnailImageClick"/>
                                                 </Border>
                                                 <TextBlock Text="{Binding DisplayLabel}"
@@ -125,11 +121,11 @@
                     <!-- 「選択画像を結合してコピー」用の設定: 1枚あたりのコマ数 / 並び方 / 画質 -->
                     <Border Style="{StaticResource InnerBoxStyle}" Margin="0,0,0,10">
                         <StackPanel>
-                            <TextBlock Text="1枚あたりのコマ数" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
+                            <TextBlock Text="{loc:Loc ConsultationList_FramesPerImage_Label}" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <Button Content="－" MinWidth="34" MinHeight="30" Padding="0"
                                         Style="{StaticResource SecondaryButtonStyle}" FontWeight="Bold" FontSize="14" Margin="0,0,4,0"
-                                        ToolTip="1枚減らす" Click="OnFramesPerImageDecrementClick"/>
+                                        ToolTip="{loc:Loc ConsultationList_DecreaseFrames_ToolTip}" Click="OnFramesPerImageDecrementClick"/>
                                 <TextBox x:Name="FramesPerImageTextBox" Width="56" MinHeight="30" Padding="4,0"
                                          VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                                          Text="{Binding FramesPerImageDisplay, Mode=TwoWay}"
@@ -140,17 +136,17 @@
                                          Margin="0,0,4,0"/>
                                 <Button Content="＋" MinWidth="34" MinHeight="30" Padding="0"
                                         Style="{StaticResource SecondaryButtonStyle}" FontWeight="Bold" FontSize="14" Margin="0,0,6,0"
-                                        ToolTip="1枚増やす" Click="OnFramesPerImageIncrementClick"/>
-                                <TextBlock Text="枚" VerticalAlignment="Center" Foreground="{StaticResource Brush.TextSecondary}" Margin="0,0,14,0"/>
-                                <CheckBox Content="すべて" Style="{StaticResource ToggleChipStyle}"
+                                        ToolTip="{loc:Loc ConsultationList_IncreaseFrames_ToolTip}" Click="OnFramesPerImageIncrementClick"/>
+                                <TextBlock Text="{loc:Loc Unit_Frames}" VerticalAlignment="Center" Foreground="{StaticResource Brush.TextSecondary}" Margin="0,0,14,0"/>
+                                <CheckBox Content="{loc:Loc ConsultationList_All_Content}" Style="{StaticResource ToggleChipStyle}"
                                           IsChecked="{Binding IsFramesPerImageAll, Mode=TwoWay}"/>
                             </StackPanel>
 
-                            <TextBlock Text="並び方" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
+                            <TextBlock Text="{loc:Loc ConsultationList_Layout_Label}" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <Button Content="－" MinWidth="34" MinHeight="30" Padding="0"
                                         Style="{StaticResource SecondaryButtonStyle}" FontWeight="Bold" FontSize="14" Margin="0,0,4,0"
-                                        ToolTip="1列減らす" Click="OnLayoutColumnsDecrementClick"/>
+                                        ToolTip="{loc:Loc ConsultationList_DecreaseColumns_ToolTip}" Click="OnLayoutColumnsDecrementClick"/>
                                 <TextBox x:Name="LayoutColumnsTextBox" Width="56" MinHeight="30" Padding="4,0"
                                          VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                                          Text="{Binding LayoutColumns, Mode=TwoWay}"
@@ -161,30 +157,30 @@
                                          Margin="0,0,4,0"/>
                                 <Button Content="＋" MinWidth="34" MinHeight="30" Padding="0"
                                         Style="{StaticResource SecondaryButtonStyle}" FontWeight="Bold" FontSize="14" Margin="0,0,6,0"
-                                        ToolTip="1列増やす" Click="OnLayoutColumnsIncrementClick"/>
-                                <TextBlock Text="列" VerticalAlignment="Center" Foreground="{StaticResource Brush.TextSecondary}" Margin="0,0,14,0"/>
-                                <CheckBox Content="自動" Style="{StaticResource ToggleChipStyle}"
+                                        ToolTip="{loc:Loc ConsultationList_IncreaseColumns_ToolTip}" Click="OnLayoutColumnsIncrementClick"/>
+                                <TextBlock Text="{loc:Loc Unit_Columns}" VerticalAlignment="Center" Foreground="{StaticResource Brush.TextSecondary}" Margin="0,0,14,0"/>
+                                <CheckBox Content="{loc:Loc ConsultationList_Auto_Content}" Style="{StaticResource ToggleChipStyle}"
                                           IsChecked="{Binding IsLayoutAuto, Mode=TwoWay}"/>
                             </StackPanel>
 
-                            <TextBlock Text="画質" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
+                            <TextBlock Text="{loc:Loc ConsultationList_Quality_Label}" Style="{StaticResource LabelStyle}" Margin="0,0,0,6"/>
                             <StackPanel Orientation="Horizontal">
-                                <RadioButton Content="文字優先" Style="{StaticResource SegmentedRadioButtonStyle}"
+                                <RadioButton Content="{loc:Loc ConsultationList_Quality_TextPriority}" Style="{StaticResource SegmentedRadioButtonStyle}"
                                              IsChecked="{Binding IsQualityTextPriority, Mode=TwoWay}"
                                              GroupName="QualityGroup" Margin="0,0,6,0"/>
-                                <RadioButton Content="標準" Style="{StaticResource SegmentedRadioButtonStyle}"
+                                <RadioButton Content="{loc:Loc ConsultationList_Quality_Standard}" Style="{StaticResource SegmentedRadioButtonStyle}"
                                              IsChecked="{Binding IsQualityStandard, Mode=TwoWay}"
                                              GroupName="QualityGroup" Margin="0,0,6,0"/>
-                                <RadioButton Content="容量優先" Style="{StaticResource SegmentedRadioButtonStyle}"
+                                <RadioButton Content="{loc:Loc ConsultationList_Quality_SizePriority}" Style="{StaticResource SegmentedRadioButtonStyle}"
                                              IsChecked="{Binding IsQualitySizePriority, Mode=TwoWay}"
                                              GroupName="QualityGroup"/>
                             </StackPanel>
 
                             <Separator Margin="0,14,0,10" Background="{StaticResource Brush.Border}"/>
 
-                            <CheckBox Content="今後はこの設定でスクショを結合する（記録停止時の自動結合にも適用）"
+                            <CheckBox Content="{loc:Loc ConsultationList_UseCustomSettings_Content}"
                                       IsChecked="{Binding UseCustomAutoCombineSettings, Mode=TwoWay}"
-                                      ToolTip="オンにすると、記録停止のたびに自動生成される相談用画像にも、この1枚あたりのコマ数・並び方・画質の設定を使うようになります。&#x0a;オフ（既定）のときは、全コマを1枚に結合する従来どおりの自動結合になります。"/>
+                                      ToolTip="{loc:Loc ConsultationList_UseCustomSettings_ToolTip}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -194,8 +190,8 @@
             <Border Grid.Row="2" Style="{StaticResource InnerBoxStyle}" Margin="0,12,0,0">
                 <StackPanel>
                     <DockPanel LastChildFill="False" Margin="0,0,0,8">
-                        <TextBlock Text="コピー結果の確認（今クリップボードにある内容）" Style="{StaticResource LabelStyle}"/>
-                        <Button Content="再確認"
+                        <TextBlock Text="{loc:Loc ConsultationList_ClipboardReview_Label}" Style="{StaticResource LabelStyle}"/>
+                        <Button Content="{loc:Loc ConsultationList_Recheck}"
                                 DockPanel.Dock="Right"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 MinHeight="26" Padding="10,0"
@@ -227,7 +223,7 @@
                                    Stretch="Uniform"
                                    Margin="4"
                                    Cursor="Hand"
-                                   ToolTip="クリックで赤ペン記入"
+                                   ToolTip="{loc:Loc ConsultationList_ClickToAnnotate_ToolTip}"
                                    RenderOptions.BitmapScalingMode="HighQuality"
                                    MouseLeftButtonUp="OnClipboardImageClick">
                                 <Image.Style>
@@ -269,7 +265,7 @@
                                                 <Image Source="{Binding Thumbnail}"
                                                        Stretch="Uniform"
                                                        Cursor="Hand"
-                                                       ToolTip="クリックで赤ペン記入"
+                                                       ToolTip="{loc:Loc ConsultationList_ClickToAnnotate_ToolTip}"
                                                        RenderOptions.BitmapScalingMode="HighQuality"
                                                        MouseLeftButtonUp="OnClipboardFileThumbnailClick"/>
                                             </Border>
@@ -284,22 +280,22 @@
 
             <!-- アクション -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,0,0">
-                <Button Content="選択画像を結合してコピー"
+                <Button Content="{loc:Loc ConsultationList_CombineAndCopy_Content}"
                         Style="{StaticResource PrimaryButtonStyle}"
-                        ToolTip="チェックした画像を、指定コマ数ごとに分割して結合し、そのままクリップボードへコピーします"
+                        ToolTip="{loc:Loc ConsultationList_CombineAndCopy_ToolTip}"
                         MinWidth="190"
                         Margin="0,0,10,0"
                         Command="{Binding GenerateAndCopySelectedCombinedCommand}"/>
-                <Button Content="結合せずコピー"
+                <Button Content="{loc:Loc ConsultationList_CopyWithoutCombining_Content}"
                         Style="{StaticResource SecondaryButtonStyle}"
-                        ToolTip="チェックした元画像を、結合せず複数ファイルのままクリップボードへコピーします"
+                        ToolTip="{loc:Loc ConsultationList_CopyWithoutCombining_ToolTip}"
                         MinWidth="140"
                         Margin="0,0,10,0"
                         Command="{Binding CopySelectedAsFilesCommand}"/>
                 <Border Width="1" Background="{StaticResource Brush.Border}" Margin="8,4,18,4"/>
-                <Button Content="スクショ保存フォルダを開く"
+                <Button Content="{loc:Loc Common_OpenScreenshotFolder}"
                         Style="{StaticResource LinkButtonStyle}"
-                        ToolTip="{Binding TempDirectory, StringFormat=スクショ一時フォルダをエクスプローラーで開きます\n{0}}"
+                        ToolTip="{Binding OpenTempFolderTooltipText}"
                         Padding="14,0"
                         Command="{Binding OpenTempFolderCommand}"/>
             </StackPanel>
@@ -319,7 +315,7 @@
 
                 <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,10">
                     <CheckBox x:Name="ViewerCheckBox"
-                              Content="この画像を選択する"
+                              Content="{loc:Loc ConsultationList_SelectThisImage_Content}"
                               Foreground="White"
                               FontWeight="SemiBold"
                               VerticalAlignment="Center"
@@ -330,7 +326,7 @@
                                VerticalAlignment="Center"
                                Margin="16,0,0,0"/>
                     <Button DockPanel.Dock="Right"
-                            Content="閉じる ×"
+                            Content="{loc:Loc ConsultationList_CloseViewer_Content}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             MinHeight="30" Padding="10,0"
                             Click="OnViewerCloseClick"/>
@@ -354,33 +350,33 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="10" Height="10" Fill="{StaticResource Brush.Danger}"
                                              VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock Text="赤ペン" FontWeight="SemiBold" FontSize="12"
+                                    <TextBlock Text="{loc:Loc Common_RedPenBadge}" FontWeight="SemiBold" FontSize="12"
                                                Foreground="{StaticResource Brush.Danger}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
-                            <Button x:Name="ViewerUndoButton" Content="元に戻す" Style="{StaticResource SecondaryButtonStyle}"
+                            <Button x:Name="ViewerUndoButton" Content="{loc:Loc ConsultationList_Undo_Content}" Style="{StaticResource SecondaryButtonStyle}"
                                     MinHeight="30" Padding="8,0" FontSize="12" Margin="0,0,6,0"
-                                    ToolTip="直前の線を取り消します（Ctrl+Z）" Click="OnViewerUndoClick"/>
-                            <Button x:Name="ViewerRedoButton" Content="やり直す" Style="{StaticResource SecondaryButtonStyle}"
+                                    ToolTip="{loc:Loc ConsultationList_Undo_ToolTip}" Click="OnViewerUndoClick"/>
+                            <Button x:Name="ViewerRedoButton" Content="{loc:Loc ConsultationList_Redo_Content}" Style="{StaticResource SecondaryButtonStyle}"
                                     MinHeight="30" Padding="8,0" FontSize="12" Margin="0,0,6,0"
-                                    ToolTip="取り消した線を戻します（Ctrl+Y）" Click="OnViewerRedoClick"/>
-                            <Button Content="消す" Style="{StaticResource DangerButtonStyle}"
+                                    ToolTip="{loc:Loc ConsultationList_Redo_ToolTip}" Click="OnViewerRedoClick"/>
+                            <Button Content="{loc:Loc ConsultationList_ClearLines_Content}" Style="{StaticResource DangerButtonStyle}"
                                     MinHeight="30" Padding="8,0" FontSize="12"
-                                    ToolTip="記入した線をすべて消します" Click="OnViewerClearClick"/>
+                                    ToolTip="{loc:Loc ConsultationList_ClearLines_ToolTip}" Click="OnViewerClearClick"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                            <Button Content="保存" Style="{StaticResource PrimaryButtonStyle}"
+                            <Button Content="{loc:Loc Common_Save}" Style="{StaticResource PrimaryButtonStyle}"
                                     MinHeight="30" Padding="10,0" FontSize="12" Margin="0,0,10,0"
-                                    ToolTip="赤ペン記入を画像に書き込んで保存します（Ctrl+S）" Click="OnViewerSaveClick"/>
+                                    ToolTip="{loc:Loc ConsultationList_Save_ToolTip}" Click="OnViewerSaveClick"/>
                             <Button Content="－" Style="{StaticResource SecondaryButtonStyle}"
                                     MinWidth="30" MinHeight="30" Padding="0" FontWeight="Bold" FontSize="14" Margin="0,0,4,0"
-                                    ToolTip="縮小（Ctrl+-）" Click="OnViewerZoomOutClick"/>
+                                    ToolTip="{loc:Loc ConsultationList_ZoomOut_ToolTip}" Click="OnViewerZoomOutClick"/>
                             <Button x:Name="ViewerZoomPercentButton" Content="100%" Style="{StaticResource SecondaryButtonStyle}"
                                     MinWidth="56" MinHeight="30" Padding="4,0" FontSize="12" Margin="0,0,4,0"
-                                    ToolTip="画面に合わせて全体表示（Ctrl+0）" Click="OnViewerZoomResetClick"/>
+                                    ToolTip="{loc:Loc ConsultationList_ZoomReset_ToolTip}" Click="OnViewerZoomResetClick"/>
                             <Button Content="＋" Style="{StaticResource SecondaryButtonStyle}"
                                     MinWidth="30" MinHeight="30" Padding="0" FontWeight="Bold" FontSize="14"
-                                    ToolTip="拡大（Ctrl++）" Click="OnViewerZoomInClick"/>
+                                    ToolTip="{loc:Loc ConsultationList_ZoomIn_ToolTip}" Click="OnViewerZoomInClick"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -399,7 +395,7 @@
                             Width="52" Height="80"
                             VerticalAlignment="Center"
                             Style="{StaticResource SecondaryButtonStyle}"
-                            ToolTip="前の画像（←キー）"
+                            ToolTip="{loc:Loc ConsultationList_PrevImage_ToolTip}"
                             Click="OnViewerPrevClick"/>
 
                     <Border Grid.Column="1" Background="#2A2D38" CornerRadius="6" Margin="12,0" ClipToBounds="True">
@@ -429,7 +425,7 @@
                                            StrokeErasing="OnViewerStrokeErasing">
                                     <InkCanvas.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="画像をコピー (Ctrl+C)" Click="OnViewerCopyImageClick"/>
+                                            <MenuItem Header="{loc:Loc ContextMenu_CopyImage}" Click="OnViewerCopyImageClick"/>
                                         </ContextMenu>
                                     </InkCanvas.ContextMenu>
                                 </InkCanvas>
@@ -444,12 +440,12 @@
                             Width="52" Height="80"
                             VerticalAlignment="Center"
                             Style="{StaticResource SecondaryButtonStyle}"
-                            ToolTip="次の画像（→キー）"
+                            ToolTip="{loc:Loc ConsultationList_NextImage_ToolTip}"
                             Click="OnViewerNextClick"/>
                 </Grid>
 
                 <TextBlock Grid.Row="3"
-                           Text="ドラッグで赤線を記入。← → キーで前後の画像に移動（未保存の記入があれば確認します）、Ctrl+C または右クリックで画像をコピー、Esc キーで閉じます。"
+                           Text="{loc:Loc ConsultationList_ViewerHint}"
                            TextWrapping="Wrap"
                            Foreground="{StaticResource Brush.Term.TextDim}"
                            FontSize="11"

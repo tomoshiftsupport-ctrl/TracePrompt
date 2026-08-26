@@ -8,8 +8,10 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using TracePrompt.Localization;
 using TracePrompt.Models;
 using TracePrompt.Services;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.ViewModels;
 
@@ -71,8 +73,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private WindowBounds? _freeClipRegion;
     /// <summary>設定から読み込んだモニター識別子。<see cref="RefreshMonitors"/> で一覧と突き合わせて解決します。</summary>
     private string? _savedMonitorDeviceId;
-    private string _statusMessage =
-        "準備完了です。①キャプチャ範囲を選ぶ → ②記録開始 → ③操作 → ④相談用データ生成";
+    private string _statusMessage = Loc.Instance.Get("Status_Ready");
     private HistoryItem? _selectedHistoryItem;
     private BitmapImage? _previewImage;
     private BitmapImage? _consultationPreviewImage;
@@ -95,7 +96,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private BitmapSource? _clipboardPreviewImage;
     private string? _lastCopiedSingleImagePath;
     private IReadOnlyList<ClipboardPreviewFileEntry> _clipboardPreviewFileThumbnails = Array.Empty<ClipboardPreviewFileEntry>();
-    private string _clipboardPreviewSummary = "まだ何もコピーしていません。";
+    private string _clipboardPreviewSummary = Loc.Instance.Get("Clipboard_NothingCopiedYet");
 
     private int _capturesPerSecond = 1;
     // 既定値を10→6に: コマ数が増えるほど相談用画像の1コマあたりの解像度が下がるため、既定は控えめにする
@@ -228,6 +229,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
 
         OperationHistory.CollectionChanged += OnOperationHistoryCollectionChanged;
+        Loc.Instance.LanguageChanged += OnLanguageChanged;
 
         _mouseHookService.LeftButtonDown += (x, y) => Dispatch(() => ProcessLeftButtonDown(x, y));
         _mouseHookService.LeftButtonUp += (x, y) => Dispatch(() => ProcessLeftButtonUp(x, y));
@@ -263,7 +265,51 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public string AppName => "AIヘルプキャプチャ";
+    public string AppName => Loc.Instance.Get("App_Title");
+
+    /// <summary>設定画面の「言語 / Language」用。</summary>
+    public bool IsJapaneseLanguage
+    {
+        get => Loc.Instance.CurrentLanguage == AppLanguage.Japanese;
+        set { if (value) SetLanguage(AppLanguage.Japanese); }
+    }
+
+    public bool IsEnglishLanguage
+    {
+        get => Loc.Instance.CurrentLanguage == AppLanguage.English;
+        set { if (value) SetLanguage(AppLanguage.English); }
+    }
+
+    private void SetLanguage(AppLanguage language)
+    {
+        if (Loc.Instance.CurrentLanguage == language) return;
+        Loc.Instance.SetLanguage(language);
+        OnPropertyChanged(nameof(IsJapaneseLanguage));
+        OnPropertyChanged(nameof(IsEnglishLanguage));
+        ScheduleSettingsSave();
+    }
+
+    /// <summary>
+    /// 言語切り替え時、フィールドに保存済みの文字列（StatusMessage など、生成時点の言語のまま残ってよいもの）
+    /// 以外の「常時表示中」の計算プロパティを再通知し、画面をその場で更新します。
+    /// </summary>
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(AppName));
+        OnPropertyChanged(nameof(StateText));
+        OnPropertyChanged(nameof(RecordingOverlayElapsedText));
+        OnPropertyChanged(nameof(RecordingElapsedCompactText));
+        OnPropertyChanged(nameof(CaptureCountCompactText));
+        OnPropertyChanged(nameof(RecordingOverlayActivityText));
+        OnPropertyChanged(nameof(CaptureModeHelpText));
+        OnPropertyChanged(nameof(ScreenshotTriggerDisplayText));
+        OnPropertyChanged(nameof(KeyboardPrivacyNote));
+        OnPropertyChanged(nameof(CaptureRegionSummaryText));
+        OnPropertyChanged(nameof(PreviewPlaceholderText));
+        OnPropertyChanged(nameof(ConsultationPreviewPlaceholder));
+        OnPropertyChanged(nameof(ThumbnailSelectionSummaryText));
+        OnPropertyChanged(nameof(OpenTempFolderTooltipText));
+    }
 
     public RecordingState State
     {
@@ -293,9 +339,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public string StateText => State switch
     {
-        RecordingState.Recording => "記録中",
-        RecordingState.Paused => "一時停止中",
-        _ => "停止中"
+        RecordingState.Recording => Loc.Instance.Get("RecordingState_Recording"),
+        RecordingState.Paused => Loc.Instance.Get("RecordingState_Paused"),
+        _ => Loc.Instance.Get("RecordingState_Stopped")
     };
 
     public bool IsRecording => State == RecordingState.Recording;
@@ -321,7 +367,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public string RecordingOverlayElapsedText => !HasRecordingOverlayStatus || _recordingSessionStartedAt is null
         ? string.Empty
-        : $"経過 {FormatRecordingOverlayElapsed(GetRecordingOverlayElapsed())}";
+        : Loc.Instance.Format("RecordingOverlay_Elapsed_Format", FormatRecordingOverlayElapsed(GetRecordingOverlayElapsed()));
 
     /// <summary>小型の操作ウィンドウ用: 接頭辞なし・常に時:分:秒（未開始時は "00:00:00"）で表示します。</summary>
     public string RecordingElapsedCompactText => _recordingSessionStartedAt is null
@@ -329,7 +375,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         : FormatRecordingElapsedCompact(GetRecordingOverlayElapsed());
 
     /// <summary>小型の操作ウィンドウ用: 今バッファに保持しているキャプチャ枚数（"N 枚"）。キャプチャのたびに更新されます。</summary>
-    public string CaptureCountCompactText => $"{_captureBuffer.Count} 枚";
+    public string CaptureCountCompactText => Loc.Instance.Format("CaptureCountCompact_Format", _captureBuffer.Count);
 
     public string RecordingOverlayActivityText
     {
@@ -342,17 +388,17 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
             if (IsPaused)
             {
-                return $"一時停止中 / 累計 {_captureBuffer.Count} 枚";
+                return Loc.Instance.Format("Status_PausedWithTotal_Format", _captureBuffer.Count);
             }
 
             if (_lastCaptureRecordedAt is DateTime lastCapture)
             {
-                return $"最新 {lastCapture:HH:mm:ss} / 累計 {_captureBuffer.Count} 枚";
+                return Loc.Instance.Format("Status_LatestWithTotal_Format", $"{lastCapture:HH:mm:ss}", _captureBuffer.Count);
             }
 
             return CaptureMode == ScreenshotCaptureMode.Interval
-                ? "初回キャプチャ待機中"
-                : "操作待機中";
+                ? Loc.Instance.Get("Status_WaitingFirstCapture")
+                : Loc.Instance.Get("Status_WaitingForAction");
         }
     }
 
@@ -408,10 +454,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public string CaptureModeHelpText => CaptureMode switch
     {
-        ScreenshotCaptureMode.OnOperation =>
-            "操作キャプチャモード: 下の枠で指定したキー／マウス操作のときだけスクリーンショットを撮ります。",
-        _ =>
-            "秒でキャプチャモード: 設定した枚/秒で連続撮影し、操作は最寄りのキャプチャに紐づけます。"
+        ScreenshotCaptureMode.OnOperation => Loc.Instance.Get("CaptureModeDescription_Operation"),
+        _ => Loc.Instance.Get("CaptureModeDescription_Interval")
     };
 
     /// <summary>スクショ・トリガー枠は「操作でキャプチャ」のときだけ編集できます。</summary>
@@ -449,9 +493,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         get
         {
-            if (IsScreenshotTriggerListening) return "キーまたはマウスをクリック…";
-            if (ScreenshotTrigger is not null) return ScreenshotTrigger.DisplayText;
-            return "（未設定・クリックして入力）";
+            if (IsScreenshotTriggerListening) return Loc.Instance.Get("ScreenshotTrigger_Listening");
+            if (ScreenshotTrigger is not null) return ScreenshotTrigger.ResolveDisplayText();
+            return Loc.Instance.Get("ScreenshotTrigger_Unset");
         }
     }
 
@@ -533,8 +577,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public bool ShowKeyboardPrivacyNote => RecordKeyboard;
 
-    public string KeyboardPrivacyNote =>
-        "キー入力は押した物理キー名を記録します（IME変換後ではありません）。パスワード等重要な情報を入力する際はキーボード記録をOFFにしてください。";
+    public string KeyboardPrivacyNote => Loc.Instance.Get("KeyboardPrivacyNote");
 
     public ObservableCollection<MonitorInfo> Monitors { get; } = new();
 
@@ -602,11 +645,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public string CaptureRegionSummaryText => CaptureRegionMode switch
     {
         Models.CaptureRegionMode.FullScreen => SelectedMonitor is null
-            ? "モニターが選択されていません。"
-            : $"{SelectedMonitor.Label} を撮ります。",
+            ? Loc.Instance.Get("MonitorRegionDescription_NoMonitor")
+            : Loc.Instance.Format("MonitorRegionDescription_WillCapture_Format", SelectedMonitor.Label),
         _ => FreeClipRegion is { } r
-            ? $"{r.Width} × {r.Height} @ ({r.Left}, {r.Top}) を撮ります。"
-            : "範囲が未選択です。「自由クリップ」をクリックして範囲を選んでください。"
+            ? Loc.Instance.Format("ClipRegionDescription_WillCapture_Format", r.Width, r.Height, r.Left, r.Top)
+            : Loc.Instance.Get("ClipRegionDescription_NotSelected")
     };
 
     /// <summary>
@@ -621,6 +664,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ObservableCollection<CaptureFrameThumbnailViewModel> ThumbnailFrames { get; } = new();
 
     public int ThumbnailFrameCount => ThumbnailFrames.Count;
+
+    /// <summary>「結合方法を変える」画面のサムネイル一覧上部に出す「N 枚選択中 ／ 全 M 枚」文言です。</summary>
+    public string ThumbnailSelectionSummaryText =>
+        Loc.Instance.Format("ConsultationList_ThumbnailSelectionSummary_Format", SelectedThumbnailCount, ThumbnailFrameCount);
+
+    /// <summary>「スクショ保存フォルダを開く」ボタンのツールチップ（保存先パスを含む）です。</summary>
+    public string OpenTempFolderTooltipText =>
+        Loc.Instance.Format("ConsultationList_OpenFolder_ToolTip_Format", TempDirectory);
 
     public bool HasAnyThumbnailSelected => ThumbnailFrames.Any(t => t.IsSelected);
 
@@ -658,26 +709,26 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             if (SelectedHistoryItem is null)
             {
-                return "履歴を選択すると、紐づいたキャプチャをプレビューできます。";
+                return Loc.Instance.Get("HistoryPreviewPlaceholder_SelectHint");
             }
 
             if (SelectedHistoryItem.Action is null && SelectedHistoryItem.Frame is null)
             {
-                return "この行は状態メッセージです。キャプチャ行または操作行を選んでください。";
+                return Loc.Instance.Get("HistoryPreviewPlaceholder_StateRow");
             }
 
             string? path = ResolvePreviewPath(SelectedHistoryItem);
             if (string.IsNullOrWhiteSpace(path))
             {
-                return "紐づくキャプチャがまだありません（連続キャプチャ開始直後など）。";
+                return Loc.Instance.Get("HistoryPreviewPlaceholder_NoCaptureYet");
             }
 
             if (!File.Exists(path))
             {
-                return "画像ファイルが見つかりません。";
+                return Loc.Instance.Get("HistoryPreviewPlaceholder_FileNotFound");
             }
 
-            return "プレビューを読み込めませんでした。";
+            return Loc.Instance.Get("HistoryPreviewPlaceholder_LoadFailed");
         }
     }
 
@@ -701,7 +752,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public string ConsultationPreviewPlaceholder =>
         HasConsultationPreview
             ? string.Empty
-            : "プレビューがここに表示されます。";
+            : Loc.Instance.Get("HistoryPreviewPlaceholder_Default");
 
     // ---- 相談用データ: 別窓「結合方法を変える」で使う設定 ----
 
@@ -1040,6 +1091,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         if (_disposed) return;
         _settingsService.Save(new AppSettings
         {
+            Language = Loc.Instance.CurrentLanguage.ToCultureCode(),
             CapturesPerSecond = CapturesPerSecond,
             RetentionSeconds = RetentionSeconds,
             KeepCaptureCount = KeepCaptureCount,
@@ -1092,7 +1144,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         if (!IsIdle)
         {
-            StatusMessage = "記録中または一時停止中はモニター一覧を更新できません。";
+            StatusMessage = Loc.Instance.Get("Status_CannotRefreshMonitorsWhileRecording");
             return;
         }
 
@@ -1109,8 +1161,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _savedMonitorDeviceId = null;
 
         StatusMessage = Monitors.Count == 0
-            ? "モニターが見つかりませんでした。"
-            : $"モニター一覧を更新しました（{Monitors.Count} 件）。";
+            ? Loc.Instance.Get("Status_NoMonitorsFound")
+            : Loc.Instance.Format("Status_MonitorListRefreshed_Format", Monitors.Count);
     }
 
     /// <summary>「自由クリップ」のドラッグ選択で選ばれた矩形を確定します。</summary>
@@ -1118,7 +1170,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         FreeClipRegion = region;
         ScheduleSettingsSave();
-        StatusMessage = $"キャプチャ範囲を設定しました（{region.Width} × {region.Height}）。";
+        StatusMessage = Loc.Instance.Format("Status_RegionSet_Format", region.Width, region.Height);
     }
 
     /// <summary>現在の設定（モード・選択モニター・自由クリップ矩形）から実効キャプチャ範囲を解決します。</summary>
@@ -1135,7 +1187,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         WindowBounds? region = ResolveEffectiveCaptureRegion();
         if (region is null)
         {
-            StatusMessage = "エラー: キャプチャ範囲が未設定です。";
+            StatusMessage = Loc.Instance.Get("Status_Error_RegionNotSet");
             return;
         }
 
@@ -1154,10 +1206,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         // モードによらず、記録開始時点の状態を必ず1枚撮る（最初の操作より前の基準点）。
         CaptureMilestoneFrame();
 
-        AddMessageHistory("記録を開始しました");
+        AddMessageHistory(Loc.Instance.Get("History_RecordingStarted"));
         StatusMessage = CaptureMode == ScreenshotCaptureMode.Interval
-            ? $"記録中です。【秒でキャプチャ】{CapturesPerSecond} 枚/秒（最大おおよそ {MaxBufferCapacity} 枚）。操作は最寄りフレームに紐づけます。"
-            : $"記録中です。【操作キャプチャ】操作のたびに撮影します（保持 {KeepCaptureCount} 枚まで）。";
+            ? Loc.Instance.Format("Status_RecordingIntervalStarted_Format", CapturesPerSecond, MaxBufferCapacity)
+            : Loc.Instance.Format("Status_RecordingOperationStarted_Format", KeepCaptureCount);
 
         StartMouseHook();
         SyncKeyboardHookWithSettings();
@@ -1171,8 +1223,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _recordingPausedAt ??= DateTime.Now;
         State = RecordingState.Paused;
         RaiseRecordingOverlayStatusProperties();
-        AddMessageHistory("記録を一時停止しました");
-        StatusMessage = "一時停止中です。「再開」を押すと記録を再開します。";
+        AddMessageHistory(Loc.Instance.Get("History_RecordingPaused"));
+        StatusMessage = Loc.Instance.Get("Status_Paused");
     }
 
     /// <summary>一時停止中のみ実行可能。</summary>
@@ -1187,10 +1239,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         State = RecordingState.Recording;
         RaiseRecordingOverlayStatusProperties();
-        AddMessageHistory("記録を再開しました");
+        AddMessageHistory(Loc.Instance.Get("History_RecordingResumed"));
         StatusMessage = CaptureMode == ScreenshotCaptureMode.Interval
-            ? $"記録中です（秒でキャプチャ {CapturesPerSecond} 枚/秒）。"
-            : "記録中です（操作キャプチャモード）。";
+            ? Loc.Instance.Format("Status_RecordingIntervalResumed_Format", CapturesPerSecond)
+            : Loc.Instance.Get("Status_RecordingOperationResumed");
     }
 
     private void StopRecording()
@@ -1203,7 +1255,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         FlushPendingIntervalLinks();
         FlushPendingOperationCaptureLinks();
         EndSessionCore(flushPending: false);
-        AddMessageHistory("記録を停止しました");
+        AddMessageHistory(Loc.Instance.Get("History_RecordingStopped"));
         RaiseCommandStates();
         AutoGenerateConsultationAfterStop();
     }
@@ -1224,7 +1276,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         else
         {
-            StatusMessage = "\u8a18\u9332\u3092\u505c\u6b62\u3057\u307e\u3057\u305f\u3002\u64cd\u4f5c\u304c\u8a18\u9332\u3055\u308c\u3066\u3044\u306a\u3044\u305f\u3081\u3001\u76f8\u8ac7\u7528\u30c7\u30fc\u30bf\u306f\u4f5c\u6210\u3055\u308c\u307e\u305b\u3093\u3002";
+            StatusMessage = Loc.Instance.Get("Status_RecordingStoppedNoActions");
         }
     }
 
@@ -1232,7 +1284,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         if (!TryCopyGeneratedMontages(out _)) return;
 
-        const string copiedSummary = "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f\u3002\u305d\u306e\u307e\u307eAI\u306b\u8cbc\u308a\u4ed8\u3051\u53ef\u80fd\u3067\u3059";
+        string copiedSummary = Loc.Instance.Get("Status_ConsultationCopiedPasteReady");
 
         AddMessageHistory(copiedSummary, isHighlighted: true);
         RecordingOverlayNoticeText = copiedSummary;
@@ -1248,14 +1300,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         bool hasAnyData = OperationHistory.Count > 0 || _captureBuffer.Count > 0 || HasConsultationPreview;
         if (!hasAnyData)
         {
-            StatusMessage = "削除する記録データがありません。";
+            StatusMessage = Loc.Instance.Get("Status_NoDataToDelete");
             return;
         }
 
         MessageBoxResult result = MessageBox.Show(
             Application.Current.MainWindow,
-            "記録した操作履歴・キャプチャ画像・相談用データをすべて削除します。この操作は取り消せません。よろしいですか？",
-            "記録データを今すぐ削除",
+            Loc.Instance.Get("Confirm_DeleteRecordedData_Message"),
+            Loc.Instance.Get("Common_DeleteRecordedDataNow"),
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning,
             MessageBoxResult.No);
@@ -1263,7 +1315,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         ClearAllRecordedData();
         RaiseCommandStates();
-        StatusMessage = "記録データと相談用データを削除しました。";
+        StatusMessage = Loc.Instance.Get("Status_DataDeleted");
     }
 
     /// <summary>履歴・キャプチャ・相談用データを全消去します（「記録データ削除」および新規記録開始時に使用）。</summary>
@@ -1300,11 +1352,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 UseShellExecute = true
             });
 
-            StatusMessage = $"一時フォルダを開きました: {path}";
+            StatusMessage = Loc.Instance.Format("Status_TempFolderOpened_Format", path);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"エラー: 一時フォルダを開けませんでした。{ex.Message}";
+            StatusMessage = Loc.Instance.Format("Status_Error_TempFolderOpenFailed_Format", ex.Message);
         }
     }
 
@@ -1316,8 +1368,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         List<RecordedAction> outOfRegionActions = CollectOutOfRegionActions();
         if (timeline.Count == 0 && outOfRegionActions.Count == 0)
         {
-            StatusMessage =
-                "エラー: キャプチャが0件です。記録中に対象を最前面にし、連続キャプチャを有効にしてから操作してください。";
+            StatusMessage = Loc.Instance.Get("Status_Error_NoCaptures");
             return;
         }
 
@@ -1332,7 +1383,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 {
                     GeneratedMontagePaths = outputPaths;
                     ConsultationPreviewImage = outputPaths.Count > 0 ? LoadBitmapImageWithoutLock(outputPaths[0]) : null;
-                    StatusMessage = $"エラー: 相談用画像を作れませんでした。{splitError}";
+                    StatusMessage = Loc.Instance.Format("Status_Error_ConsultationImageFailed_Format", splitError);
                     return;
                 }
 
@@ -1340,10 +1391,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 BitmapImage? splitPreview = LoadBitmapImageWithoutLock(outputPaths[0]);
                 ConsultationPreviewImage = splitPreview;
                 StatusMessage = splitPreview is null
-                    ? "画像は生成しましたがプレビューに失敗しました。コピーは試せます。"
+                    ? Loc.Instance.Get("Status_ConsultationGeneratedPreviewFailed")
                     : (outputPaths.Count > 1
-                        ? $"相談用データを生成しました（{outputPaths.Count} 枚に分割 / コマ {timeline.Count} / 操作 {CountActionRecords()} 件）。"
-                        : $"相談用データを生成しました（コマ {timeline.Count} / 操作 {CountActionRecords()} 件）。");
+                        ? Loc.Instance.Format("Status_ConsultationGeneratedSplit_Format", outputPaths.Count, timeline.Count, CountActionRecords())
+                        : Loc.Instance.Format("Status_ConsultationGenerated_Format", timeline.Count, CountActionRecords()));
                 return;
             }
 
@@ -1354,7 +1405,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             {
                 GeneratedMontagePaths = Array.Empty<string>();
                 ConsultationPreviewImage = null;
-                StatusMessage = $"エラー: 相談用画像を作れませんでした。{imageError}";
+                StatusMessage = Loc.Instance.Format("Status_Error_ConsultationImageFailed_Format", imageError);
                 return;
             }
 
@@ -1362,12 +1413,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             BitmapImage? preview = LoadBitmapImageWithoutLock(outputPath);
             ConsultationPreviewImage = preview;
             StatusMessage = preview is null
-                ? "画像は生成しましたがプレビューに失敗しました。コピーは試せます。"
-                : $"相談用データを生成しました（コマ {timeline.Count} / 操作 {CountActionRecords()} 件）。";
+                ? Loc.Instance.Get("Status_ConsultationGeneratedPreviewFailed")
+                : Loc.Instance.Format("Status_ConsultationGenerated_Format", timeline.Count, CountActionRecords());
         }
         catch (Exception ex)
         {
-            StatusMessage = $"エラー: 相談用データの生成中に問題が発生しました。{ex.Message}";
+            StatusMessage = Loc.Instance.Format("Status_Error_ConsultationGenerationFailed_Format", ex.Message);
         }
         finally
         {
@@ -1533,7 +1584,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private static string DescribeForMergedCard(RecordedAction a) =>
         a.ActionType == RecordedActionType.Keyboard
             ? (a.KeyboardDisplay ?? a.Summary)
-            : $"{a.TypeLabel}：{a.Summary}";
+            : $"{a.TypeLabel}{Loc.Instance.Get("Label_Separator")}{a.Summary}";
 
     private void CopyConsultationImage()
     {
@@ -1544,8 +1595,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
 
         StatusMessage = GeneratedMontagePaths.Count > 1
-            ? $"\u7d50\u5408\u753b\u50cf {GeneratedMontagePaths.Count} \u679a\u3092\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f\u3002\u540c\u3058 AI \u5165\u529b\u6b04\u3078\u7d9a\u3051\u3066\u8cbc\u308a\u4ed8\u3051\u3066\u304f\u3060\u3055\u3044\u3002"
-            : "\u753b\u50cf\u3092\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f\u3002\u540c\u3058 AI \u5165\u529b\u6b04\u3078\u7d9a\u3051\u3066\u8cbc\u308a\u4ed8\u3051\u3066\u304f\u3060\u3055\u3044\u3002";
+            ? Loc.Instance.Format("Status_MultipleCombinedCopied_Format", GeneratedMontagePaths.Count)
+            : Loc.Instance.Get("Status_SingleCombinedCopied");
     }
 
     private bool TryCopyGeneratedMontages(out string? errorMessage)
@@ -1553,7 +1604,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         errorMessage = null;
         if (GeneratedMontagePaths.Count == 0)
         {
-            errorMessage = "\u30a8\u30e9\u30fc: \u30b3\u30d4\u30fc\u3067\u304d\u308b\u753b\u50cf\u304c\u3042\u308a\u307e\u305b\u3093\u3002";
+            errorMessage = Loc.Instance.Get("Status_Error_NoImageToCopy");
             return false;
         }
 
@@ -1563,7 +1614,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         if (!copyOk)
         {
-            errorMessage = $"\u30a8\u30e9\u30fc: \u753b\u50cf\u306e\u30b3\u30d4\u30fc\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002{copyError}";
+            errorMessage = Loc.Instance.Format("Status_Error_CopyImageFailed_Format", copyError);
             return false;
         }
 
@@ -1584,7 +1635,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             ClipboardPreviewImage = preview.Image;
             ClipboardPreviewFileThumbnails = Array.Empty<ClipboardPreviewFileEntry>();
-            ClipboardPreviewSummary = $"画像 1枚（{preview.Image.PixelWidth}×{preview.Image.PixelHeight}px）がコピーされています。";
+            ClipboardPreviewSummary = Loc.Instance.Format("Clipboard_ImageCopied_Format", preview.Image.PixelWidth, preview.Image.PixelHeight);
             OnPropertyChanged(nameof(ClipboardPreviewImageSourcePath));
             return;
         }
@@ -1599,8 +1650,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 .Select(p => new ClipboardPreviewFileEntry(p, LoadClipboardPreviewThumbnail(p)))
                 .ToList();
             ClipboardPreviewSummary = preview.FilePaths.Count == 1
-                ? $"ファイル 1個がコピーされています: {Path.GetFileName(preview.FilePaths[0])}"
-                : $"ファイル {preview.FilePaths.Count}個がコピーされています。";
+                ? Loc.Instance.Format("Clipboard_OneFileCopied_Format", Path.GetFileName(preview.FilePaths[0]))
+                : Loc.Instance.Format("Clipboard_FilesCopied_Format", preview.FilePaths.Count);
             return;
         }
 
@@ -1608,11 +1659,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         if (!string.IsNullOrEmpty(preview.Text))
         {
-            ClipboardPreviewSummary = $"テキスト（{preview.Text!.Length}文字）がコピーされています。";
+            ClipboardPreviewSummary = Loc.Instance.Format("Clipboard_TextCopied_Format", preview.Text!.Length);
             return;
         }
 
-        ClipboardPreviewSummary = "クリップボードに画像・ファイルがありません。";
+        ClipboardPreviewSummary = Loc.Instance.Get("Clipboard_Empty");
     }
 
     /// <summary>クリップボード確認パネル用の小さなサムネイルを、ファイルをロックせずに読み込みます。</summary>
@@ -1694,6 +1745,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         OnPropertyChanged(nameof(ThumbnailFrameCount));
         OnPropertyChanged(nameof(HasAnyThumbnailSelected));
         OnPropertyChanged(nameof(SelectedThumbnailCount));
+        OnPropertyChanged(nameof(ThumbnailSelectionSummaryText));
         RaiseCommandStates();
     }
 
@@ -1702,6 +1754,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         if (e.PropertyName != nameof(CaptureFrameThumbnailViewModel.IsSelected)) return;
         OnPropertyChanged(nameof(HasAnyThumbnailSelected));
         OnPropertyChanged(nameof(SelectedThumbnailCount));
+        OnPropertyChanged(nameof(ThumbnailSelectionSummaryText));
         RaiseCommandStates();
     }
 
@@ -1733,7 +1786,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         List<CaptureFrameThumbnailViewModel> selected = ThumbnailFrames.Where(t => t.IsSelected).ToList();
         if (selected.Count == 0)
         {
-            StatusMessage = "エラー: 画像が選択されていません。";
+            StatusMessage = Loc.Instance.Get("Status_Error_NoImageSelected");
             return;
         }
 
@@ -1748,7 +1801,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             if (!TryBuildSplitConsultationImages(timeline, Array.Empty<RecordedAction>(), out List<string> outputPaths, out string? buildError))
             {
                 GeneratedMontagePaths = outputPaths;
-                StatusMessage = $"エラー: 結合画像を作れませんでした。{buildError}";
+                StatusMessage = Loc.Instance.Format("Status_Error_CombineImageFailed_Format", buildError);
                 return;
             }
 
@@ -1762,9 +1815,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
             StatusMessage = copyOk
                 ? (outputPaths.Count > 1
-                    ? $"選択した {selected.Count} 枚を {outputPaths.Count} 枚の結合画像に分割してコピーしました。AI 入力欄へ貼り付けてください。"
-                    : $"選択した {selected.Count} 枚を1枚の結合画像にまとめてコピーしました。AI 入力欄へ貼り付けてください。")
-                : $"結合はできましたが、コピーに失敗しました。{copyError}";
+                    ? Loc.Instance.Format("Status_CombinedAndCopiedSplit_Format", selected.Count, outputPaths.Count)
+                    : Loc.Instance.Format("Status_CombinedAndCopied_Format", selected.Count))
+                : Loc.Instance.Format("Status_CombinedButCopyFailed_Format", copyError);
             if (copyOk)
             {
                 _lastCopiedSingleImagePath = outputPaths.Count == 1 ? outputPaths[0] : null;
@@ -1773,7 +1826,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         catch (Exception ex)
         {
-            StatusMessage = $"エラー: 結合中に問題が発生しました。{ex.Message}";
+            StatusMessage = Loc.Instance.Format("Status_Error_CombineFailed_Format", ex.Message);
         }
         finally
         {
@@ -1834,7 +1887,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             if (!_consultationImageService.TryBuildConsultationImage(
                     groups[i], collapsedGroup, outputPath, resolvedColumns, QualityPreset, out string? groupError))
             {
-                errorMessage = $"{i + 1} 枚目の結合画像を作れませんでした。{groupError}";
+                errorMessage = Loc.Instance.Format("Error_CombineImageAt_Format", i + 1, groupError);
                 return false;
             }
 
@@ -1904,7 +1957,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         if (paths.Count == 0)
         {
-            StatusMessage = "エラー: 画像が選択されていません。";
+            StatusMessage = Loc.Instance.Get("Status_Error_NoImageSelected");
             return;
         }
 
@@ -1914,12 +1967,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         if (!copyOk)
         {
-            StatusMessage = $"エラー: 画像のコピーに失敗しました。{error}";
+            StatusMessage = Loc.Instance.Format("Status_Error_CopyImageFailed_Format", error);
             return;
         }
 
         _lastCopiedSingleImagePath = paths.Count == 1 ? paths[0] : null;
-        StatusMessage = $"選択した {paths.Count} 枚を個別ファイルとしてコピーしました。AI 入力欄へ貼り付けてください。";
+        StatusMessage = Loc.Instance.Format("Status_FilesCopiedIndividually_Format", paths.Count);
         RefreshClipboardPreview();
     }
 
@@ -1941,7 +1994,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         catch (Exception ex)
         {
-            StatusMessage = $"エラー: マウス監視を開始できませんでした。{ex.Message}";
+            StatusMessage = Loc.Instance.Format("Status_Error_MouseHookFailed_Format", ex.Message);
         }
     }
 
@@ -1967,7 +2020,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         catch (Exception ex)
         {
-            StatusMessage = $"エラー: キーボード監視を切り替えられませんでした。{ex.Message}";
+            StatusMessage = Loc.Instance.Format("Status_Error_KeyboardHookToggleFailed_Format", ex.Message);
         }
     }
 
@@ -2050,7 +2103,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         if (!TrySaveScreenshotPng(out string? path, out string? error) || path is null)
         {
-            StatusMessage = $"警告: 定期キャプチャに失敗しました。{error}";
+            StatusMessage = Loc.Instance.Format("Status_Warning_IntervalCaptureFailed_Format", error);
             return;
         }
 
@@ -2279,7 +2332,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         if (_captureRegion is not { } region)
         {
-            error = "キャプチャ範囲が未設定です。";
+            error = Loc.Instance.Get("Error_RegionNotSet");
             _tempStorageService.TryDeleteFile(path);
             path = null;
             return false;
@@ -2678,7 +2731,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         RecordedAction BuildAction(CaptureFrame? frame) => new(
             actionType: type,
             recordedAt: at,
-            summary: $"画面座標({screenX}, {screenY}) / 相対({rx * 100:0.0}%, {ry * 100:0.0}%)",
+            summary: Loc.Instance.Format("Action_Summary_ScreenAndRelative_Format", screenX, screenY, rx * 100, ry * 100),
             linkedCaptureId: frame?.Id,
             screenshotPath: frame?.ScreenshotPath,
             screenX: screenX,
@@ -2692,10 +2745,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         RecordedAction action = AddActionWithCaptureLink(at, type, BuildAction, preResolvedFrame: preResolvedFrame);
         StatusMessage = action.LinkedCaptureId is not null
-            ? $"{action.TypeLabel}を記録（キャプチャ紐づけ / 操作 {CountActionRecords()} 件）。"
+            ? Loc.Instance.Format("History_ActionLinked_Format", action.TypeLabel, CountActionRecords())
             : CaptureMode == ScreenshotCaptureMode.Interval
-                ? $"{action.TypeLabel}を記録（次のキャプチャに紐づけ予定 / 操作 {CountActionRecords()} 件）。"
-                : $"{action.TypeLabel}を記録（画像なし / 操作 {CountActionRecords()} 件）。";
+                ? Loc.Instance.Format("History_ActionLinkPending_Format", action.TypeLabel, CountActionRecords())
+                : Loc.Instance.Format("History_ActionNoImage_Format", action.TypeLabel, CountActionRecords());
     }
 
     /// <summary>
@@ -2707,14 +2760,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         var action = new RecordedAction(
             actionType: type,
             recordedAt: at,
-            summary: $"画面座標({screenX}, {screenY})",
+            summary: Loc.Instance.Format("Action_Summary_ScreenOnly_Format", screenX, screenY),
             screenX: screenX,
             screenY: screenY,
             isOutOfRegion: true,
             isGeometricallyOutOfRegion: true);
 
         AddActionHistory(action);
-        StatusMessage = $"画面外での{action.TypeLabel}を記録（操作 {CountActionRecords()} 件）。";
+        StatusMessage = Loc.Instance.Format("Status_ActionOutOfScreen_Format", action.TypeLabel, CountActionRecords());
     }
 
     private void CommitDrag(
@@ -2732,7 +2785,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         RecordedAction BuildAction(CaptureFrame? frame) => new(
             actionType: RecordedActionType.Drag,
             recordedAt: start,
-            summary: $"{dir}へ移動（距離 {dist:0}px）",
+            summary: Loc.Instance.Format("Action_Summary_DragTo_Format", dir, dist),
             linkedCaptureId: frame?.Id,
             screenshotPath: frame?.ScreenshotPath,
             endedAt: end,
@@ -2750,14 +2803,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             isOutOfRegion: frame is null);
 
         AddActionWithCaptureLink(start, RecordedActionType.Drag, BuildAction, preResolvedFrame: preResolvedFrame);
-        StatusMessage = $"ドラッグを記録（操作 {CountActionRecords()} 件）。";
+        StatusMessage = Loc.Instance.Format("Status_DragRecorded_Format", CountActionRecords());
     }
 
     private static string DescribeDirection(int dx, int dy)
     {
-        if (Math.Abs(dx) < 2 && Math.Abs(dy) < 2) return "ほぼその場";
-        if (Math.Abs(dx) >= Math.Abs(dy)) return dx >= 0 ? "左から右" : "右から左";
-        return dy >= 0 ? "上から下" : "下から上";
+        if (Math.Abs(dx) < 2 && Math.Abs(dy) < 2) return Loc.Instance.Get("Direction_AlmostSamePlace");
+        if (Math.Abs(dx) >= Math.Abs(dy)) return dx >= 0 ? Loc.Instance.Get("Direction_LeftToRight") : Loc.Instance.Get("Direction_RightToLeft");
+        return dy >= 0 ? Loc.Instance.Get("Direction_TopToBottom") : Loc.Instance.Get("Direction_BottomToTop");
     }
 
     private void ProcessMouseWheel(int screenX, int screenY, int delta)
@@ -2820,7 +2873,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         DateTime now = DateTime.Now;
         bool up = delta > 0;
         int notches = Math.Max(1, (int)Math.Round(Math.Abs(delta) / 120.0));
-        string dir = up ? "上方向" : "下方向";
+        string dir = up ? Loc.Instance.Get("Direction_Up") : Loc.Instance.Get("Direction_Down");
 
         RecordedAction action;
         if (isOutOfRegion)
@@ -2828,7 +2881,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             action = new RecordedAction(
                 actionType: RecordedActionType.MouseWheel,
                 recordedAt: now,
-                summary: $"{dir}に{notches}回スクロール（画面座標 {sx}, {sy}）",
+                summary: Loc.Instance.Format("Action_Summary_WheelWithScreen_Format", dir, notches, sx, sy),
                 screenX: sx,
                 screenY: sy,
                 wheelDelta: delta,
@@ -2845,7 +2898,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             RecordedAction BuildAction(CaptureFrame? frame) => new(
                 actionType: RecordedActionType.MouseWheel,
                 recordedAt: now,
-                summary: $"{dir}に{notches}回スクロール",
+                summary: Loc.Instance.Format("Action_Summary_Wheel_Format", dir, notches),
                 linkedCaptureId: frame?.Id,
                 screenshotPath: frame?.ScreenshotPath,
                 screenX: sx,
@@ -2861,7 +2914,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             action = AddActionWithCaptureLink(now, RecordedActionType.MouseWheel, BuildAction, preResolvedFrame: preResolvedFrame);
         }
 
-        StatusMessage = $"ホイールを記録（{action.Summary}）。";
+        StatusMessage = Loc.Instance.Format("Status_WheelRecorded_Format", action.Summary);
     }
 
     private void ProcessKeyDown(int virtualKey, string displayLabel, bool ctrl, bool alt, bool shift, bool win)
@@ -2885,7 +2938,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             isOutOfRegion: frame is null);
 
         AddActionWithCaptureLink(now, RecordedActionType.Keyboard, BuildAction, virtualKey, ctrl, alt, shift, win);
-        StatusMessage = $"キーボードを記録（{displayLabel}）。";
+        StatusMessage = Loc.Instance.Format("Status_KeyboardRecorded_Format", displayLabel);
     }
 
     private void CancelPendingClickTimers()
@@ -2958,7 +3011,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public void ReloadHistoryPreview()
     {
         UpdatePreviewImage();
-        StatusMessage = "履歴プレビューの画像を更新しました（赤ペン記入を保存済み）。";
+        StatusMessage = Loc.Instance.Get("Status_HistoryPreviewUpdated");
     }
 
     /// <summary>相談用画像プレビューをファイルから読み直します（注釈保存後など）。</summary>
@@ -2973,7 +3026,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         ConsultationPreviewImage = LoadBitmapImageWithoutLock(path);
         RaiseCommandStates();
-        StatusMessage = "相談用画像を更新しました（赤ペン記入を保存済み）。";
+        StatusMessage = Loc.Instance.Get("Status_ConsultationPreviewUpdated");
     }
 
     private void UpdatePreviewImage()
@@ -3065,6 +3118,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         PreviewImage = null;
         ConsultationPreviewImage = null;
         OperationHistory.CollectionChanged -= OnOperationHistoryCollectionChanged;
+        Loc.Instance.LanguageChanged -= OnLanguageChanged;
         OperationHistory.Clear();
         foreach (CaptureFrameThumbnailViewModel t in ThumbnailFrames)
         {

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TracePrompt.Models;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Services;
 
@@ -80,13 +81,13 @@ public sealed class ConsultationImageService
 
         if ((timeline is null || timeline.Count == 0) && !hasOutOfRegion)
         {
-            errorMessage = "キャプチャがありません。記録中に連続キャプチャが保存されているか確認してください。";
+            errorMessage = Loc.Instance.Get("Consultation_Error_NoCaptures");
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(outputPath))
         {
-            errorMessage = "保存先パスが指定されていません。";
+            errorMessage = Loc.Instance.Get("Error_NoOutputPath");
             return false;
         }
 
@@ -99,7 +100,7 @@ public sealed class ConsultationImageService
 
             if (usable.Count == 0 && !hasOutOfRegion)
             {
-                errorMessage = "読み込み可能なキャプチャ画像がありません。";
+                errorMessage = Loc.Instance.Get("Consultation_Error_NoUsableFrames");
                 return false;
             }
 
@@ -117,7 +118,7 @@ public sealed class ConsultationImageService
         }
         catch (Exception ex)
         {
-            errorMessage = $"相談用画像の生成に失敗しました: {ex.Message}";
+            errorMessage = Loc.Instance.Format("Consultation_Error_GenerationFailed_Format", ex.Message);
             return false;
         }
     }
@@ -153,10 +154,10 @@ public sealed class ConsultationImageService
         int drawWidth = Math.Max(1, (int)Math.Round(source.PixelWidth * scale));
         int drawHeight = Math.Max(1, (int)Math.Round(source.PixelHeight * scale));
 
-        string title = $"コマ 1 / 1　{entry.Frame.RecordedAt:HH:mm:ss.fff}";
+        string title = Loc.Instance.Format("Consultation_FrameTitle_Single_Format", entry.Frame.RecordedAt);
         string detail = entry.HasActions
             ? string.Join(" ／ ", entry.LinkedActions.Select(a => a.ToConsultationDetail()))
-            : "画面表示";
+            : Loc.Instance.Get("Consultation_ScreenDisplay");
 
         FormattedText titleText = CreateFormattedText(title, 16, Brushes.Black, bold: true);
         FormattedText detailText = CreateFormattedText(detail, 12, Brushes.Black, bold: false);
@@ -185,7 +186,7 @@ public sealed class ConsultationImageService
             BitmapSource? source = LoadBitmapWithoutLock(entry.Frame.ScreenshotPath);
             if (source is null)
             {
-                errorMessage = $"キャプチャを読み込めませんでした（コマ {i + 1}）。";
+                errorMessage = Loc.Instance.Format("Consultation_Error_FrameLoadFailed_Format", i + 1);
                 return null;
             }
 
@@ -195,10 +196,10 @@ public sealed class ConsultationImageService
             int drawWidth = Math.Max(1, (int)Math.Round(source.PixelWidth * scale));
             int drawHeight = Math.Max(1, (int)Math.Round(source.PixelHeight * scale));
 
-            string title = $"コマ {i + 1} / {usable.Count}　{entry.Frame.RecordedAt:HH:mm:ss.fff}";
+            string title = Loc.Instance.Format("Consultation_FrameTitle_Multi_Format", i + 1, usable.Count, entry.Frame.RecordedAt);
             string detail = entry.HasActions
                 ? string.Join(" ／ ", entry.LinkedActions.Select(a => a.ToConsultationDetail()))
-                : (i == 0 ? "画面表示" : "画面変化");
+                : (i == 0 ? Loc.Instance.Get("Consultation_ScreenDisplay") : Loc.Instance.Get("Consultation_ScreenChange"));
 
             FormattedText titleText = CreateFormattedText(title, 16, Brushes.Black, bold: true);
             FormattedText detailText = CreateFormattedText(
@@ -298,7 +299,7 @@ public sealed class ConsultationImageService
 
         if (canvasWidth <= 0 || canvasHeight <= 0 || canvasHeight > 30000)
         {
-            errorMessage = "生成する画像サイズが不正、または大きすぎます。コマ数を減らしてください。";
+            errorMessage = Loc.Instance.Get("Consultation_Error_InvalidImageSize");
             return false;
         }
 
@@ -425,7 +426,7 @@ public sealed class ConsultationImageService
         }
         catch (Exception ex)
         {
-            errorMessage = $"相談用画像の生成に失敗しました: {ex.Message}";
+            errorMessage = Loc.Instance.Format("Consultation_Error_GenerationFailed_Format", ex.Message);
             return false;
         }
     }
@@ -565,7 +566,7 @@ public sealed class ConsultationImageService
 
     private static void DrawKeyboardBanner(DrawingContext dc, double imageX, double imageY, double imageWidth, string keyText)
     {
-        string label = string.IsNullOrWhiteSpace(keyText) ? "キーボード" : keyText;
+        string label = string.IsNullOrWhiteSpace(keyText) ? Loc.Instance.Get("CapturedInput_Keyboard") : keyText;
         FormattedText text = CreateFormattedText(label, 14, Brushes.White, bold: true);
         double padX = 10;
         double padY = 5;

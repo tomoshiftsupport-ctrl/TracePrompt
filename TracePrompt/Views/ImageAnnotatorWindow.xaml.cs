@@ -7,6 +7,7 @@ using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Views;
 
@@ -129,8 +130,8 @@ private bool ConfirmDiscardOrSaveChanges()
 
     MessageBoxResult result = MessageBox.Show(
         this,
-        "記入内容が保存されていません。保存しますか？",
-        "AIヘルプキャプチャ",
+        Loc.Instance.Get("Confirm_SaveAnnotation_Message"),
+        Loc.Instance.Get("App_Title"),
         MessageBoxButton.YesNoCancel,
         MessageBoxImage.Question);
 
@@ -165,13 +166,13 @@ private void NavigateToImage(int newIndex)
     ResetEditorState();
     if (!TryLoadImage())
     {
-        MessageBox.Show(this, "画像を読み込めませんでした。", "AIヘルプキャプチャ", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(this, Loc.Instance.Get("Dialog_ImageLoadFailed"), Loc.Instance.Get("App_Title"), MessageBoxButton.OK, MessageBoxImage.Warning);
         Close();
         return;
     }
 
     ApplyLoadedImageState();
-    StatusText.Text = "画像を切り替えました";
+    StatusText.Text = Loc.Instance.Get("Annotator_Status_ImageSwitched");
     Focus();
 }
 
@@ -204,8 +205,8 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
     {
         MessageBox.Show(
             this,
-            "画像を読み込めませんでした。",
-            "AIヘルプキャプチャ",
+            Loc.Instance.Get("Dialog_ImageLoadFailed"),
+            Loc.Instance.Get("App_Title"),
             MessageBoxButton.OK,
             MessageBoxImage.Warning);
         DialogResult = false;
@@ -396,14 +397,14 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
         _redoStack.Clear();
         _clearedStrokesForUndo = null;
         _isDirty = true;
-        StatusText.Text = "未保存の変更があります";
+        StatusText.Text = Loc.Instance.Get("Annotator_Status_UnsavedChanges");
         UpdateUndoRedoButtons();
     }
 
     private void OnStrokeErasing(object sender, InkCanvasStrokeErasingEventArgs e)
     {
         _isDirty = true;
-        StatusText.Text = "未保存の変更があります";
+        StatusText.Text = Loc.Instance.Get("Annotator_Status_UnsavedChanges");
     }
 
     private void OnUndoClick(object sender, RoutedEventArgs e) => Undo();
@@ -424,7 +425,7 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
         InkSurface.Strokes.Clear();
         _suppressStrokeEvents = false;
         _isDirty = true;
-        StatusText.Text = "線をすべて消しました（Ctrl+Z で復元）";
+        StatusText.Text = Loc.Instance.Get("Annotator_Status_ClearedAll");
         UpdateUndoRedoButtons();
     }
 
@@ -432,7 +433,7 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
     {
         if (TrySave())
         {
-            StatusText.Text = "保存しました";
+            StatusText.Text = Loc.Instance.Get("Annotator_Status_Saved");
         }
     }
 
@@ -446,18 +447,18 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
         BitmapSource? composed = BuildComposedBitmap();
         if (composed is null)
         {
-            StatusText.Text = "コピーできる画像がありません";
+            StatusText.Text = Loc.Instance.Get("Annotator_Status_NoImageToCopy");
             return;
         }
 
         try
         {
             Clipboard.SetImage(composed);
-            StatusText.Text = "画像をコピーしました（赤ペン記入を含む）";
+            StatusText.Text = Loc.Instance.Get("Annotator_Status_ImageCopied");
         }
         catch (Exception ex)
         {
-            StatusText.Text = $"コピーに失敗しました: {ex.Message}";
+            StatusText.Text = Loc.Instance.Format("Annotator_Status_CopyFailed_Format", ex.Message);
         }
     }
 
@@ -485,7 +486,7 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
         {
             if (TrySave())
             {
-                StatusText.Text = "保存しました";
+                StatusText.Text = Loc.Instance.Get("Annotator_Status_Saved");
             }
 
             e.Handled = true;
@@ -558,7 +559,7 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
             _suppressStrokeEvents = false;
             _clearedStrokesForUndo = null;
             _isDirty = true;
-            StatusText.Text = "未保存の変更があります";
+            StatusText.Text = Loc.Instance.Get("Annotator_Status_UnsavedChanges");
             UpdateUndoRedoButtons();
             return;
         }
@@ -575,7 +576,7 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
         _redoStack.Push(last);
         _clearedStrokesForUndo = null;
         _isDirty = true;
-        StatusText.Text = "未保存の変更があります";
+        StatusText.Text = Loc.Instance.Get("Annotator_Status_UnsavedChanges");
         UpdateUndoRedoButtons();
     }
 
@@ -592,7 +593,7 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
         _suppressStrokeEvents = false;
         _clearedStrokesForUndo = null;
         _isDirty = true;
-        StatusText.Text = "未保存の変更があります";
+        StatusText.Text = Loc.Instance.Get("Annotator_Status_UnsavedChanges");
         UpdateUndoRedoButtons();
     }
 
@@ -705,8 +706,8 @@ private void OnNextImageClick(object sender, RoutedEventArgs e) => NavigateToIma
         {
             MessageBox.Show(
                 this,
-                $"保存に失敗しました。\n{ex.Message}",
-                "AIヘルプキャプチャ",
+                Loc.Instance.Format("Dialog_SaveFailed_Format", ex.Message),
+                Loc.Instance.Get("App_Title"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             return false;

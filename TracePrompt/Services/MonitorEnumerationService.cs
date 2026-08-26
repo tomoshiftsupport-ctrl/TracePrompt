@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using TracePrompt.Models;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Services;
 
@@ -63,7 +64,7 @@ public sealed class MonitorEnumerationService
 
             bool isPrimary = (info.dwFlags & MonitorInfoFPrimary) != 0;
             var bounds = new WindowBounds(info.rcMonitor.Left, info.rcMonitor.Top, width, height);
-            string label = $"{info.szDevice} ({width}×{height}){(isPrimary ? "（メイン）" : string.Empty)}";
+            string label = $"{info.szDevice} ({width}×{height}){(isPrimary ? Loc.Instance.Get("Monitor_PrimarySuffix") : string.Empty)}";
             results.Add(new MonitorInfo(info.szDevice, label, bounds, isPrimary));
             return true;
         }, nint.Zero);

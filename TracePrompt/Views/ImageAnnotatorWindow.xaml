@@ -1,7 +1,8 @@
 ﻿<Window x:Class="TracePrompt.Views.ImageAnnotatorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="画像を開く・赤ペン記入"
+        xmlns:loc="clr-namespace:TracePrompt.Localization"
+        Title="{loc:Loc Annotator_Title}"
         Height="720"
         Width="1100"
         MinHeight="420"
@@ -31,7 +32,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Ellipse Width="12" Height="12" Fill="{StaticResource Brush.Danger}"
                                      VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="赤ペン"
+                            <TextBlock Text="{loc:Loc Common_RedPenBadge}"
                                        FontWeight="SemiBold"
                                        FontSize="13"
                                        Foreground="{StaticResource Brush.Danger}"
@@ -56,24 +57,24 @@
                     </Border>
 
                     <Button x:Name="UndoButton"
-                            Content="元に戻す (Ctrl+Z)"
+                            Content="{loc:Loc Annotator_UndoButton_Content}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Width="148"
                             Margin="0,0,8,0"
                             Click="OnUndoClick"
-                            ToolTip="直前の線を取り消します（Ctrl+Z）"/>
+                            ToolTip="{loc:Loc ConsultationList_Undo_ToolTip}"/>
                     <Button x:Name="RedoButton"
-                            Content="やり直す (Ctrl+Y)"
+                            Content="{loc:Loc Annotator_RedoButton_Content}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Width="148"
                             Margin="0,0,8,0"
                             Click="OnRedoClick"
-                            ToolTip="取り消した線を戻します（Ctrl+Y）"/>
-                    <Button Content="すべて消す"
+                            ToolTip="{loc:Loc ConsultationList_Redo_ToolTip}"/>
+                    <Button Content="{loc:Loc Annotator_ClearAll_Content}"
                             Style="{StaticResource DangerButtonStyle}"
                             Width="100"
                             Click="OnClearClick"
-                            ToolTip="記入した線をすべて消します"/>
+                            ToolTip="{loc:Loc ConsultationList_ClearLines_ToolTip}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
@@ -85,7 +86,7 @@
                             Margin="0,0,12,0"
                             VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="表示"
+                            <TextBlock Text="{loc:Loc Annotator_ZoomLabel}"
                                        FontWeight="SemiBold"
                                        FontSize="12"
                                        Foreground="{StaticResource Brush.PrimaryDark}"
@@ -100,7 +101,7 @@
                                     FontSize="18"
                                     Margin="0,0,6,0"
                                     Click="OnZoomOutClick"
-                                    ToolTip="縮小 (Ctrl+- / Ctrl+ホイール)"/>
+                                    ToolTip="{loc:Loc Annotator_ZoomOut_ToolTip}"/>
                             <Button x:Name="ZoomPercentButton"
                                     Content="100%"
                                     MinWidth="72"
@@ -110,7 +111,7 @@
                                     FontWeight="SemiBold"
                                     Margin="0,0,6,0"
                                     Click="OnZoomResetClick"
-                                    ToolTip="画面に合わせて全体表示 (Ctrl+0)"/>
+                                    ToolTip="{loc:Loc Annotator_ZoomReset_ToolTip}"/>
                             <Button Content="＋"
                                     MinWidth="44"
                                     MinHeight="34"
@@ -119,29 +120,29 @@
                                     FontWeight="Bold"
                                     FontSize="18"
                                     Click="OnZoomInClick"
-                                    ToolTip="拡大 (Ctrl++ / Ctrl+ホイール)"/>
+                                    ToolTip="{loc:Loc Annotator_ZoomIn_ToolTip}"/>
                         </StackPanel>
                     </Border>
 
                     <TextBlock x:Name="StatusText"
-                               Text="ドラッグで赤線を描けます"
+                               Text="{loc:Loc Annotator_InitialStatus}"
                                VerticalAlignment="Center"
                                Foreground="{StaticResource Brush.TextSecondary}"
                                FontSize="12.5"
                                Margin="0,0,12,0"/>
-                    <Button Content="コピー"
+                    <Button Content="{loc:Loc Common_Copy}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Width="88"
                             Margin="0,0,8,0"
                             Click="OnCopyImageClick"
-                            ToolTip="表示中の画像（赤ペン記入込み）をクリップボードへコピーします（Ctrl+C）"/>
-                    <Button Content="保存"
+                            ToolTip="{loc:Loc Annotator_CopyButton_ToolTip}"/>
+                    <Button Content="{loc:Loc Common_Save}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             Width="88"
                             Margin="0,0,8,0"
                             Click="OnSaveClick"
-                            ToolTip="記入内容を画像に書き込んで保存します"/>
-                    <Button Content="閉じる"
+                            ToolTip="{loc:Loc Annotator_SaveButton_ToolTip}"/>
+                    <Button Content="{loc:Loc Common_Close}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Width="88"
                             Click="OnCloseClick"/>
@@ -150,7 +151,7 @@
         </Border>
 
         <TextBlock DockPanel.Dock="Top"
-                   Text="ドラッグで赤線を記入。左右キーまたは矢印ボタンで画像を切り替え。Ctrl+ホイール / Ctrl+± で拡大縮小、Ctrl+0 で全体表示に戻します。Ctrl+C または右クリックで画像をコピーできます。保存すると元の画像ファイルを上書きします。"
+                   Text="{loc:Loc Annotator_HintText}"
                    Style="{StaticResource HintTextStyle}"
                    Margin="2,0,2,10"/>
 
@@ -186,7 +187,7 @@
                                    StrokeErasing="OnStrokeErasing">
                             <InkCanvas.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="画像をコピー (Ctrl+C)" Click="OnCopyImageClick"/>
+                                    <MenuItem Header="{loc:Loc ContextMenu_CopyImage}" Click="OnCopyImageClick"/>
                                 </ContextMenu>
                             </InkCanvas.ContextMenu>
                         </InkCanvas>
@@ -210,7 +211,7 @@
                     BorderThickness="1"
                     Visibility="Collapsed"
                     Click="OnPrevImageClick"
-                    ToolTip="前の画像へ移動"/>
+                    ToolTip="{loc:Loc Annotator_PrevImage_ToolTip}"/>
 
             <Button x:Name="NextImageButton"
                     Content="&gt;"
@@ -228,7 +229,7 @@
                     BorderThickness="1"
                     Visibility="Collapsed"
                     Click="OnNextImageClick"
-                    ToolTip="次の画像へ移動"/>
+                    ToolTip="{loc:Loc Annotator_NextImage_ToolTip}"/>
         </Grid>
     </DockPanel>
 </Window>

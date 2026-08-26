@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Loc = TracePrompt.Localization.LocalizationManager;
 
 namespace TracePrompt.Services;
 
@@ -89,7 +90,7 @@ public sealed class KeyboardHookService : IDisposable
         {
             _proc = null;
             int error = Marshal.GetLastWin32Error();
-            throw new InvalidOperationException($"キーボードフックの開始に失敗しました。Win32 エラー: {error}");
+            throw new InvalidOperationException(Loc.Instance.Format("Error_KeyboardHookStartFailed_Format", error));
         }
     }
 

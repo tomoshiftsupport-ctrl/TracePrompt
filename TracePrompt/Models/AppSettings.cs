@@ -5,6 +5,9 @@ namespace TracePrompt.Models;
 /// </summary>
 public sealed class AppSettings
 {
+    /// <summary>表示言語（"ja" / "en"）。未設定（既存ユーザーの旧設定など）は日本語として扱います。</summary>
+    public string Language { get; set; } = "ja";
+
     public int CapturesPerSecond { get; set; } = 1;
 
     /// <summary>秒でキャプチャ時のリングバッファ目安（秒）。</summary>

@@ -1,3 +1,5 @@
+using Loc = TracePrompt.Localization.LocalizationManager;
+
 namespace TracePrompt.Models;
 
 /// <summary>
@@ -31,8 +33,8 @@ public sealed class CaptureFrame
     public string ToHistoryText()
     {
         // 操作ログと並べたとき一目で分かるよう【画面】マークを付ける
-        string kind = IsAuxiliary ? "操作時スクショ" : "定期スクショ";
-        return $"{RecordedAt:HH:mm:ss.fff}  【画面】 {kind}";
+        string kind = IsAuxiliary ? Loc.Instance.Get("CaptureFrame_ActionCaptureKind") : Loc.Instance.Get("CaptureFrame_IntervalCaptureKind");
+        return Loc.Instance.Format("CaptureFrame_Label_Format", RecordedAt, kind);
     }
 }
 

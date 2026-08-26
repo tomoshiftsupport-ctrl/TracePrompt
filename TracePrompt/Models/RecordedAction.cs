@@ -1,3 +1,5 @@
+using Loc = TracePrompt.Localization.LocalizationManager;
+
 namespace TracePrompt.Models;
 
 /// <summary>
@@ -106,14 +108,14 @@ public sealed class RecordedAction
 
     public string TypeLabel => ActionType switch
     {
-        RecordedActionType.LeftClick => "左クリック",
-        RecordedActionType.RightClick => "右クリック",
-        RecordedActionType.LeftDoubleClick => "左ダブルクリック",
-        RecordedActionType.RightDoubleClick => "右ダブルクリック",
-        RecordedActionType.MouseWheel => "ホイール",
-        RecordedActionType.Drag => "ドラッグ",
-        RecordedActionType.Keyboard => "キーボード",
-        _ => "操作"
+        RecordedActionType.LeftClick => Loc.Instance.Get("ActionType_LeftClick"),
+        RecordedActionType.RightClick => Loc.Instance.Get("ActionType_RightClick"),
+        RecordedActionType.LeftDoubleClick => Loc.Instance.Get("ActionType_LeftDoubleClick"),
+        RecordedActionType.RightDoubleClick => Loc.Instance.Get("ActionType_RightDoubleClick"),
+        RecordedActionType.MouseWheel => Loc.Instance.Get("ActionType_MouseWheel"),
+        RecordedActionType.Drag => Loc.Instance.Get("ActionType_Drag"),
+        RecordedActionType.Keyboard => Loc.Instance.Get("ActionType_Keyboard"),
+        _ => Loc.Instance.Get("ActionType_Generic")
     };
 
     /// <summary>
@@ -122,7 +124,7 @@ public sealed class RecordedAction
     /// 誤解を招かないよう中立的な文言にします。
     /// </summary>
     public string NoImageReasonLabel =>
-        IsGeometricallyOutOfRegion ? "画面外での操作" : "キャプチャなしの操作";
+        IsGeometricallyOutOfRegion ? Loc.Instance.Get("RecordedAction_OutOfScreen") : Loc.Instance.Get("RecordedAction_NoCapture");
 
     /// <summary>
     /// 紐づいていた画像だけを外した複製を返します。保持枚数の上限を超えて古い画像が削除されたときに、
@@ -163,12 +165,12 @@ public sealed class RecordedAction
     public string ToHistoryText()
     {
         // 操作キャプチャで画像が付いた行は【画面】を付け、キャプチャ無し操作と区別する
-        string captureMark = string.IsNullOrWhiteSpace(ScreenshotPath) ? string.Empty : " 【画面】";
+        string captureMark = string.IsNullOrWhiteSpace(ScreenshotPath) ? string.Empty : Loc.Instance.Get("RecordedAction_CaptureMark");
         // キーボードは Summary 自体が押されたキー表示（例: Ctrl + S）で見出しとして十分なため、
         // 冗長な「キーボード：」は付けません。
         string body = ActionType == RecordedActionType.Keyboard && !IsOutOfRegion
             ? Summary
-            : $"{(IsOutOfRegion ? $"{NoImageReasonLabel}（{TypeLabel}）" : TypeLabel)}：{Summary}";
+            : $"{(IsOutOfRegion ? $"{NoImageReasonLabel}{Loc.Instance.Format("Label_Parenthesize_Format", TypeLabel)}" : TypeLabel)}{Loc.Instance.Get("Label_Separator")}{Summary}";
         return $"{RecordedAt:HH:mm:ss.fff}{captureMark} {body}";
     }
 
@@ -176,9 +178,9 @@ public sealed class RecordedAction
     {
         if (IsOutOfRegion)
         {
-            return $"{NoImageReasonLabel}（{TypeLabel}）：{Summary}";
+            return $"{NoImageReasonLabel}{Loc.Instance.Format("Label_Parenthesize_Format", TypeLabel)}{Loc.Instance.Get("Label_Separator")}{Summary}";
         }
 
-        return ActionType == RecordedActionType.Keyboard ? Summary : $"{TypeLabel}：{Summary}";
+        return ActionType == RecordedActionType.Keyboard ? Summary : $"{TypeLabel}{Loc.Instance.Get("Label_Separator")}{Summary}";
     }
 }
