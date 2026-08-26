@@ -515,16 +515,8 @@
                                     Margin="0,0,0,10">
                                 <DockPanel>
                                     <Border DockPanel.Dock="Top" Style="{StaticResource TerminalPaneHeaderStyle}">
-                                        <DockPanel>
-                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                                <Ellipse Style="{StaticResource TerminalDotStyle}" Fill="{StaticResource Brush.Term.DotRed}"/>
-                                                <Ellipse Style="{StaticResource TerminalDotStyle}" Fill="{StaticResource Brush.Term.DotYellow}"/>
-                                                <Ellipse Style="{StaticResource TerminalDotStyle}" Fill="{StaticResource Brush.Term.DotGreen}"/>
-                                            </StackPanel>
-                                            <TextBlock Text="history.log"
-                                                       Style="{StaticResource TerminalPaneLabelStyle}"
-                                                       HorizontalAlignment="Right"/>
-                                        </DockPanel>
+                                        <TextBlock Text="history.log"
+                                                   Style="{StaticResource TerminalPaneLabelStyle}"/>
                                     </Border>
                                     <ListBox x:Name="OperationHistoryListBox"
                                              Height="170"
@@ -589,16 +581,8 @@
                                     Background="{StaticResource Brush.Term.Panel}">
                                 <DockPanel>
                                     <Border DockPanel.Dock="Top" Style="{StaticResource TerminalPaneHeaderStyle}">
-                                        <DockPanel>
-                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                                <Ellipse Style="{StaticResource TerminalDotStyle}" Fill="{StaticResource Brush.Term.DotRed}"/>
-                                                <Ellipse Style="{StaticResource TerminalDotStyle}" Fill="{StaticResource Brush.Term.DotYellow}"/>
-                                                <Ellipse Style="{StaticResource TerminalDotStyle}" Fill="{StaticResource Brush.Term.DotGreen}"/>
-                                            </StackPanel>
-                                            <TextBlock Text="preview"
-                                                       Style="{StaticResource TerminalPaneLabelStyle}"
-                                                       HorizontalAlignment="Right"/>
-                                        </DockPanel>
+                                        <TextBlock Text="preview"
+                                                   Style="{StaticResource TerminalPaneLabelStyle}"/>
                                     </Border>
                                     <Grid x:Name="HistoryPreviewHost" Height="170" Margin="10">
                                         <TextBlock Text="{Binding PreviewPlaceholderText}"

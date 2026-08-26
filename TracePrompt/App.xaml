@@ -45,10 +45,6 @@
             <SolidColorBrush x:Key="Brush.Term.TextDim" Color="#6E7684"/>
             <SolidColorBrush x:Key="Brush.Term.Accent" Color="#5EEAD4"/>
             <SolidColorBrush x:Key="Brush.Term.Selected" Color="#26304A"/>
-            <SolidColorBrush x:Key="Brush.Term.DotRed" Color="#FF5F56"/>
-            <SolidColorBrush x:Key="Brush.Term.DotYellow" Color="#FFBD2E"/>
-            <SolidColorBrush x:Key="Brush.Term.DotGreen" Color="#27C93F"/>
-
             <!-- ============ カード / 見出し ============ -->
             <Style x:Key="CardStyle" TargetType="Border">
                 <Setter Property="Background" Value="{StaticResource Brush.Surface}"/>
@@ -72,12 +68,6 @@
             <Style x:Key="TerminalCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
                 <Setter Property="Background" Value="{StaticResource Brush.Term.Bg}"/>
                 <Setter Property="BorderBrush" Value="{StaticResource Brush.Term.Border}"/>
-            </Style>
-
-            <Style x:Key="TerminalDotStyle" TargetType="Ellipse">
-                <Setter Property="Width" Value="10"/>
-                <Setter Property="Height" Value="10"/>
-                <Setter Property="Margin" Value="0,0,6,0"/>
             </Style>
 
             <Style x:Key="TerminalPaneHeaderStyle" TargetType="Border">
