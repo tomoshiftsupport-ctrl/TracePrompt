@@ -403,6 +403,9 @@ FodyWeavers.xsd
 # MSIX packaging (local Store submission tooling only; not for public repo)
 msix/
 
+# Promotional / marketing images (not part of the app source)
+Images/
+
 # JetBrains Rider
 *.sln.iml
 .idea
