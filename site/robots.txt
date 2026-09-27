@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://capture.tomoshift.com/sitemap.xml
+Sitemap: https://capture.tomoshift.jp/sitemap.xml
