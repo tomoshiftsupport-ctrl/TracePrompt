@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIヘルプキャプチャ｜操作の流れを、一枚でAIに伝える</title>
+  <meta name="description" content="Windowsでの操作を記録し、各コマに操作内容を書き込んだ相談用画像を自動生成。ChatGPTやClaudeに貼り付けるだけで、画面の状況と手順がそのまま伝わります。データはPC内だけで完結します。">
+  <link rel="canonical" href="https://capture.tomoshift.com/">
+  <meta name="theme-color" content="#ebe8e2">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AIヘルプキャプチャ">
+  <meta property="og:title" content="AIヘルプキャプチャ｜操作の流れを、一枚でAIに伝える">
+  <meta property="og:description" content="Windowsの操作を記録して、AIに相談しやすい一枚の画像へ。貼り付けるだけで状況が伝わります。">
+  <meta property="og:url" content="https://capture.tomoshift.com/">
+  <meta property="og:image" content="https://capture.tomoshift.com/assets/og.jpg">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/assets/icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">本文へスキップ</a>
+
+  <header class="wrap site-header">
+    <a class="logotype" href="/" aria-label="AIヘルプキャプチャ トップ">
+      <img src="/assets/icon.png" alt="" width="36" height="36">
+      <span>AI Help<br>Capture</span>
+    </a>
+    <nav class="nav" aria-label="ページ内">
+      <a href="#problem">課題</a>
+      <a href="#how">使い方</a>
+      <a href="#features">機能</a>
+      <a href="#privacy">安心設計</a>
+      <a href="#faq">よくある質問</a>
+      <a class="btn btn-primary btn-sm" href="https://apps.microsoft.com/detail/9nd0xrlj4v8x?hl=ja-JP&amp;gl=JP" rel="noopener">入手する</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="wrap hero" aria-labelledby="hero-title">
+      <p class="wordmark" aria-hidden="true">
+        <span class="row">AI Help</span>
+        <span class="row">Capture <span class="kana">エーアイ ヘルプ キャプチャ</span></span>
+      </p>
+
+      <div class="hero-body">
+        <p class="hero-tag">Show your screen, not just words.</p>
+        <div class="hero-copy">
+          <h1 id="hero-title">操作の流れを、<br>一枚でAIに伝える。</h1>
+          <p class="lead">Windowsでの操作を記録して、各コマに「何をしたか」を書き込んだ相談用画像を自動で作成。ChatGPTやClaudeに貼り付けるだけで、画面の状況と手順がそのまま伝わります。</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://apps.microsoft.com/detail/9nd0xrlj4v8x?hl=ja-JP&amp;gl=JP" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1 2.3 6.6 1.5v5.4H1V2.3Zm0 11.4 5.6.8V9.1H1v4.6Zm6.4.9L15 15.7V9.1H7.4v5.5Zm0-13.2v5.5H15V.3L7.4 1.4Z"/></svg>
+              Microsoft Store で入手
+            </a>
+            <a class="btn btn-ghost" href="#how">使い方を見る</a>
+          </div>
+          <p class="note" style="margin-top:16px">Windows 11 対応のデスクトップアプリです。</p>
+        </div>
+      </div>
+
+      <div class="hero-shot">
+        <figure>
+          <div class="frame">
+            <img src="/assets/hero-app.jpg" alt="CADソフトの画面上に、AIヘルプキャプチャの小さな操作パネルが表示されている様子" width="1600" height="900" fetchpriority="high">
+          </div>
+          <figcaption>普段使っているアプリの上に、小さな操作パネルが出るだけ。作業の邪魔をしません。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 01 Problem -->
+    <section class="section" id="problem" aria-labelledby="problem-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow"><span class="num">01</span>Problem</p>
+          <div>
+            <h2 id="problem-title">AIに聞きたいのに、<br>画面のことがうまく説明できない。</h2>
+          </div>
+        </div>
+
+        <ul class="problems">
+          <li>
+            <p class="q">文章で説明するのが大変</p>
+            <p>どのメニューを開いて、どこを押して…。操作を言葉にするだけで時間がかかり、質問する前に疲れてしまう。</p>
+          </li>
+          <li>
+            <p class="q">スクショ1枚では伝わらない</p>
+            <p>エラー画面だけ見せても、そこに至るまでの手順が分からないので、AIの回答が的外れになりがち。</p>
+          </li>
+          <li>
+            <p class="q">どこを押したかが残らない</p>
+            <p>何枚も撮った画像を並べても、クリック位置やキー入力までは伝わらず、結局また説明が必要になる。</p>
+          </li>
+        </ul>
+
+        <div class="answer">
+          <p class="mark" aria-hidden="true">&rarr;</p>
+          <p>AIヘルプキャプチャは、操作の「流れ」と「どこで何をしたか」をまとめて一枚の画像にします。説明はその画像に任せて、あなたは聞きたいことを一行書くだけ。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 How it works -->
+    <section class="section" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow"><span class="num">02</span>How it works</p>
+          <div>
+            <h2 id="how-title">範囲を選んで、いつも通り操作するだけ。</h2>
+            <p class="sub">記録を止めた時点で相談用画像が完成し、クリップボードへのコピーまで自動で終わります。</p>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <span class="n">1</span>
+            <h3>範囲を選ぶ</h3>
+            <p>モニター全体、またはドラッグで囲んだ範囲をキャプチャ対象にします。</p>
+          </li>
+          <li>
+            <span class="n">2</span>
+            <h3>記録して操作する</h3>
+            <p>「記録開始」を押したら、困っているアプリをいつも通り操作します。</p>
+          </li>
+          <li>
+            <span class="n">3</span>
+            <h3>止めると画像が完成</h3>
+            <p>操作内容を書き込んだ結合画像が自動生成され、コピーまで完了します。</p>
+          </li>
+          <li>
+            <span class="n">4</span>
+            <h3>AIに貼って相談</h3>
+            <p>ChatGPTやClaudeの入力欄に貼り付けて、聞きたいことを添えて送るだけ。</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 03 Output -->
+    <section class="section" id="output" aria-labelledby="output-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow"><span class="num">03</span>Output</p>
+          <div>
+            <h2 id="output-title">AIが読み取りやすい、<br>“説明つき”の画像。</h2>
+            <p class="sub">撮影したコマごとに、時刻と操作内容を自動で書き込みます。人が見ても、AIが読んでも、何が起きたかが分かる形です。</p>
+          </div>
+        </div>
+
+        <div class="anatomy">
+          <figure style="margin:0">
+            <div class="frame">
+              <img src="/assets/output-frame.jpg" alt="生成された相談用画像の1コマ。上部にコマ番号・時刻・クリック座標・キー入力が書き込まれ、クリック位置に赤い印が付いている" width="805" height="757" loading="lazy">
+            </div>
+            <figcaption>生成画像の1コマ（Windowsの設定画面を操作した例）</figcaption>
+          </figure>
+
+          <ol class="anatomy-list">
+            <li>
+              <span class="k">a</span>
+              <div>
+                <h3>コマ番号と時刻</h3>
+                <p>「コマ 4 / 4　19:50:32」のように、操作の順番と時間が一目で分かります。</p>
+              </div>
+            </li>
+            <li>
+              <span class="k">b</span>
+              <div>
+                <h3>操作の内容</h3>
+                <p>左クリック・ドラッグ・ホイール・キー入力などを、座標とあわせて文字で記録します。</p>
+              </div>
+            </li>
+            <li>
+              <span class="k">c</span>
+              <div>
+                <h3>クリック位置のマーカー</h3>
+                <p>どこを押したかを画像上に印で表示。ドラッグは矢印で方向と距離を示します。</p>
+              </div>
+            </li>
+            <li>
+              <span class="k">d</span>
+              <div>
+                <h3>複数コマを1枚に結合</h3>
+                <p>一連の操作をまとめて1枚に。AIへの貼り付けも1回で済みます。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 Features -->
+    <section class="section" id="features" aria-labelledby="features-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow"><span class="num">04</span>Features</p>
+          <div>
+            <h2 id="features-title">必要なことだけを、<br>迷わず使える形で。</h2>
+          </div>
+        </div>
+
+        <ul class="features">
+          <li>
+            <p class="label">Two capture modes</p>
+            <h3>時間でも、操作でも撮れる</h3>
+            <p>一定間隔で連続して撮る「時間でキャプチャ」と、クリックや指定キーのときだけ撮る「操作でキャプチャ」を切り替えられます。</p>
+          </li>
+          <li>
+            <p class="label">Input history</p>
+            <h3>マウスとキーボードを記録</h3>
+            <p>クリック、ダブルクリック、ドラッグ、ホイール、キー入力に対応。マウスとキーボードの記録は個別にオン・オフできます。</p>
+          </li>
+          <li>
+            <p class="label">Red pen</p>
+            <h3>赤ペンで補足を書き込む</h3>
+            <p>生成後の画像にドラッグで赤線を引けます。「ここが気になる」を指し示してから相談できます。</p>
+          </li>
+          <li>
+            <p class="label">Compact toolbar</p>
+            <h3>小さなツールバーで操作</h3>
+            <p>開始・一時停止・再開・停止は、キャプチャ枠に付く小さなツールバーから。作業画面をほとんど隠しません。</p>
+          </li>
+        </ul>
+
+        <div class="feature-shots">
+          <figure>
+            <div class="frame">
+              <img src="/assets/editor.jpg" alt="生成画像の確認画面。複数のコマが並び、赤ペン・コピー・保存のボタンがある" width="1600" height="801" loading="lazy">
+            </div>
+            <figcaption>生成結果の確認・赤ペン編集画面</figcaption>
+          </figure>
+          <figure>
+            <div class="frame">
+              <img src="/assets/history.jpg" alt="操作履歴の一覧。時刻とクリック座標、定期スクショの記録が並んでいる" width="1004" height="326" loading="lazy">
+            </div>
+            <figcaption>操作履歴と、各キャプチャのプレビュー</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 Use cases -->
+    <section class="section" id="cases" aria-labelledby="cases-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow"><span class="num">05</span>Use cases</p>
+          <div>
+            <h2 id="cases-title">こんな「ちょっと聞きたい」に。</h2>
+          </div>
+        </div>
+
+        <ul class="cases">
+          <li>
+            <h3>業務ソフトの使い方</h3>
+            <p>CADや会計ソフト、社内システムなど、画面を見せないと伝わらない操作の相談に。</p>
+          </li>
+          <li>
+            <h3>エラーが出るまでの手順</h3>
+            <p>どの操作の後にエラーになったのかを、順番どおりにAIへ伝えられます。</p>
+          </li>
+          <li>
+            <h3>Windowsの設定で迷ったとき</h3>
+            <p>どこまで進めたかを見せて、「次はどこを押せばいい？」とそのまま聞けます。</p>
+          </li>
+          <li>
+            <h3>手順の確認・振り返り</h3>
+            <p>自分の操作を記録して、もっと効率的なやり方がないかAIに相談できます。</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 06 Privacy -->
+    <section class="section on-dark" id="privacy" aria-labelledby="privacy-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow"><span class="num">06</span>Privacy by design</p>
+          <div>
+            <h2 id="privacy-title">記録したデータは、<br>あなたのPCから出ていきません。</h2>
+            <p class="sub">画面を記録するアプリだからこそ、データの扱いはシンプルにしています。AIへ送るかどうかは、いつもあなたが決めます。</p>
+          </div>
+        </div>
+
+        <ul class="privacy-grid">
+          <li>
+            <h3>通信機能を持たない</h3>
+            <p>アプリ自体にネットワーク処理はありません。記録内容を外部サーバーへ送信することは一切ありません。</p>
+          </li>
+          <li>
+            <h3>記録中だけ取得</h3>
+            <p>「記録開始」から「記録停止」までの間だけ取得します。バックグラウンドでの常時記録は行いません。</p>
+          </li>
+          <li>
+            <h3>保存はPC内のみ</h3>
+            <p>画像や設定は、お使いのPCのローカルフォルダにだけ保存されます。</p>
+          </li>
+          <li>
+            <h3>キー入力の記録は既定でオフ</h3>
+            <p>キーボード記録は、設定でオンにしたときだけ動作します。パスワード入力などは記録しないようご注意ください。</p>
+          </li>
+          <li>
+            <h3>終了時に自動削除</h3>
+            <p>アプリを閉じると記録データは自動で削除されます。「今すぐ削除」ボタンでいつでも消せます。</p>
+          </li>
+          <li>
+            <h3>送信は自分の手で</h3>
+            <p>AIへの貼り付けは、あなた自身の操作で行います。アプリが勝手に送ることはありません。</p>
+          </li>
+        </ul>
+
+        <div class="privacy-foot">
+          <p>貼り付け先のAIサービスでのデータの扱いは、各サービスのポリシーに従います。</p>
+          <a href="/privacy/">プライバシーポリシーを読む</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 FAQ -->
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow"><span class="num">07</span>FAQ</p>
+          <div>
+            <h2 id="faq-title">よくある質問</h2>
+          </div>
+        </div>
+
+        <div class="faq">
+          <details>
+            <summary><span class="qm">Q</span><span>どのAIサービスで使えますか？</span><span class="pm" aria-hidden="true"></span></summary>
+            <div class="a"><p>画像を貼り付けられるAIサービスであれば使えます。ChatGPTやClaudeなど、入力欄に画像を貼り付けて相談できるサービスを想定しています。</p></div>
+          </details>
+          <details>
+            <summary><span class="qm">Q</span><span>アプリがAIに自動で送信しますか？</span><span class="pm" aria-hidden="true"></span></summary>
+            <div class="a"><p>いいえ。本アプリには通信機能がありません。生成した画像はクリップボードにコピーされるので、ご自身でAIの入力欄へ貼り付けて使います。</p></div>
+          </details>
+          <details>
+            <summary><span class="qm">Q</span><span>対応しているOSは？</span><span class="pm" aria-hidden="true"></span></summary>
+            <div class="a"><p>Windows 11 向けのデスクトップアプリです。Mac やスマートフォンには対応していません。</p></div>
+          </details>
+          <details>
+            <summary><span class="qm">Q</span><span>パスワードなどの入力が記録されることはありますか？</span><span class="pm" aria-hidden="true"></span></summary>
+            <div class="a">
+              <p>キーボードの記録は既定でオフです。オンにした場合は記録中のキー入力がそのまま残るため、パスワードなど機微な情報を入力する操作は記録しないでください。</p>
+              <p>また、画面に表示されている内容はスクリーンショットに写ります。AIへ貼り付ける前に、写っては困る情報がないか確認することをおすすめします。</p>
+            </div>
+          </details>
+          <details>
+            <summary><span class="qm">Q</span><span>記録したデータはどこに保存されますか？</span><span class="pm" aria-hidden="true"></span></summary>
+            <div class="a"><p>お使いのPCの <code style="font-size:.9em">%LOCALAPPDATA%\TracePrompt\Temp</code> に一時保存されます。アプリの終了時、および次回起動時に自動で削除されます。</p></div>
+          </details>
+          <details>
+            <summary><span class="qm">Q</span><span>仕事で使ってもいいですか？</span><span class="pm" aria-hidden="true"></span></summary>
+            <div class="a"><p>業務利用を含めて自由にお使いいただけます。アプリを使って作った画像なども自由に利用できます。ただし、アプリ本体やその改変版を第三者へ再配布・販売することはできません。</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" aria-labelledby="cta-title">
+      <div class="wrap">
+        <p class="big" aria-hidden="true">Just show it.</p>
+        <div class="cta-body">
+          <dl class="spec">
+            <dt>対応OS</dt><dd>Windows 11</dd>
+            <dt>配布</dt><dd>Microsoft Store</dd>
+            <dt>提供</dt><dd>ともにつくるAI</dd>
+          </dl>
+          <div>
+            <h2 id="cta-title">次に画面で迷ったら、<br>説明するより、見せて聞こう。</h2>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="https://apps.microsoft.com/detail/9nd0xrlj4v8x?hl=ja-JP&amp;gl=JP" rel="noopener">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1 2.3 6.6 1.5v5.4H1V2.3Zm0 11.4 5.6.8V9.1H1v4.6Zm6.4.9L15 15.7V9.1H7.4v5.5Zm0-13.2v5.5H15V.3L7.4 1.4Z"/></svg>
+                Microsoft Store で入手
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <nav class="foot-links" aria-label="フッター">
+        <a href="/privacy/">プライバシーポリシー</a>
+        <a href="https://github.com/tomoshiftsupport-ctrl/TracePrompt/issues" rel="noopener">お問い合わせ（GitHub Issues）</a>
+      </nav>
+      <p class="copy">&copy; 2026 ともにつくるAI</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>プライバシーポリシー｜AIヘルプキャプチャ</title>
+  <meta name="description" content="Windowsデスクトップアプリ「AIヘルプキャプチャ」における利用者情報の取り扱いについて。">
+  <link rel="canonical" href="https://capture.tomoshift.com/privacy/">
+  <meta name="theme-color" content="#ebe8e2">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">本文へスキップ</a>
+
+  <header class="wrap site-header">
+    <a class="logotype" href="/" aria-label="AIヘルプキャプチャ トップ">
+      <img src="/assets/icon.png" alt="" width="36" height="36">
+      <span>AI Help<br>Capture</span>
+    </a>
+    <nav class="nav" aria-label="サイト">
+      <a class="btn btn-ghost btn-sm" href="/">トップへ戻る</a>
+    </nav>
+  </header>
+
+  <main id="main" class="wrap doc">
+    <article class="doc-inner">
+      <p class="eyebrow">Privacy Policy</p>
+      <h1>プライバシーポリシー</h1>
+      <p class="meta">制定日: 2026年7月21日 ／ 最終更新日: 2026年7月21日</p>
+
+      <p>「ともにつくるAI」（以下「当方」）が提供するWindowsデスクトップアプリケーション「AIヘルプキャプチャ」（以下「本アプリ」）における、利用者情報の取り扱いについて、本ポリシーで説明します。</p>
+
+      <h2>本アプリの概要</h2>
+      <p>本アプリは、利用者がWindows上で行った操作（画面キャプチャ、マウス操作、キーボード操作）を記録し、AI（ChatGPT、Claudeなど）へ相談しやすい形の画像にまとめるためのデスクトップアプリです。生成した画像は、利用者が自分の手でAIサービスの入力欄へ貼り付けて使用します。</p>
+
+      <h2>取得する情報</h2>
+      <p>本アプリは、利用者が画面上の「記録開始」を押してから「記録停止」を押すまでの間のみ、以下の情報を<strong>利用者の操作端末上でのみ</strong>取得します。バックグラウンドでの常時取得や、記録操作なしでの自動取得は行いません。</p>
+      <ol>
+        <li><strong>スクリーンショット画像</strong><br>利用者が指定した画面範囲（モニター全体、または自由選択した矩形）を、一定間隔または操作をトリガーに撮影した画像です。</li>
+        <li><strong>マウス操作履歴</strong><br>左/右クリック、ダブルクリック、ドラッグ、ホイール操作について、操作の種類と画面上の座標を記録します。既定でオンになっており、設定でオフにできます。</li>
+        <li><strong>キーボード操作履歴</strong><br>押されたキー（修飾キー込みの表示ラベル。例: 「Ctrl + S」「w」）を記録します。既定はオフで、利用者が設定でオンにした場合のみ取得します。<br>記録中に入力したキー操作がそのまま記録されるため、パスワードなど機微な情報を入力する操作を記録しないようご注意ください。</li>
+        <li><strong>アプリ設定</strong><br>キャプチャ頻度、記録対象、画質プリセットなど、動作に関する設定値です。個人を特定する情報は含みません。</li>
+      </ol>
+
+      <h2>保存場所</h2>
+      <p>取得したデータは、すべて利用者のPCのローカルストレージにのみ保存されます。</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>内容</th><th>保存先</th></tr></thead>
+          <tbody>
+            <tr><td>スクリーンショット・相談用の結合画像</td><td><code>%LOCALAPPDATA%\TracePrompt\Temp</code></td></tr>
+            <tr><td>アプリ設定</td><td><code>%LOCALAPPDATA%\TracePrompt\settings.json</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>外部送信の有無</h2>
+      <p>本アプリには、取得した情報をインターネット経由で外部のサーバーへ送信する機能は一切実装されていません。本アプリ自体に通信（ネットワーク）処理は含まれていません。</p>
+      <p>生成した画像は、利用者自身がクリップボード経由でChatGPTやClaudeなど外部のAIサービスへ貼り付けて利用することを想定しています。この送信は利用者本人の操作によって行われるものであり、本アプリが自動的に送信することはありません。貼り付け先のAIサービスにおける取り扱いには、それぞれのサービスのプライバシーポリシーが適用されます。</p>
+
+      <h2>クリップボードへのアクセスについて</h2>
+      <p>本アプリは、生成した画像やテキストをクリップボードへコピーする機能、および現在クリップボードにコピーされている内容をアプリ内で確認表示する機能（貼り付け結果を確認するためのプレビュー）を持ちます。これらはすべて利用者の操作端末内で完結し、外部へ送信されることはありません。</p>
+
+      <h2>データの削除方法</h2>
+      <ul>
+        <li>記録した操作履歴・キャプチャ画像・相談用データは、アプリ画面の「記録データを今すぐ削除」ボタンからいつでも削除できます。</li>
+        <li>本アプリを終了すると、記録データ（上記の保存場所にあるスクリーンショットや相談用画像などのファイル）は自動的にすべて削除されます。また、次回起動時にも、前回終了時に残っていたデータを自動的に削除します。</li>
+        <li>アプリ設定（<code>settings.json</code>）は、アンインストール時に自動削除されない場合があります。完全に削除したい場合は、<code>%LOCALAPPDATA%\TracePrompt</code> フォルダを手動で削除してください。</li>
+      </ul>
+
+      <h2>第三者への提供</h2>
+      <p>本アプリは、取得した情報を第三者へ提供・販売することはありません。</p>
+
+      <h2>お問い合わせ</h2>
+      <p>本アプリおよび本ポリシーに関するお問い合わせは、以下のGitHubリポジトリのIssuesページよりお願いいたします。</p>
+      <p><a href="https://github.com/tomoshiftsupport-ctrl/TracePrompt/issues" rel="noopener">https://github.com/tomoshiftsupport-ctrl/TracePrompt/issues</a></p>
+
+      <h2>ポリシーの変更</h2>
+      <p>本ポリシーの内容は、法令の変更やアプリの機能追加に伴い、予告なく変更されることがあります。重要な変更がある場合は、本ページの「最終更新日」を更新してお知らせします。</p>
+
+      <h2>運営者</h2>
+      <p>ともにつくるAI</p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <nav class="foot-links" aria-label="フッター">
+        <a href="/">トップ</a>
+        <a href="https://github.com/tomoshiftsupport-ctrl/TracePrompt/issues" rel="noopener">お問い合わせ（GitHub Issues）</a>
+      </nav>
+      <p class="copy">&copy; 2026 ともにつくるAI</p>
+    </div>
+  </footer>
+</body>
+</html>
